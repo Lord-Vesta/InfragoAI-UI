@@ -1,10 +1,4 @@
-import {
-  Avatar,
-  Box,
-  IconButton,
-  InputBase,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, IconButton, InputBase, Typography } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
@@ -68,7 +62,7 @@ const MainLayout = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                borderRadius: 4,
+                borderRadius: "15px",
                 width: "200px",
                 height: "35px",
                 border: 0.5,
@@ -92,12 +86,12 @@ const MainLayout = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <IconButton>
                 <SettingsIcon
-                  sx={{ color: "#0FB97D", width: "16px", height: "16px" }}
+                  sx={{ color: "#0FB97D", width: "20px", height: "20px" }}
                 />
               </IconButton>
               <IconButton>
                 <NotificationsIcon
-                  sx={{ color: "#0FB97D", width: "16px", height: "16px" }}
+                  sx={{ color: "#0FB97D", width: "20px", height: "20px" }}
                 />
               </IconButton>
             </Box>
