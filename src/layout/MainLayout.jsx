@@ -8,7 +8,7 @@ import {
 import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
-import React from "react";
+import Sidebar from "../components/Sidebar";
 import SearchIcon from "@mui/icons-material/Search";
 import { Outlet } from "react-router";
 
@@ -22,6 +22,7 @@ const MainLayout = () => {
         alignItems: "center",
       }}
     >
+      <Sidebar/>
       <Box
         sx={{
           height: "95%",

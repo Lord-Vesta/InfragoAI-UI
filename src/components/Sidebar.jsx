@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import CloudIcon from '@mui/icons-material/Cloud';
 import logo from "../assets/logo.png";
 
 export default function Sidebar() {
@@ -128,7 +128,7 @@ export default function Sidebar() {
                       }}
                       onClick={() => setActiveStep(i)}
                     >
-                      <IoCloudUploadOutline fontSize="16" />
+                      <CloudIcon fontSize="16" />
                     </Box>
                     <Typography variant="body2" sx={{ left: 80 }}>
                       {label}
@@ -198,7 +198,7 @@ export default function Sidebar() {
                   }}
                   onClick={() => setActiveStep(i)} // 👈 expand on click
                 >
-                  <IoCloudUploadOutline fontSize="16" />
+                  <CloudIcon fontSize="16" />
                 </Box>
                 {i < steps.length - 1 && (
                   <Box
