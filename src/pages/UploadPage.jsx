@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, Button } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
 
 const UploadPage = () => {
@@ -21,32 +21,23 @@ const UploadPage = () => {
           alignItems: "center",
         }}
       >
-        <Box
+        <FileUploadDialog open={open} onClose={() => setOpen(false)} />
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
           sx={{
-            width: "30rem",
-            display: "flex",
-            justifyContent: "space-between",
+            display: "block",
+            color: "#fff",
+            bgcolor: "#818181",
+            borderRadius: "12px",
+            width: "10rem",
+            alignContent: "center",
+            fontSize:'10px',
+            height:'2rem'
           }}
         >
-          <FileUploadDialog open={open} onClose={() => setOpen(false)} />
-        </Box>
-      </Box>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
-        <Paper sx={{ borderRadius: 2, boxShadow: 1 }}>
-          <Typography
-            variant="button"
-            sx={{
-              px: 4,
-              py: 1.5,
-              display: "block",
-              color: "#fff",
-              bgcolor: "#818181",
-              borderRadius: 2,
-            }}
-          >
-            Next
-          </Typography>
-        </Paper>
+          Next
+        </Button>
       </Box>
     </Box>
   );
