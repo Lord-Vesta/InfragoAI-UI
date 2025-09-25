@@ -17,11 +17,12 @@ const CustomSelect = ({ value, onChange, placeholder, options = [],disabled }) =
         }}
         sx={{
           borderRadius: "12px",
+          width:"163px",
           "& .MuiSelect-select": {
             padding: "8px 12px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start", 
+            justifyContent: "flex-start",
           },
         }}
       >

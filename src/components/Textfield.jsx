@@ -1,7 +1,9 @@
 import React from "react";
 import { TextField } from "@mui/material";
 
-const CustomTextField = ({ value, onChange, placeholder,disabled }) => {
+const CustomTextField = ({ value, onChange, placeholder,disabled, multiline = false,
+  minRows = 1,    
+  maxRows,}) => {
   return (
     <TextField
       fullWidth
@@ -9,11 +11,15 @@ const CustomTextField = ({ value, onChange, placeholder,disabled }) => {
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
+      multiline={multiline}  
+        minRows={minRows}   
+        maxRows={maxRows}
       variant="outlined"
       size="small"
       sx={{
         "& .MuiOutlinedInput-root": {
           borderRadius: "12px",
+          width: '60vw',
         },
       }}
     />
