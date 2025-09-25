@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router";
 import UploadPage from "./pages/UploadPage";
-import MainLayout from "./Layout/MainLayout";
+import MainLayout from "./layout/Mainlayout";
+import Login from "./pages/Login";
+
 
 export const router = createBrowserRouter([
   {
@@ -10,6 +12,10 @@ export const router = createBrowserRouter([
         {path:"/upload",element:<UploadPage/>}
     ]
   },
+  {
+    path: "/login",
+    element: <Login/>,
+  }
 
 ]);
 
