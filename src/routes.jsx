@@ -1,11 +1,11 @@
 import { createBrowserRouter } from "react-router";
 import UploadPage from "./pages/UploadPage";
-import MainLayout from "./Layout/MainLayout";
+import Mainlayout from "./Layout/MainLayout";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout/>,
+    element: <Mainlayout/>,
     children:[
         {path:"/upload",element:<UploadPage/>}
     ]
