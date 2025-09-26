@@ -2,6 +2,7 @@ import React, { act, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 
@@ -193,10 +194,12 @@ export default function Sidebar() {
                       }}
                       onClick={() => setActiveStep(i)}
                     >
+
                       <CloudUploadOutlinedIcon
                         fontSize="16"
                         sx={{ color: i < activeStep ? "#0FB97D" : "#fff" }}
                       />
+
                     </Box>
                     <Typography
                       variant="body2"
@@ -272,6 +275,7 @@ export default function Sidebar() {
                     borderRadius: "15px",
                   }}
                 >
+
                   <Box
                     sx={{
                       width: 40,
