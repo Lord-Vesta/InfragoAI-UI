@@ -6,7 +6,7 @@ import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { Outlet } from "react-router";
 
-const MainLayout = () => {
+const Mainlayout = () => {
   return (
     <Box
       sx={{
@@ -16,6 +16,7 @@ const MainLayout = () => {
         alignItems: "center",
       }}
     >
+      <Sidebar />
       <Box
         sx={{
           height: "95%",
@@ -113,4 +114,4 @@ const MainLayout = () => {
   );
 };
 
-export default MainLayout;
+export default Mainlayout;
