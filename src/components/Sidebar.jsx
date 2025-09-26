@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { act, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import logo from "../assets/logo.png";
+import MenuIcon from "@mui/icons-material/Menu";
 
 export default function Sidebar() {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(2);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const steps = [
     "Upload",
@@ -22,7 +28,7 @@ export default function Sidebar() {
         sx={{
           ...(activeStep === null
             ? { width: 260, boxShadow: "0px 0px 25px 0px #00000059" }
-            : { width: 290 }),
+            : { width: 260 }),
           bgcolor: "white",
           display: "flex",
           flexDirection: "column",
@@ -31,48 +37,97 @@ export default function Sidebar() {
           overflow: "hidden",
         }}
       >
-        {/* Logo */}
-
         <Box
           sx={{
-            px: 4,
-            py: 4,
             display: "flex",
             alignItems: "center",
-            gap: 1,
-            mb: 4,
+            justifyContent: "center",
+            gap: "40px",
+            ml: "22px",
           }}
         >
-          <Box sx={{ width: 40, height: 40 }}>
-            <img
-              src={logo}
-              alt="logo"
-              style={{ width: "100%", height: "100%" }}
-            />
+          {isExpanded === true ? (
+            <IconButton
+              onClick={() => setIsExpanded(!isExpanded)}
+              sx={{
+                bgcolor: "#0FB97D",
+                "&:active": { bgcolor: "#0FB97D" },
+                "&:focus": { bgcolor: "#0FB97D" },
+                "&:hover": { bgcolor: "#0FB97D" },
+              }}
+            >
+              <MenuIcon sx={{ width: 20, height: 20 }} />
+            </IconButton>
+          ) : (
+            <></>
+          )}
+
+          <Box
+            sx={{
+              py: 4,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Box sx={{ width: 40, height: 40 }}>
+              <img
+                src={logo}
+                alt="logo"
+                style={{ width: "100%", height: "100%" }}
+              />
+            </Box>
+            <Typography variant="h6" sx={{ fontSize: "22px", fontWeight: 700 }}>
+              Infravo AI
+            </Typography>
           </Box>
-          <Typography variant="h6" sx={{ fontSize: "22px", fontWeight: 700 }}>
-            Infravo AI
-          </Typography>
         </Box>
 
         {/* Menu Item */}
 
-        {activeStep === null ? (
-          <Box sx={{ flexGrow: 1 }}>
+        {isExpanded === false ? (
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <Box
               sx={{
-                background:
-                  "linear-gradient(269.06deg, rgba(15, 185, 125, 0) -29.73%, #0FB97D 99.21%)",
+                background: "linear-gradient(90deg, #2fd6a7 50%, #eafaf6 95%)",
                 py: 1,
                 px: 4,
                 fontWeight: "700",
-                color: "#2F3B37",
+                color: "#222",
                 textAlign: "start",
                 fontSize: "20px",
                 cursor: "pointer",
               }}
             >
               Profile
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: 2,
+                py: 4,
+              }}
+            >
+              <Box sx={{ flexGrow: 1 }}>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Lorem Ipsum
+                </Typography>
+                <Typography variant="body2" sx={{ color: "gray" }}>
+                  Lorem Ipsum Lorem
+                </Typography>
+              </Box>
+              <IconButton>
+                <LogoutIcon fontSize="small" />
+              </IconButton>
             </Box>
           </Box>
         ) : (
@@ -82,7 +137,6 @@ export default function Sidebar() {
               display: "flex",
               flexDirection: "column",
               alignItems: "start",
-              pl: 4,
               mr: 2,
             }}
           >
@@ -92,6 +146,7 @@ export default function Sidebar() {
                 flexDirection: "column",
                 alignItems: "start",
                 gap: 0,
+                width: "100%",
               }}
             >
               {steps.map((label, i) => (
@@ -102,13 +157,23 @@ export default function Sidebar() {
                     flexDirection: "column",
                     alignItems: "start",
                     justifyContent: "start",
+                    width: "100%",
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      bgcolor: i === activeStep ? "#E5F9F3" : "transparent",
+                      background:
+                        i === activeStep
+                          ? "linear-gradient(180deg, #78ffd0ff , #eafaf6)"
+                          : "transparent",
+
+                      borderRadius: "16px",
+                      width: "100%",
+                      py: i === activeStep ? "10px" : "0",
+                      ml: "10px",
+                      gap: "20px",
                     }}
                   >
                     <Box
@@ -116,27 +181,45 @@ export default function Sidebar() {
                         width: 35,
                         height: 35,
                         borderRadius: "50%",
-                        bgcolor: i === 1 ? "#0FB97D" : "black",
+                        bgcolor: i === activeStep ? "#0FB97D" : "#2F3B37",
                         color: "white",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         cursor: "pointer",
-
                         margin: 0,
                         padding: 0,
+                        ml: 4,
                       }}
                       onClick={() => setActiveStep(i)}
                     >
-                      <IoCloudUploadOutline fontSize="16" />
+                      <CloudUploadOutlinedIcon
+                        fontSize="16"
+                        sx={{ color: i < activeStep ? "#0FB97D" : "#fff" }}
+                      />
                     </Box>
-                    <Typography variant="body2" sx={{ left: 80 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        left: 80,
+                        color: i < activeStep ? "#0FB97D" : "#2F3B37",
+                      }}
+                    >
                       {label}
                     </Typography>
                   </Box>
                   {i < steps.length - 1 && (
                     <hr
-                      style={{ height: "50px", margin: "0 17px",boxShadow:'none',color:'gray',borderRight:'none',borderLeft:'2px dashed gray' }}
+                      style={{
+                        height: "50px",
+                        margin: "0 59px",
+                        boxShadow: "none",
+                        color: "gray",
+                        borderRight: "none",
+                        borderLeft: `2px ${
+                          i < activeStep ? "solid" : "dashed"
+                        } gray`,
+                      }}
                     />
                   )}
                 </Box>
@@ -144,22 +227,6 @@ export default function Sidebar() {
             </Box>
           </Box>
         )}
-
-        <Box
-          sx={{ display: "flex", alignItems: "center", gap: 1, px: 2, py: 4 }}
-        >
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              Lorem Ipsum
-            </Typography>
-            <Typography variant="body2" sx={{ color: "gray" }}>
-              Lorem Ipsum Lorem
-            </Typography>
-          </Box>
-          <IconButton>
-            <LogoutIcon fontSize="small" />
-          </IconButton>
-        </Box>
       </Box>
 
       {/* Right Section */}
@@ -171,49 +238,73 @@ export default function Sidebar() {
           justifyContent: "center",
           maxWidth: 100,
         }}
+        onClick={handleExpanded}
       >
-        {activeStep === null ? (
-          // Stepper Mode
+        {isExpanded === false ? (
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               gap: 0,
+              ml: 4,
             }}
           >
             {steps.map((label, i) => (
-              <React.Fragment key={i}>
+              <Box
+                key={i}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <Box
                   sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    bgcolor: i === 1 ? "#0FB97D" : "black",
-                    color: "white",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
+                    background:
+                      i === activeStep
+                        ? "linear-gradient(180deg, #0FB97D 0%, #d8fff1ff 60%)"
+                        : "",
+                    p: i === activeStep ? "10px" : "0px",
+                    borderRadius: "15px",
                   }}
-                  onClick={() => setActiveStep(i)} // 👈 expand on click
                 >
-                  <IoCloudUploadOutline fontSize="16" />
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      background: i === activeStep ? "#0FB97D" : "black",
+                      color: i < activeStep ? "#0FB97D" : "#fff ",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setActiveStep(i)} // 👈 expand on click
+                  >
+                    <CloudUploadOutlinedIcon fontSize="16" color="#0FB97D" />
+                  </Box>
                 </Box>
+
                 {i < steps.length - 1 && (
                   <Box
                     sx={{
                       width: 2,
                       height: 60,
-                      borderLeft: "2px dashed gray",
+                      borderLeft: `2px ${
+                        i < activeStep ? "solid" : "dashed"
+                      } gray`,
                     }}
                   />
                 )}
-              </React.Fragment>
+              </Box>
             ))}
           </Box>
         ) : (
-          // Expanded Content Mode
           <Box sx={{ textAlign: "center" }}></Box>
         )}
       </Box>
