@@ -36,6 +36,7 @@ export default function Sidebar() {
           justifyContent: "space-between",
           borderRadius: "0 20px 20px 0",
           overflow: "hidden",
+          boxShadow: "0px 0px 25px 0px #00000059",
         }}
       >
         <Box
@@ -240,6 +241,9 @@ export default function Sidebar() {
           alignItems: "center",
           justifyContent: "center",
           maxWidth: 100,
+          ":hover":{
+            cursor:"pointer"
+          }
         }}
         onClick={handleExpanded}
       >
