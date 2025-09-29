@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import LogoutIcon from "@mui/icons-material/Logout";
-import CustomTextField from "../components/Textfield";
+import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
+import Button from "../components/Button.jsx";
 
 const procurementModes = [
 	"Open Tender",
@@ -174,7 +175,7 @@ const ReviewExtracted = ({ loggedIn }) => {
 	console.log("loggedIn", loggedIn);
 	return (
 		<Box
-			width='70vw'
+			width='67vw'
 			height='70vh'
 			display='flex'
 			flexDirection='column'
@@ -298,14 +299,25 @@ const ReviewExtracted = ({ loggedIn }) => {
 					 background: "linear-gradient(to bottom, white,grey,white)",
 					borderRadius: "1rem",
 					}}>
-					<Button
-						variant='contained'
-						style={{ backgroundColor: colors.green, borderRadius: "10px" }}
-						onClick={handleLoginRedirect}>
-						Login to load more fields
-					</Button>
+					<Button label="Login to load more fields"  />
 				</Box>
 			)}
+			  <Box
+        sx={{
+          position: "sticky",
+          bottom: 16,
+          right: 32,
+          display: "flex",
+          marginRight: 4,
+          justifyContent: "flex-end",
+          mt: "auto",
+        }}
+      >
+        <Button
+         label={"Next"}
+        >
+        </Button>
+      </Box>
 		</Box>
 	);
 };
