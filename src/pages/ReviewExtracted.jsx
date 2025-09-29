@@ -158,7 +158,7 @@ const ReviewExtracted = ({ loggedIn }) => {
 
   return (
     <Box
-      width="70vw"
+      width="65vw"
       height="70vh"
       display="flex"
       flexDirection="column"
