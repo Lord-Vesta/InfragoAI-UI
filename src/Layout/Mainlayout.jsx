@@ -1,8 +1,14 @@
-import { Avatar, Box, IconButton, InputBase, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  InputBase,
+  Typography,
+} from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
-import React from "react";
+import Sidebar from "../components/Sidebar";
 import SearchIcon from "@mui/icons-material/Search";
 import Sidebar from "../components/Sidebar.jsx";
 import { Outlet } from "react-router";
@@ -64,7 +70,7 @@ const Mainlayout = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                borderRadius: "15px",
+                borderRadius: 4,
                 width: "200px",
                 height: "35px",
                 border: 0.5,
@@ -88,12 +94,12 @@ const Mainlayout = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <IconButton>
                 <SettingsIcon
-                  sx={{ color: "#0FB97D", width: "20px", height: "20px" }}
+                  sx={{ color: "#0FB97D", width: "16px", height: "16px" }}
                 />
               </IconButton>
               <IconButton>
                 <NotificationsIcon
-                  sx={{ color: "#0FB97D", width: "20px", height: "20px" }}
+                  sx={{ color: "#0FB97D", width: "16px", height: "16px" }}
                 />
               </IconButton>
             </Box>
