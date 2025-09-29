@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
+
 import CustomTextField from "../components/Textfield";
 import CustomSelect from "../components/Select";
 import CustomDatePicker from "../components/DatePicker";
@@ -195,6 +196,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                 </Box>
               </Box>
 
+
               {field.type === "toggle" ? (
                 <Toggle
                   label={field.label}
@@ -235,6 +237,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                 />
               ) : null}
 
+
               {errors[index] && (
                 <Typography color="error" fontSize={12} mt={0.5}>
                   {errors[index]}
@@ -270,7 +273,9 @@ const ReviewExtracted = ({ loggedIn }) => {
         </Box>
       )}
 
+
       <Box
+
         sx={{
           position: "sticky",
           bottom: 16,
@@ -282,6 +287,7 @@ const ReviewExtracted = ({ loggedIn }) => {
         }}
       >
         <Button
+
           variant="contained"
           sx={{
             backgroundColor: colors.green,
@@ -300,6 +306,7 @@ const ReviewExtracted = ({ loggedIn }) => {
       </Box>
     </Box>
   );
+
 };
 
 export default ReviewExtracted;

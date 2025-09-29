@@ -13,6 +13,7 @@ const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
       variant="outlined"
       placeholder={placeholder}
       sx={{
+
         width: "50vw", 
         display: "flex",
         "& .MuiOutlinedInput-root": {
