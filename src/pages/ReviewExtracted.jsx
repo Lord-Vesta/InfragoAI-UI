@@ -209,6 +209,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   placeholder={field.label}
                   onChange={(e) => handleChange(index, e.target.value)}
                   disabled={!editableFields[index]}
+                  width="45vw"
                 />
               ) : field.type === "select" ? (
                 <CustomSelect
@@ -224,6 +225,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   onChange={(e) => handleChange(index, e.target.value)}
                   placeholder={`Select ${field.label}`}
                   disabled={!editableFields[index]}
+                  width="40vw"
                 />
               ) : field.type === "textarea" ? (
                 <CustomTextField
@@ -233,6 +235,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   disabled={!editableFields[index]}
                   multiline
                   minRows={3}
+                  width="45vw"
                 />
               ) : null}
 
