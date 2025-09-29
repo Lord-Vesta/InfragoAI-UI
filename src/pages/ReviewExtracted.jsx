@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography,Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
-
-import CustomTextField from "../components/Textfield";
+import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
@@ -159,7 +158,7 @@ const ReviewExtracted = ({ loggedIn }) => {
 
   return (
     <Box
-      width="70vw"
+      width="65vw"
       height="70vh"
       display="flex"
       flexDirection="column"
@@ -210,6 +209,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   placeholder={field.label}
                   onChange={(e) => handleChange(index, e.target.value)}
                   disabled={!editableFields[index]}
+                  width="45vw"
                 />
               ) : field.type === "select" ? (
                 <CustomSelect
@@ -225,6 +225,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   onChange={(e) => handleChange(index, e.target.value)}
                   placeholder={`Select ${field.label}`}
                   disabled={!editableFields[index]}
+                  width="40vw"
                 />
               ) : field.type === "textarea" ? (
                 <CustomTextField
@@ -234,6 +235,7 @@ const ReviewExtracted = ({ loggedIn }) => {
                   disabled={!editableFields[index]}
                   multiline
                   minRows={3}
+                  width="45vw"
                 />
               ) : null}
 
