@@ -10,7 +10,7 @@ const TechnicalConfirmation = () => {
 
   return (
     <Box
-      width="67vw"
+      width="100%"
       display="flex"
       flexDirection="column"
       gap={3}
