@@ -10,10 +10,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
 import Sidebar from "../components/Sidebar";
 import SearchIcon from "@mui/icons-material/Search";
-import Sidebar from "../components/Sidebar.jsx";
 import { Outlet } from "react-router";
 
 const Mainlayout = () => {
+  const location = window.location.pathname;
   return (
     <Box
       sx={{
@@ -21,14 +21,38 @@ const Mainlayout = () => {
         width: "100vw",
         display: "flex",
         alignItems: "center",
+         gap: 2,
+        overflow: "hidden",
       }}
     >
       <Sidebar/>
+      {location === "/profile" ? (
+
+        <Box
+          sx={{
+            height: "95%",
+            //   margin: "2rem",
+            width: "100%",
+            // overflow:'auto'
+          }}
+        >
+          <Box
+            sx={{
+              flex: 1,
+
+              mb: "1.5rem",
+              mr: "2rem",
+            }}
+          >
+            <Outlet />
+          </Box>
+        </Box>
+
+          ) : (
       <Box
         sx={{
           height: "95%",
-          margin: "2rem",
-          width: "80vw",
+          width: "100%",
           bgcolor: "#F8F8F8",
           borderRadius: "2rem",
           display: "flex",
@@ -117,6 +141,7 @@ const Mainlayout = () => {
           <Outlet />
         </Box>
       </Box>
+          )}
     </Box>
   );
 };

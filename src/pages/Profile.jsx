@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -21,8 +21,10 @@ import Person from "../assets/Person.png";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import tableImg from "../assets/tableImg.jpg";
+import AddProject from "./AddProject.jsx";
 
 const Profile = () => {
+  const [openPopup, setOpenPopup] = useState(false);
   const projects = [
     {
       id: 1,
@@ -54,6 +56,11 @@ const Profile = () => {
     },
   ];
 
+  useEffect(() => {
+    console.log(openPopup, "---------------");
+    console.log("Profile page loaded");
+  }, [openPopup]);
+
   const statusColors = {
     Working: { bg: "#1E3A8A", color: "#fff" },
     Completed: { bg: "#0FB97D", color: "#fff" },
@@ -81,8 +88,8 @@ const Profile = () => {
       >
         <Box
           sx={{
-            p: 4,
-            height: 100,
+            p: 3,
+            height: 85,
             background:
               "linear-gradient(270.41deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%)",
             backdropFilter: "blur(10px)",
@@ -91,7 +98,7 @@ const Profile = () => {
             alignItems: "center",
             justifyContent: "space-between",
             position: "absolute",
-            bottom: -50,
+            bottom: -40,
             left: 20,
             right: 20,
             borderRadius: 2,
@@ -161,7 +168,7 @@ const Profile = () => {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ position: "relative", height: 200, mt: 6 }}>
+      <Box sx={{ position: "relative", height: 190, mt: 5 }}>
         <Box
           sx={{
             position: "Absolute",
@@ -179,7 +186,7 @@ const Profile = () => {
           <Typography
             variant="h5"
             fontWeight="bold"
-            sx={{ color: "#fff", px: 7, pt: 4, pb: 1 }}
+            sx={{ color: "#fff", px: 7, pt: 3, pb: 1 }}
           >
             Lorem Ipsum
           </Typography>
@@ -189,8 +196,7 @@ const Profile = () => {
           >
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry. Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.Lorem Ipsum is simply dummy text of the
-            printing and typesetting industry.
+            typesetting industry.Lorem Ipsum is simply dummy.
           </Typography>
           <Button
             variant="contained"
@@ -201,8 +207,8 @@ const Profile = () => {
               fontSize: "17px",
               fontWeight: "bold",
               borderRadius: "15px",
-              px: 10,
-              py: 1.2,
+              px: 9,
+              py: 0.8,
               mt: 3,
               ml: 7,
               boxShadow: "none",
@@ -240,9 +246,9 @@ const Profile = () => {
           backgroundColor: "#FBFBFB",
           borderRadius: 2,
           mb: 5,
-          height: "360px",
-           display: "flex",
-    flexDirection: "column",
+          height: "380px",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Header */}
@@ -259,104 +265,136 @@ const Profile = () => {
             Projects
           </Typography>
           <Box display="flex" gap={2}>
-            <Button variant="outlined" size="small" sx={{ borderRadius: "8px", px : 6, color:"#48BB78", borderColor:"#48BB78", textTransform: "none" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: "8px",
+                px: 6,
+                color: "#48BB78",
+                borderColor: "#48BB78",
+                textTransform: "none",
+              }}
+              onClick={() => setOpenPopup(true)}
+            >
               Create New <AddIcon sx={{ ml: 1, fontSize: "14px" }} />
             </Button>
-            <Button variant="outlined" size="small" sx={{ borderRadius: "8px", px:4, color:"#929292", borderColor:"#929292", textTransform: "none" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: "8px",
+                px: 4,
+                color: "#929292",
+                borderColor: "#929292",
+                textTransform: "none",
+              }}
+            >
               View All
             </Button>
           </Box>
         </Box>
 
         {/* Table */}
-        <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", px:2 }}>
-          
-        <Table>
-          <TableHead>
-            <TableRow sx={{ "& th": { borderBottom: "none", color: "#929292", } }}>
-              <TableCell>Companies</TableCell>
-              <TableCell>Lorem</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Completion</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {projects.map((p) => (
+        <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", px: 2 }}>
+          <Table>
+            <TableHead>
               <TableRow
-                key={p.id}
-                sx={{
-                  "& td": { borderBottom: "1px solid #F0F0F0", py: 1.5, color: "#000000",  },
-                }}
+                sx={{ "& th": { borderBottom: "none", color: "#929292" } }}
               >
-                {/* Company + Avatar */}
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <img
-                      src={tableImg}
-                      alt="company"
-                      style={{ borderRadius: "50%", width: 32, height: 32 }}
-                    />
-                    <Typography fontSize={12} >{p.company}</Typography>
-                  </Box>
-                </TableCell>
+                <TableCell>Companies</TableCell>
+                <TableCell>Lorem</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Completion</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {projects.map((p) => (
+                <TableRow
+                  key={p.id}
+                  sx={{
+                    "& td": {
+                      borderBottom: "1px solid #F0F0F0",
+                      py: 1.5,
+                      color: "#000000",
+                    },
+                  }}
+                >
+                  {/* Company + Avatar */}
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <img
+                        src={tableImg}
+                        alt="company"
+                        style={{ borderRadius: "50%", width: 32, height: 32 }}
+                      />
+                      <Typography fontSize={12}>{p.company}</Typography>
+                    </Box>
+                  </TableCell>
 
-                {/* Lorem */}
-                <TableCell sx={{fontSize:"12px"}}>{p.lorem}</TableCell>
+                  {/* Lorem */}
+                  <TableCell sx={{ fontSize: "12px" }}>{p.lorem}</TableCell>
 
-                {/* Status */}
-                <TableCell>
-                  <Chip
-                    label={p.status}
-                    sx={{
-                      bgcolor: statusColors[p.status].bg,
-                      color: statusColors[p.status].color,
-                      fontWeight: "bold",
-                      fontSize: 12,
-                    }}
-                  />
-                </TableCell>
-
-                {/* Completion */}
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Typography variant="body2" fontWeight="bold" fontSize={12}>
-                      {p.completion}%
-                    </Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={p.completion}
+                  {/* Status */}
+                  <TableCell>
+                    <Chip
+                      label={p.status}
                       sx={{
-                        flex: 1,
-                        height: 5,
-                        borderRadius: 5,
-                        bgcolor: "#E0E0E0",
-                        "& .MuiLinearProgress-bar": {
-                          bgcolor:
-                            p.status === "Working"
-                              ? "#1E3A8A"
-                              : p.status === "Completed"
-                              ? "#0FB97D"
-                              : "#9E9E9E",
-                        },
+                        bgcolor: statusColors[p.status].bg,
+                        color: statusColors[p.status].color,
+                        fontWeight: "bold",
+                        fontSize: 12,
                       }}
                     />
-                  </Box>
-                </TableCell>
+                  </TableCell>
 
-                {/* Menu Icon */}
-                <TableCell align="right">
-                  <IconButton>
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  {/* Completion */}
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        fontSize={12}
+                      >
+                        {p.completion}%
+                      </Typography>
+                      <LinearProgress
+                        variant="determinate"
+                        value={p.completion}
+                        sx={{
+                          flex: 1,
+                          height: 5,
+                          borderRadius: 5,
+                          bgcolor: "#E0E0E0",
+                          "& .MuiLinearProgress-bar": {
+                            bgcolor:
+                              p.status === "Working"
+                                ? "#1E3A8A"
+                                : p.status === "Completed"
+                                ? "#0FB97D"
+                                : "#9E9E9E",
+                          },
+                        }}
+                      />
+                    </Box>
+                  </TableCell>
+
+                  {/* Menu Icon */}
+                  <TableCell align="right">
+                    <IconButton>
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </Box>
       </Box>
+      {openPopup && <AddProject handleClose={() => setOpenPopup(false)} />}
     </Box>
+    
   );
 };
 
