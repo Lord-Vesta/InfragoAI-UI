@@ -2,8 +2,9 @@ import { createBrowserRouter } from "react-router";
 import UploadPage from "./pages/UploadPage";
 import ReviewExtracted from "./pages/ReviewExtracted";
 import Login from "./pages/Login";
-import Mainlayout from "./Layout/MainLayout";
 import QualificationInputs from "./pages/QualificationInputs";
+import Profile from "./pages/Profile";
+import Mainlayout from "./layout/Mainlayout";
 import TechnicalConfirmation from "./pages/TechnicalConfirmation";
 
 export const router = createBrowserRouter([
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
     element: <Mainlayout/>,
     children:[
         {path:"/upload",element:<UploadPage/>},
+        {path:"/profile",element:<Profile/>},
         {path:"/ReviewExtracted",element:<ReviewExtracted/>},   
         {path:"/QualificationInputs",element:<QualificationInputs/>},
         {path:"/TechnicalConfirmation",element:<TechnicalConfirmation/>},
@@ -21,6 +23,7 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <Login/>,
   }
+
 
 ]);
 
