@@ -52,7 +52,7 @@ const fieldConfig = [
   { label: "Key Plant / Machinery List", type: "textarea", validation: { required: true, minLength: 5 } },
 ];
 
-const ReviewExtracted = ({ loggedIn }) => {
+const ReviewExtracted = ({ loggedIn,height = "70vh" }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -159,7 +159,7 @@ const ReviewExtracted = ({ loggedIn }) => {
   return (
     <Box
       width="65vw"
-      height="70vh"
+      height={height}      
       display="flex"
       flexDirection="column"
       gap={2}

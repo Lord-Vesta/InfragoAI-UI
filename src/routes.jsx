@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import QualificationInputs from "./pages/QualificationInputs";
 import Profile from "./pages/Profile";
 import Mainlayout from "./layout/Mainlayout";
+import TechnicalConfirmation from "./pages/TechnicalConfirmation";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
         {path:"/profile",element:<Profile/>},
         {path:"/ReviewExtracted",element:<ReviewExtracted/>},   
         {path:"/QualificationInputs",element:<QualificationInputs/>},
+        {path:"/TechnicalConfirmation",element:<TechnicalConfirmation/>},
     ]
   },
   {
