@@ -5,14 +5,14 @@ import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select"; // if you have it
 
-const QualificationInputs = () => {
+const QualificationInputs = ({ height = "70vh" }) => {
 	return (
 		<Box
 			width='67vw'
-			height='70vh'
 			display='flex'
 			flexDirection='column'
 			gap={3}
+			height={height} 
 			position='relative'
 			overflow='auto'>
 			<Typography

@@ -4,6 +4,7 @@ import ReviewExtracted from "./pages/ReviewExtracted";
 import Login from "./pages/Login";
 import Mainlayout from "./Layout/MainLayout";
 import QualificationInputs from "./pages/QualificationInputs";
+import TechnicalConfirmation from "./pages/TechnicalConfirmation";
 
 export const router = createBrowserRouter([
   {
@@ -12,7 +13,8 @@ export const router = createBrowserRouter([
     children:[
         {path:"/upload",element:<UploadPage/>},
         {path:"/ReviewExtracted",element:<ReviewExtracted/>},   
-        {path:"/QualificationInputs",element:<QualificationInputs/>}
+        {path:"/QualificationInputs",element:<QualificationInputs/>},
+        {path:"/TechnicalConfirmation",element:<TechnicalConfirmation/>},
     ]
   },
   {
