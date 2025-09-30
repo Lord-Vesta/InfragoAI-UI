@@ -1,0 +1,11 @@
+import { red } from "@mui/material/colors";
+
+const colors = {
+  green: "#0FB97D",
+  black_text: "#000000",
+  disabled_grey: "#A0AEC0",
+  red:"#E75757"
+ 
+};
+
+export default colors;
