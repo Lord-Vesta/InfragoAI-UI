@@ -103,7 +103,7 @@ const Mainlayout = () => {
           sx={{
             flex: 1,
             ml: "70px",
-            mt: "5rem",
+            mt: "2rem",
             mb: "1.5rem",
             mr: "2rem",
           }}
