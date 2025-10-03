@@ -5,10 +5,10 @@ import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select"; // if you have it
 
-const QualificationInputs = ({ height = "70vh" }) => {
+const QualificationInputs = ({ height = "79vh" }) => {
 	return (
 		<Box
-			width='67vw'
+			width='100%'
 			display='flex'
 			flexDirection='column'
 			gap={3}

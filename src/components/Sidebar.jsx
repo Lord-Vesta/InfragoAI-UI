@@ -5,10 +5,12 @@ import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useNavigate } from "react-router";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(2);
   const [isExpanded, setIsExpanded] = useState(false);
+   const navigate = useNavigate();
 
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -22,6 +24,17 @@ export default function Sidebar() {
     "Eligibility & BG Check",
   ];
 
+  const stepRoutes = [
+    "/upload",
+    "/ReviewExtracted",
+    "/QualificationInputs",
+    "/TechnicalConfirmation",
+    "/BGsummary",
+  ];
+  const handleStepClick = (i) => {
+    setActiveStep(i);
+    navigate(stepRoutes[i]);
+  };
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* Left Sidebar */}
@@ -177,6 +190,7 @@ export default function Sidebar() {
                       ml: "10px",
                       gap: "20px",
                     }}
+                    onClick={() => handleStepClick(i)}
                   >
                     <Box
                       sx={{
@@ -278,6 +292,7 @@ export default function Sidebar() {
                     p: i === activeStep ? "10px" : "0px",
                     borderRadius: "15px",
                   }}
+                  onClick={() => handleStepClick(i)}
                 >
 
                   <Box
