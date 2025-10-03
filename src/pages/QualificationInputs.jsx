@@ -1,86 +1,87 @@
 import React from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Icon, Paper, Typography } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
-import CustomSelect from "../components/Select"; // if you have it
+import CustomSelect from "../components/Select";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 
-const QualificationInputs = () => {
-	return (
-		<Box
-			width='67vw'
-			height='70vh'
-			display='flex'
-			flexDirection='column'
-			gap={3}
-			position='relative'
-			overflow='auto'>
-			<Typography
-				fontWeight='600'
-				fontSize={24}
-				color={colors.black_text}
-				>
-				Provide Qualification Inputs
-			</Typography>
+const QualificationInputs = ({ height = "79vh" }) => {
+  return (
+    <Box
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      gap={3}
+      height={height}
+      position="relative"
+      overflow="auto"
+    >
+      <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
+        Provide Qualification Inputs
+      </Typography>
 
-			<Box>
-				<Typography fontWeight='400' mb={1}>
-					Avg Annual Turnover (₹ Cr)
-				</Typography>
+      <Box>
+        <Typography fontWeight="400" mb={1}>
+          Avg Annual Turnover (₹ Cr)
+        </Typography>
 
-				<Box display='flex' alignItems='center' gap={3}>
-					<Box display='flex' alignItems='center'>
-						<Box
-							sx={{
-								"& button": {
-									borderRadius: "12px 0 0 12px !important",
-									boxShadow: "none",
-									height: "40px !important", 
-								},
-							}}>
-							<CustomButton label='Past 3 years' />
-						</Box>
-						<Box
-							sx={{
-								"& .MuiOutlinedInput-root": {
-									borderRadius: "0 12px 12px 0 !important",
-									backgroundColor: "#fff",
-								},
-							}}>
-							<CustomTextField placeholder='Lorem Ipsum' width='300px' />
-						</Box>
-					</Box>
+        <Box display="flex" alignItems="center" gap={3}>
+          <Box display="flex" alignItems="center">
+            <Box
+              sx={{
+                "& button": {
+                  borderRadius: "12px 0 0 12px !important",
+                  boxShadow: "none",
+                  height: "40px !important",
+                },
+              }}
+            >
+              <CustomButton label="Past 3 years" />
+            </Box>
+            <Box
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "0 12px 12px 0 !important",
+                  backgroundColor: "#fff",
+                },
+              }}
+            >
+              <CustomTextField placeholder="Lorem Ipsum" width="300px" />
+            </Box>
+          </Box>
 
-					<Box display='flex' alignItems='center'>
-						<Box
-							sx={{
-								"& button": {
-									borderRadius: "12px 0 0 12px !important",
-									boxShadow: "none",
-									height: "40px !important", 
-								},
-							}}>
-							<CustomButton label='Past 5 years' />
-						</Box>
-						<Box
-							sx={{
-								"& .MuiOutlinedInput-root": {
-									borderRadius: "0 12px 12px 0 !important",
-									backgroundColor: "#fff",
-								},
-							}}>
-							<CustomTextField placeholder='Lorem Ipsum' width='300px' />
-						</Box>
-					</Box>
-				</Box>
-			</Box>
-			<Box display={'flex'} flexDirection='column' gap={1}>
-			<Typography fontWeight='400' fontSize={16}>
-				Similar Projects Executed
-			</Typography>
-	  {/* {projects.map((project, index) => ( */}
- <Box
-          // key={index}
+          <Box display="flex" alignItems="center">
+            <Box
+              sx={{
+                "& button": {
+                  borderRadius: "12px 0 0 12px !important",
+                  boxShadow: "none",
+                  height: "40px !important",
+                },
+              }}
+            >
+              <CustomButton label="Past 5 years" />
+            </Box>
+            <Box
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "0 12px 12px 0 !important",
+                  backgroundColor: "#fff",
+                },
+              }}
+            >
+              <CustomTextField placeholder="Lorem Ipsum" width="300px" />
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box display={"flex"} flexDirection="column" gap={1}>
+        <Typography fontWeight="400" fontSize={16}>
+          Similar Projects Executed
+        </Typography>
+        {/* {projects.map((project, index) => ( */}
+        <Box
           p={2}
           border="1px solid #E0E0E0"
           borderRadius="12px"
@@ -93,92 +94,197 @@ const QualificationInputs = () => {
 
           <Typography fontSize={12} fontWeight={700} mb={1}>
             <strong>Name:</strong>
-             {/* {project.name} */}
+            {/* {project.name} */}
           </Typography>
           <Typography fontSize={12} fontWeight={700} mb={1}>
-            <strong>Scope:</strong> 
+            <strong>Scope:</strong>
             {/* {project.scope} */}
           </Typography>
-         <Typography fontSize={12} fontWeight={700} mb={1}>
+          <Typography fontSize={12} fontWeight={700} mb={1}>
             <strong>Year:</strong>
-             {/* {project.year} */}
+            {/* {project.year} */}
           </Typography>
           <Typography fontSize={12} fontWeight={700} mb={1}>
             <strong>Value:</strong>
-             {/* {project.value} */}
+            {/* {project.value} */}
           </Typography>
         </Box>
-		<Box mb={2}
-		>
-		<CustomButton label='Add More ' />
-		</Box>
-		</Box>
-			<Box display='flex' flexDirection='column' gap={2}>
-				<CustomTextField
-					placeholder='Net Worth (CA certified)'
-					label='Net Worth (CA certified)'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='Working Capital / Liquid Assets'
-					label='Working Capital / Liquid Assets'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='Work in Hand (B value for formula)'
-					label='Work in Hand (B value for formula)'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='BG Limit (Sanctioned)'
-					label='BG Limit (Sanctioned)'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='BG Utilized'
-					label='BG Utilized'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='BG Available (Sanctioned – Utilized)'
-					label='BG Available (Sanctioned – Utilized)'
-					width='45vw'
-				/>
-				<CustomTextField
-					placeholder='Quoted Price'
-					label='Quoted Price'
-					width='45vw'
-				/>
-			</Box>
-			<Box mb={3} display={"flex"} flexDirection='column'>
-				<Typography fontWeight='400'fontSize={14} mb={1}>
-					Litigation/Blacklist Declaration
-				</Typography>
+        <Box mb={2}>
+          <CustomButton label="Add More " />
+        </Box>
+      </Box>
+      <Box display="flex" flexDirection="column" gap={2}>
+        <CustomTextField
+          placeholder="Net Worth (CA certified)"
+          label="Net Worth (CA certified)"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="Working Capital / Liquid Assets"
+          label="Working Capital / Liquid Assets"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="Work in Hand (B value for formula)"
+          label="Work in Hand (B value for formula)"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="BG Limit (Sanctioned)"
+          label="BG Limit (Sanctioned)"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="BG Utilized"
+          label="BG Utilized"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="BG Available (Sanctioned – Utilized)"
+          label="BG Available (Sanctioned – Utilized)"
+          width="45vw"
+        />
+        <CustomTextField
+          placeholder="Quoted Price"
+          label="Quoted Price"
+          width="45vw"
+        />
+      </Box>
+      <Box display={"flex"} flexDirection="column">
+        <Typography fontWeight="400" fontSize={14} mb={1}>
+          Litigation/Blacklist Declaration
+        </Typography>
 
-				<Box mb={3} display='flex' gap={2}>
-					<CustomSelect
-						options={["Yes", "No"]}
-						placeholder='Yes'
-						width='100px'
-					/>
-					<CustomTextField placeholder='Lorem Ipsum' width='37vw' />
-				</Box>
-			</Box>
+        <Box mb={3} display="flex" gap={2}>
+          <CustomSelect
+            options={["Yes", "No"]}
+            placeholder="Yes"
+            width="100px"
+          />
+          <CustomTextField placeholder="Lorem Ipsum" width="37vw" />
+        </Box>
+      </Box>
+      <Box mb={3}>
+        <Typography
+          fontWeight="400"
+          fontSize={14}
+          mb={1}
+          color="#000000"
+          fontStyle={"montserrat"}
+        >
+          Registration/Certificates
+        </Typography>
+        <Box
+          bgcolor={"#FFFFFF"}
+          elevation={3}
+          sx={{
+            borderRadius: "12px",
+            padding: "24px",
+            width: "60vw",
+            gap: "16px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            padding: "24px",
+            marginBottom: "8px",
+          }}
+        >
+          <Icon sx={{ fontSize: 36, color: "#4ec9b0", mt: 3 }}>
+            <UploadFileOutlinedIcon
+              sx={{ fontSize: 36, color: "#4ec9b0", mb: 1 }}
+            />
+          </Icon>
 
-			{/* Next Button */}
-			<Box
-				sx={{
-					position: "sticky",
-					bottom: 16,
-					right: 32,
-					display: "flex",
-					marginRight: 4,
-					justifyContent: "flex-end",
-				}}>
-				<CustomButton label='Next' />
-			</Box>
-		</Box>
-	);
+          <Typography
+            sx={{
+              color: "#6e6e6eff",
+              cursor: "pointer",
+              mb: 2,
+              fontWeight: 500,
+              textDecoration: "underline",
+              textDecorationColor: "#6e6e6eff",
+            }}
+            onClick={() =>
+              document.getElementById("certificate-upload-input").click()
+            }
+          >
+            Click to upload
+          </Typography>
+          <input
+            id="certificate-upload-input"
+            type="file"
+            style={{ display: "none" }}
+            accept=".pdf,.docx,.txt"
+            onChange={() => {}}
+          />
+          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+            <Box
+              sx={{
+                background: "#d1fae5",
+                color: "#34d399",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
+                fontSize: 12,
+              }}
+            >
+              PDF
+            </Box>
+            <Box
+              sx={{
+                background: "#d1fae5",
+                color: "#34d399",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
+                fontSize: 12,
+              }}
+            >
+              DOCX
+            </Box>
+            <Box
+              sx={{
+                background: "#d1fae5",
+                color: "#34d399",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
+                fontSize: 12,
+              }}
+            >
+              TXT
+            </Box>
+            <Box
+              sx={{
+                background: "#d1fae5",
+                color: "#34d399",
+                borderRadius: "4px",
+                px: 1.5,
+                py: 0.5,
+                fontSize: 12,
+              }}
+            >
+              &gt; 10 MB
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 16,
+          right: 32,
+          display: "flex",
+          marginRight: 4,
+          justifyContent: "flex-end",
+        }}
+      >
+        <CustomButton label="Next" />
+      </Box>
+    </Box>
+  );
 };
 
 export default QualificationInputs;
