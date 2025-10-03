@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -19,6 +19,9 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import KeyIcon from "@mui/icons-material/Key";
+import { toast } from "react-toastify";
+import { sendOtp, verifyOtp } from "../Utils/Api.utils";
+import { useNavigate } from "react-router";
 
 const Login = () => {
   const theme = createTheme({
@@ -29,6 +32,40 @@ const Login = () => {
       fontFamily: "Montserrat, sans-serif",
     },
   });
+
+  const [mobile, setMobile] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleGetOtp = async () => {
+    try {
+      if (!mobile) {
+        toast.error("Please enter mobile number 9876543210");
+        return;
+      } else {
+        const response = await sendOtp({ phone_number: mobile });
+        if (response) {
+          toast.success("OTP sent successfully");
+          alert(`Your OTP is ${response.message}`); 
+        }
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      const data = { phone_number: mobile, otp_code: "123456" };
+      const response = await verifyOtp(data);
+      if (response) {
+        navigate("/profile");
+      }
+    } catch (error) {
+      toast.error("Login failed. Please try again.");
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -193,11 +230,11 @@ const Login = () => {
             variant="body2"
             sx={{ textAlign: "left", mb: 1, color: "#000000" }}
           >
-            Email ID
+            Mobile Number
           </Typography>
           <TextField
             fullWidth
-            placeholder="Your Email Number"
+            placeholder="Your Mobile Number"
             variant="outlined"
             size="small"
             InputProps={{
@@ -217,7 +254,7 @@ const Login = () => {
               "& .MuiInputBase-input": {
                 color: "black",
                 "::placeholder": {
-                  color: "gray", // default placeholder color
+                  color: "gray",
                   opacity: 0.5,
                 },
               },
@@ -228,8 +265,11 @@ const Login = () => {
               "& .MuiOutlinedInput-root.Mui-focused .MuiInputBase-input::placeholder":
                 {
                   color: "#0FB97D",
-                    opacity: 0.5,
+                  opacity: 0.5,
                 },
+            }}
+            onChange={(e) => {
+              setMobile(e.target.value);
             }}
           />
 
@@ -242,6 +282,7 @@ const Login = () => {
               width: "50%",
               borderRadius: "12px",
             }}
+            onClick={handleGetOtp}
           >
             Get OTP
           </Button>
@@ -289,6 +330,7 @@ const Login = () => {
             fullWidth
             variant="contained"
             sx={{ bgcolor: "#0FB97D", mb: 2, borderRadius: "12px" }}
+            onClick={handleVerifyOtp}
           >
             SIGN UP
           </Button>

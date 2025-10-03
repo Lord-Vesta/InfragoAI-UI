@@ -2,22 +2,32 @@ import React from "react";
 import { Button as MuiButton } from "@mui/material";
 import colors from "../assets/colors";
 
-const Button = ({ label, onClick, disabled }) => {
+const Button = ({
+  label,
+  onClick,
+  disabled,
+  width = "150px",
+  height,
+  bgColor,
+}) => {
   return (
     <MuiButton
       variant="contained"
       onClick={onClick}
       disabled={disabled}
       sx={{
-        backgroundColor: colors.green,
+        backgroundColor: bgColor || colors.green,
         color: "#fff",
-        width: "150px",
+        width: width,
+        height: height || "40px",
         borderRadius: "12px",
-        padding:"6px",
+        padding: "6px",
         boxShadow: 3,
         textTransform: "none",
         "&:hover": {
-          backgroundColor: "#059669",
+          backgroundColor: bgColor
+            ? bgColor
+            : "#059669",
         },
       }}
     >

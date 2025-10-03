@@ -11,7 +11,7 @@ const UploadPage = () => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        justifyContent: "center",
       }}
     >
       <Box
@@ -23,7 +23,7 @@ const UploadPage = () => {
       >
         <FileUploadDialog open={open} onClose={() => setOpen(false)} />
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mt: 10 }}>
         <Button
           sx={{
             display: "block",
