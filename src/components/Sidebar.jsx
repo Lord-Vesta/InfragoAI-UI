@@ -80,7 +80,7 @@ export default function Sidebar() {
               />
             </Box>
             <Typography variant="h6" sx={{ fontSize: "22px", fontWeight: 700 }}>
-              Infravo AI
+              Infrago AI
             </Typography>
           </Box>
         </Box>
