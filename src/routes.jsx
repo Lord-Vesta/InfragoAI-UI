@@ -11,22 +11,20 @@ import BGsummary from "./pages/BGsummary";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Mainlayout/>,
-    children:[
-        {path:"/upload",element:<UploadPage/>},
-        {path:"/profile",element:<Profile/>},
-        {path:"/ReviewExtracted",element:<ReviewExtracted/>},   
-        {path:"/QualificationInputs",element:<QualificationInputs/>},
-        {path:"/TechnicalConfirmation",element:<TechnicalConfirmation/>},
-        {path:"/BGsummary",element:<BGsummary/>},
-    ]
+    element: <Mainlayout />,
+    children: [
+      { path: "/upload", element: <UploadPage /> },
+      { path: "/profile", element: <Profile /> },
+      { path: "/ReviewExtracted", element: <ReviewExtracted /> },
+      { path: "/QualificationInputs", element: <QualificationInputs /> },
+      { path: "/TechnicalConfirmation", element: <TechnicalConfirmation /> },
+      { path: "/BGsummary", element: <BGsummary /> },
+    ],
   },
   {
     path: "/login",
-    element: <Login/>,
-  }
-
-
+    element: <Login />,
+  },
 ]);
 
 export default router;
