@@ -1,4 +1,5 @@
-import React, { use, useState } from "react";
+
+import React, { useState, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,9 +10,8 @@ import {
   TextField,
   Paper,
   Grid,
-  Link,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import background1 from "../assets/bg1.png";
 import background2 from "../assets/bg2.png";
 import logo1 from "../assets/logo1.png";
@@ -22,20 +22,19 @@ import KeyIcon from "@mui/icons-material/Key";
 import { toast } from "react-toastify";
 import { sendOtp, verifyOtp } from "../Utils/Api.utils";
 import { useNavigate } from "react-router";
+import { userContext } from "../context/ContextProvider";
 
 const Login = () => {
   const theme = createTheme({
-    typography: {
-      fontFamily: "Montserrat, sans-serif",
-    },
-    button: {
-      fontFamily: "Montserrat, sans-serif",
-    },
+    typography: { fontFamily: "Montserrat, sans-serif" },
+    button: { fontFamily: "Montserrat, sans-serif" },
   });
 
   const [mobile, setMobile] = useState("");
-
   const navigate = useNavigate();
+
+
+  const { setAuthKey } = useContext(userContext);
 
   const handleGetOtp = async () => {
     try {
@@ -50,22 +49,34 @@ const Login = () => {
         }
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error?.message || "Failed to send OTP");
     }
   };
 
   const handleVerifyOtp = async () => {
     try {
-      const data = { phone_number: mobile, otp_code: "123456" };
+      const data = { phone_number: mobile, otp_code: "1234" };
       const response = await verifyOtp(data);
-      if (response) {
+
+      console.log("verifyOtp response:", response); 
+
+     
+      const token =
+        response?.access;
+
+      if (token) {
+        const { access } = response;
+        localStorage.setItem("accessToken", access);
+ 
+        setAuthKey(token);     
         navigate("/profile");
+      } else {
+        toast.error("Login failed: no token returned from server");
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
     }
   };
-
   return (
     <Box
       sx={{
@@ -180,6 +191,7 @@ const Login = () => {
                 borderRadius: "20px",
                 px: 6,
               }}
+              onClick={() => navigate("/upload")} 
             >
               Upload File
             </Button>

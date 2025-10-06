@@ -8,7 +8,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
 
 export default function Sidebar() {
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
    const navigate = useNavigate();
 

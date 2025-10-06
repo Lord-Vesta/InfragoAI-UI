@@ -10,10 +10,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
 import Sidebar from "../components/Sidebar";
 import SearchIcon from "@mui/icons-material/Search";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
 const Mainlayout = () => {
-  const location = window.location.pathname;
+  const location = useLocation().pathname;
   return (
     <Box
       sx={{

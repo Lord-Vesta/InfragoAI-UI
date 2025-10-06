@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 // Create Axios instance
 const axiosclient = axios.create({
   baseURL: API_URL,
+  headers: {   'ngrok-skip-browser-warning': 'true'  }
+ 
 });
 
 axiosclient.interceptors.request.use(

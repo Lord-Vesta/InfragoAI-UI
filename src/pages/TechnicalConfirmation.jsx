@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import ReviewExtracted from "./ReviewExtracted";
 import QualificationInputs from "./QualificationInputs";
+import { getQualificationInputs } from "../Utils/Api.utils";
 
 const TechnicalConfirmation = () => {
   const [activeTab, setActiveTab] = useState("extracted");
+  const [qualificationData, setQualificationData] = useState(null);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getQualificationInputs();
+       console.log("res",res) 
+        setQualificationData(res);
+      } catch (err) {
+        console.error("Error fetching qualification inputs:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <Box
       width="100%"
@@ -53,8 +68,10 @@ const TechnicalConfirmation = () => {
       </Box>
 
       <Box mt={2}>
-         {activeTab === "extracted" && <ReviewExtracted height="60vh" />}
-  {activeTab === "userInput" && <QualificationInputs height="60vh" />}
+        {activeTab === "extracted" && <ReviewExtracted height="60vh" />}
+        {activeTab === "userInput" && (
+          <QualificationInputs height="60vh" initialData={qualificationData} />
+        )}
       </Box>
     </Box>
   );
