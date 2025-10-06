@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Box, IconButton, Typography,Button } from "@mui/material";
+import React, { useState, useEffect, useContext } from "react";
+import { Box, IconButton, Typography, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
+import { userContext } from "../context/ContextProvider";
+import { useNavigate } from "react-router";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 
@@ -52,8 +54,12 @@ const fieldConfig = [
   { label: "Key Plant / Machinery List", type: "textarea", validation: { required: true, minLength: 5 } },
 ];
 
-const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
+const ReviewExtracted = ({ height = "79vh" }) => {
   const [fields, setFields] = useState([]);
+  const { authKey } = useContext(userContext);
+  const loggedIn = !!authKey;
+
+  const navigate = useNavigate();
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
 
@@ -154,12 +160,12 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
     }
   };
 
-  const displayedFields = !loggedIn ? fields : fields.slice(0, 5);
+  const displayedFields = loggedIn ? fields : fields.slice(0, 5);
 
   return (
     <Box
       width="100%"
-      height={height}      
+      height={height}
       display="flex"
       flexDirection="column"
       gap={2}
@@ -186,12 +192,18 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
                   <IconButton disableRipple>
                     <CircleIcon style={{ color: colors.green, fontSize: "9px" }} />
                   </IconButton>
-				  <IconButton size="small" disableRipple onClick={() => handleExtract(index)}>
+                  <IconButton size="small" disableRipple onClick={() => handleExtract(index)}>
                     <LogoutIcon style={{ color: colors.green, fontSize: "17px" }} />
                   </IconButton>
-                  <IconButton size="small" disableRipple onClick={() => handleEdit(index)}>
-                    <EditIcon style={{ color: colors.green, fontSize: "17px" }} />
-                  </IconButton>
+                  {loggedIn && (
+                    <IconButton
+                      size="small"
+                      disableRipple
+                      onClick={() => handleEdit(index)}
+                    >
+                      <EditIcon style={{ color: colors.green, fontSize: "17px" }} />
+                    </IconButton>
+                  )}
                 </Box>
               </Box>
 
@@ -275,37 +287,37 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
         </Box>
       )}
 
+      {loggedIn && (
+        <Box
 
-      <Box
-
-        sx={{
-          position: "sticky",
-          bottom: 16,
-          right: 32,
-          display: "flex",
-          marginRight: 4,
-          justifyContent: "flex-end",
-          mt: "auto",
-        }}
-      >
-        <Button
-
-          variant="contained"
           sx={{
-            backgroundColor: colors.green,
-            color: "#fff",
-            width: "180px",
-            borderRadius: "12px",
-            px: 4,
-            py: 1,
-            boxShadow: 3,
-            "&:hover": { backgroundColor: "#059669" },
+            position: "sticky",
+            bottom: 16,
+            right: 32,
+            display: "flex",
+            marginRight: 4,
+            justifyContent: "flex-end",
+            mt: "auto",
           }}
-          onClick={handleNext}
         >
-          Next
-        </Button>
-      </Box>
+          <Button
+
+            variant="contained"
+            sx={{
+              backgroundColor: colors.green,
+              color: "#fff",
+              width: "180px",
+              borderRadius: "12px",
+              px: 4,
+              py: 1,
+              boxShadow: 3,
+              "&:hover": { backgroundColor: "#059669" },
+            }}
+            onClick={handleNext}
+          >
+            Next
+          </Button>
+        </Box>)}
     </Box>
   );
 
