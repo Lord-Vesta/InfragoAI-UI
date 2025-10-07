@@ -311,7 +311,7 @@ const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
     }
   };
 
-  const displayedFields = !loggedIn ? fields : fields.slice(0, 5);
+  const displayedFields = jwtToken ? fields : fields.slice(0, 5);
 
   return (
     <Box
@@ -434,7 +434,7 @@ const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
         </Box>
       ))}
 
-      {!loggedIn && (
+      {jwtToken && (
         <Box
           display="flex"
           width="30vw"
