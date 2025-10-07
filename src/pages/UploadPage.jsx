@@ -4,23 +4,25 @@ import FileUploadDialog from "../components/FileUploadDialog";
 import { uploadPdfAnonymous, uploadPdfAuthenticated } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import colors from "../assets/colors";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
   const [file, setFile] = useState(null);
-  const { setSessionId, jwtToken } = useContext(userContext);
+  const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
 
   const navigate = useNavigate();
+  const { project_id } = useParams();
 
   const handleUploadPdfAnonymous = async () => {
     try {
       const formData = new FormData();
       formData.append("pdf_file", file);
       const response = await uploadPdfAnonymous(formData);
-      console.log(response, "response----------------");
       if (response) {
         response?.session_id && setSessionId(response?.session_id);
+        response?.project_id && setProjectId(response?.project_id);
         toast.success("File uploaded successfully");
       }
     } catch (error) {
@@ -32,11 +34,9 @@ const UploadPage = () => {
     try {
       const formData = new FormData();
       formData.append("pdf_file", file);
-      formData.append("project_id", "64b8f4f4e4b0c9b1f8e4d2a1");
-      const response = await uploadPdfAuthenticated(formData);
-      console.log(response, "response----------------");
+      formData.append("project_id", project_id);
+      const response = await uploadPdfAuthenticated(formData, project_id);
       if (response) {
-        response?.session_id && setSessionId(response?.session_id);
         toast.success("File uploaded successfully");
       }
     } catch (error) {
@@ -47,7 +47,7 @@ const UploadPage = () => {
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "85vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -72,22 +72,21 @@ const UploadPage = () => {
       </Box>
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          mt: 10,
+          position: "absolute",
+          bottom: "5rem",
+          right: "2rem",
         }}
       >
         <Button
           sx={{
-            display: "block",
+            backgroundColor: colors.green,
             color: "#fff",
-            bgcolor: "#818181",
+            width: "180px",
             borderRadius: "12px",
-            width: "10rem",
-            alignContent: "center",
-            fontSize: "10px",
-            height: "2rem",
+            px: 4,
+            py: 1,
+            boxShadow: 3,
+            "&:hover": { backgroundColor: "#059669" },
           }}
           onClick={() => navigate("/ReviewExtracted")}
         >

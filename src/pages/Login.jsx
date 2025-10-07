@@ -32,7 +32,7 @@ const Login = () => {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef([]);
-  const { sessionId, setSessionId } = useContext(userContext);
+  const { sessionId, setSessionId, projectId } = useContext(userContext);
 
   const navigate = useNavigate();
   const handleChange = (e, index) => {
@@ -78,9 +78,9 @@ const Login = () => {
         localStorage.setItem("accessToken", access);
         if (sessionId) {
           setSessionId(null);
-          navigate("/ReviewExtracted");
+          navigate("/ReviewExtracted/" + projectId);
         } else {
-          navigate("/");
+          navigate("/profile");
         }
         window.location.reload();
       }

@@ -14,7 +14,6 @@ const TechnicalConfirmation = () => {
     const fetchData = async () => {
       try {
         const res = await getQualificationInputs();
-       console.log("res",res) 
         setQualificationData(res);
       } catch (err) {
         console.error("Error fetching qualification inputs:", err);
@@ -68,9 +67,9 @@ const TechnicalConfirmation = () => {
       </Box>
 
       <Box mt={2}>
-        {activeTab === "extracted" && <ReviewExtracted height="60vh" />}
+        {activeTab === "extracted" && <ReviewExtracted height="70vh" />}
         {activeTab === "userInput" && (
-          <QualificationInputs height="60vh" initialData={qualificationData} />
+          <QualificationInputs height="70vh" initialData={qualificationData} />
         )}
       </Box>
     </Box>

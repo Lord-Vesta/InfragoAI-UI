@@ -14,11 +14,13 @@ export const router = createBrowserRouter([
     element: <Mainlayout />,
     children: [
       { path: "/upload", element: <UploadPage /> },
-      { path: "/", element: <Profile /> },
+      { path: "/profile", element: <Profile /> },
       { path: "/ReviewExtracted", element: <ReviewExtracted /> },
       { path: "/QualificationInputs", element: <QualificationInputs /> },
       { path: "/TechnicalConfirmation", element: <TechnicalConfirmation /> },
       { path: "/BGsummary", element: <BGsummary /> },
+      { path: "/upload/:project_id", element: <UploadPage /> },
+      { path: "/ReviewExtracted/:projectId", element: <ReviewExtracted /> },
     ],
   },
   {

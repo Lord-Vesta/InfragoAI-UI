@@ -7,7 +7,9 @@ const {
   PROJECTS,
   CREATEPROJECT,
   PROJECTLIST,
- QUALIFICATION_INPUTS,GET_QUALIFICATION_INPUTS} = ApiConfig;
+  QUALIFICATION_INPUTS,
+  GET_QUALIFICATION_INPUTS,
+} = ApiConfig;
 
 export const sendOtp = async (data) => {
   try {
@@ -59,10 +61,10 @@ export const uploadPdfAnonymous = async (data) => {
   }
 };
 
-export const uploadPdfAuthenticated = async (data) => {
+export const uploadPdfAuthenticated = async (data,project_id) => {
   try {
     const response = await axiosclient.post(
-      PROJECTS + data?.project_id + "upload-pdf/",
+      PROJECTS + project_id + "/" + "upload-pdf/",
       data,
       {
         headers: {
@@ -82,7 +84,7 @@ export const getProjects = async () => {
       headers: {
         "ngrok-skip-browser-warning": "true",
       },
-    })
+    });
     return response.data;
   } catch (error) {
     throw error;

@@ -9,8 +9,10 @@ import { qualificationInputs } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 
-const QualificationInputs = ({ height = "79vh", initialData }) => {
-  const [projects, setProjects] = useState([{ name: "", scope: "", year: "", value: "" }]);
+const QualificationInputs = ({ height = "85vh", initialData }) => {
+  const [projects, setProjects] = useState([
+    { name: "", scope: "", year: "", value: "" },
+  ]);
 
   const [numericValues, setNumericValues] = useState({
     turnover3: "",
@@ -29,7 +31,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
   const [errors, setErrors] = useState({});
   useEffect(() => {
     if (initialData) {
-
       setNumericValues({
         turnover3: initialData?.data?.turnover_past_3_years?.edited_value || "",
         turnover5: initialData?.data?.turnover_past_5_years?.edited_value || "",
@@ -42,13 +43,19 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
         quotedPrice: initialData?.data?.quoted_price?.edited_value || "",
       });
 
+      setLitigationStatus(
+        initialData?.data?.litigation_blacklist_status?.edited_value === "True"
+          ? "Yes"
+          : "No"
+      );
+      setLitigationDetails(
+        initialData?.data?.litigation_blacklist_details?.edited_value || ""
+      );
 
-      setLitigationStatus(initialData?.data?.litigation_blacklist_status?.edited_value === "True" ? "Yes" : "No");
-      setLitigationDetails(initialData?.data?.litigation_blacklist_details?.edited_value || "");
-
-
-      if (initialData?.similar_projects && Array.isArray(initialData.similar_projects)) {
-
+      if (
+        initialData?.similar_projects &&
+        Array.isArray(initialData.similar_projects)
+      ) {
         const formattedProjects = initialData?.similar_projects.map((proj) => ({
           id: proj.similar_project_id,
           name: proj.is_edited ? proj.edited_name : proj.name,
@@ -60,7 +67,9 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
       }
     }
   }, [initialData]);
-  const isInitialData = Boolean(initialData && Object.keys(initialData).length > 0);
+  const isInitialData = Boolean(
+    initialData && Object.keys(initialData).length > 0
+  );
 
   const handleAddProject = () => {
     setProjects([...projects, { name: "", scope: "", year: "", value: "" }]);
@@ -77,7 +86,8 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
         bg_utilized: numericValues.bgUtilized,
         bg_available: numericValues.bgAvailable,
         quoted_price: numericValues.quotedPrice,
-        litigation_blacklist_status: litigationStatus === "Yes" ? "True" : "False",
+        litigation_blacklist_status:
+          litigationStatus === "Yes" ? "True" : "False",
         litigation_blacklist_details: litigationDetails,
         similar_projects: JSON.stringify(projects),
       };
@@ -91,8 +101,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
         formData.append("registration_certification", certificateFile);
       }
 
-
-
       const response = await qualificationInputs(formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -101,7 +109,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
-
       } else {
         console.error(" Request Setup Error:", err.message);
       }
@@ -114,7 +121,8 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
       if (field === "bgLimit" || field === "bgUtilized") {
         const limit = Number(updatedValues.bgLimit) || 0;
         const utilized = Number(updatedValues.bgUtilized) || 0;
-        updatedValues.bgAvailable = limit - utilized > 0 ? String(limit - utilized) : "0";
+        updatedValues.bgAvailable =
+          limit - utilized > 0 ? String(limit - utilized) : "0";
       }
 
       setNumericValues(updatedValues);
@@ -128,7 +136,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
       }
     }
   };
-
 
   return (
     <Box
@@ -222,7 +229,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
           Similar Projects Executed
         </Typography>
 
-
         {projects.map((project, index) => (
           <Paper
             key={index}
@@ -240,7 +246,13 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
             </Typography>
 
             {["name", "scope", "year", "value"].map((field) => (
-              <Box key={field} display="flex" alignItems="center" gap={2} mb={1}>
+              <Box
+                key={field}
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={1}
+              >
                 <Typography fontSize={12} fontWeight={700} width="80px">
                   {field.charAt(0).toUpperCase() + field.slice(1)}:
                 </Typography>
@@ -253,7 +265,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
                     const updated = [...projects];
                     updated[index][field] = e.target.value;
                     setProjects(updated);
-
                   }}
                   showIcon={true}
                 />
@@ -262,14 +273,12 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
           </Paper>
         ))}
 
-
         <Box mb={2}>
           <CustomButton label="Add More" onClick={handleAddProject} />
         </Box>
       </Box>
 
       <Box display="flex" flexDirection="column" gap={2}>
-
         <Box display="flex" alignItems="center" gap={1}>
           <CustomTextField
             placeholder="Net Worth (CA certified)"
@@ -335,7 +344,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
           error={!!errors.bgAvailable}
           helperText={errors.bgAvailable}
           disabled
-
         />
         <CustomTextField
           placeholder="Quoted Price"
@@ -385,7 +393,6 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
           Registration/Certificates
         </Typography>
 
-
         {initialData?.registration_file ? (
           <Box
             bgcolor="#fff"
@@ -403,7 +410,10 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
               Uploaded File: {initialData.registration_file.file_name}
             </Typography>
             <Typography fontSize={12} color="gray">
-              {(initialData.registration_file.file_size / 1024 / 1024).toFixed(2)} MB
+              {(initialData.registration_file.file_size / 1024 / 1024).toFixed(
+                2
+              )}{" "}
+              MB
             </Typography>
 
             {initialData.registration_file.file_type === "pdf" ? (
@@ -435,7 +445,10 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
                 cursor: "pointer",
               }}
               onClick={() =>
-                window.open(initialData.registration_file.download_url, "_blank")
+                window.open(
+                  initialData.registration_file.download_url,
+                  "_blank"
+                )
               }
             >
               Download / View Full File

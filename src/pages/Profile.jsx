@@ -22,12 +22,13 @@ import AddProject from "./AddProject.jsx";
 import { getProjects } from "../Utils/Api.utils.js";
 import { createProject } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const Profile = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [projects, setProjects] = useState([]);
 
-  const [projectName, setProjectName] = useState("");
+  const navigate = useNavigate();
   const handleAddProject = async (projectName) => {
     const data = { name: projectName };
     try {
@@ -75,7 +76,7 @@ const Profile = () => {
   return (
     <Box
       sx={{
-        height: "100vh",
+        height: "85vh",
         width: "100%",
         overflowY: "auto",
         display: "flex",
@@ -166,7 +167,6 @@ const Profile = () => {
           display: "flex",
           flexDirection: "column",
           overflowY: "hidden",
-          flex: 1,
         }}
       >
         {/* Header */}
@@ -214,7 +214,7 @@ const Profile = () => {
         </Box>
 
         {/* Table */}
-        <Box sx={{ px: 2, overflowY: "auto", flex: 1 }}>
+        <Box sx={{ px: 2, overflowY: "auto" }}>
           <Table>
             <TableHead>
               <TableRow
@@ -227,7 +227,7 @@ const Profile = () => {
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody sx={{ overflowY: "auto" }}>
               {projects.map((p) => (
                 <TableRow
                   key={p.project_id}
@@ -236,8 +236,10 @@ const Profile = () => {
                       borderBottom: "1px solid #F0F0F0",
                       py: 1.5,
                       color: "#000000",
+                      cursor: "pointer",
                     },
                   }}
+                  onClick={() => navigate(`/upload/${p.project_id}`)}
                 >
                   {/* Company + Avatar */}
                   <TableCell>

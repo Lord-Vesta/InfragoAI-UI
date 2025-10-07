@@ -7,7 +7,7 @@ import CustomSelect from "../components/Select";
 import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
 import LogoutIcon from "@mui/icons-material/Logout";
-
+import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate } from "react-router";
@@ -161,7 +161,7 @@ const fieldConfig = [
   },
 ];
 
-const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
+const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -434,7 +434,7 @@ const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
         </Box>
       ))}
 
-      {jwtToken && (
+      {!jwtToken && (
         <Box
           display="flex"
           width="30vw"
@@ -462,30 +462,14 @@ const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
       <Box
         sx={{
           position: "sticky",
-          bottom: 16,
+          bottom: "1rem",
           right: 32,
           display: "flex",
           marginRight: 4,
           justifyContent: "flex-end",
-          mt: "auto",
         }}
       >
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: colors.green,
-            color: "#fff",
-            width: "180px",
-            borderRadius: "12px",
-            px: 4,
-            py: 1,
-            boxShadow: 3,
-            "&:hover": { backgroundColor: "#059669" },
-          }}
-          onClick={handleNext}
-        >
-          Next
-        </Button>
+        <CustomButton label="Next" onClick={handleNext} />
       </Box>
     </Box>
   );

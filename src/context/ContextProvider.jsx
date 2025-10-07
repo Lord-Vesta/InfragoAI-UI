@@ -6,6 +6,7 @@ const ContextProvider = ({ children }) => {
   const accessToken = localStorage.getItem("accessToken");
   const [sessionId, setSessionId] = useState(null);
   const [jwtToken, setJwtToken] = useState(accessToken || null);
+  const [projectId, setProjectId] = useState(null);
 
   useEffect(() => {
     if (accessToken) {
@@ -13,7 +14,9 @@ const ContextProvider = ({ children }) => {
     }
   }, [accessToken]);
   return (
-    <userContext.Provider value={{ sessionId, setSessionId, jwtToken }}>
+    <userContext.Provider
+      value={{ sessionId, setSessionId, jwtToken, projectId, setProjectId }}
+    >
       {children}
     </userContext.Provider>
   );
