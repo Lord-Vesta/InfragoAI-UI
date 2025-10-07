@@ -3,11 +3,11 @@ import axiosclient from "./Axios-Client";
 const {
   SEND_OTP,
   VERIFY_OTP,
-  QUALIFICATION_INPUTS,
-  GET_QUALIFICATION_INPUTS,
   UPLOAD_PDF_ANONYMOUS,
   PROJECTS,
-} = ApiConfig;
+  CREATEPROJECT,
+  PROJECTLIST,
+ QUALIFICATION_INPUTS,GET_QUALIFICATION_INPUTS} = ApiConfig;
 
 export const sendOtp = async (data) => {
   try {
@@ -70,6 +70,28 @@ export const uploadPdfAuthenticated = async (data) => {
         },
       }
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getProjects = async () => {
+  try {
+    const response = await axiosclient.get(PROJECTLIST, {
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    })
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createProject = async (data) => {
+  try {
+    const response = await axiosclient.post(CREATEPROJECT, data);
     return response.data;
   } catch (error) {
     throw error;

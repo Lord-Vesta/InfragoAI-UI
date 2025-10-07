@@ -10,8 +10,15 @@ import {
   DialogContent,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import { useState, useEffect } from "react";
 
-const AddProject = ({ handleClose }) => {
+const AddProject = ({ handleClose, handleAddProject }) => {
+ const [projectName, setProjectName] = useState("");
+
+   const handleSubmit = () => {
+    if (!projectName.trim()) return;
+    handleAddProject(projectName); // ✅ calls parent function to create project
+  };
   return (
     <Box
       sx={{
@@ -44,7 +51,7 @@ const AddProject = ({ handleClose }) => {
         <DialogContent
           sx={{ textAlign: "center", position: "relative", pt: 6 }}
         >
-          <Avatar
+          {/* <Avatar
             src="https://randomuser.me/api/portraits/women/44.jpg"
             sx={{
               width: 56,
@@ -55,10 +62,10 @@ const AddProject = ({ handleClose }) => {
               border: "3px solid white",
               boxShadow: 2,
             }}
-          />
+          /> */}
 
           {/* Title */}
-          <Box
+          {/* <Box
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -74,7 +81,7 @@ const AddProject = ({ handleClose }) => {
             <IconButton size="small" sx={{ ml: 1, color: "#000000" }}>
               <EditIcon fontSize="small" />
             </IconButton>
-          </Box>
+          </Box> */}
 
           {/* Fields */}
           <Box display="flex" flexDirection="column" gap={2} mb={4}>
@@ -85,30 +92,13 @@ const AddProject = ({ handleClose }) => {
                   borderRadius: 0.8,
                 },
               }}
+              onChange={(e) => setProjectName(e.target.value)}
               size="small"
               fullWidth
               required
             />
-            <TextField
-              label="Lorem Ipsum"
-              size="small"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
-            />
-            <TextField
-              label="Lorem Ipsum"
-              size="small"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
-            />
+            
+           
           </Box>
 
           {/* Buttons */}
@@ -139,6 +129,7 @@ const AddProject = ({ handleClose }) => {
                 bgcolor: "#0FB97D",
                 "&:hover": { bgcolor: "#0ca76f" },
               }}
+              onClick={handleSubmit}
             >
               NEXT
             </Button>

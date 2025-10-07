@@ -1,16 +1,19 @@
-import React, { act, useState } from "react";
+import React, { act, useState, useContext } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import { userContext } from "../context/ContextProvider";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const { jwtToken } = useContext(userContext);
 
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -32,6 +35,10 @@ export default function Sidebar() {
     "/BGsummary",
   ];
   const handleStepClick = (i) => {
+    if (!jwtToken && i >= 2) {
+      toast.info("You must be logged in to access this step.");
+      return;
+    }
     setActiveStep(i);
     navigate(stepRoutes[i]);
   };
@@ -93,7 +100,7 @@ export default function Sidebar() {
               />
             </Box>
             <Typography variant="h6" sx={{ fontSize: "22px", fontWeight: 700 }}>
-              Infravo AI
+              Infrago AI
             </Typography>
           </Box>
         </Box>
@@ -189,6 +196,8 @@ export default function Sidebar() {
                       py: i === activeStep ? "10px" : "0",
                       ml: "10px",
                       gap: "20px",
+                      cursor: !jwtToken && i >= 2 ? "not-allowed" : "pointer",
+                      opacity: !jwtToken && i >= 2 ? 0.5 : 1,
                     }}
                     onClick={() => handleStepClick(i)}
                   >

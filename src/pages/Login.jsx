@@ -151,7 +151,7 @@ const Login = () => {
               }}
             >
               <img src={logo1} alt="logo" style={{ width: 30, height: 30 }} />{" "}
-              Infravo AI
+              Infrago AI
             </Typography>
 
             {/* Nav Links */}
@@ -315,6 +315,13 @@ const Login = () => {
             onChange={(e) => {
               setMobile(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                console.log("Enter key pressed, triggering OTP request");
+                handleGetOtp();
+              }
+            }}
           />
 
           <Button
@@ -372,7 +379,6 @@ const Login = () => {
               ))}
           </Grid>
 
-          {/* Sign Up */}
           <Button
             theme={theme}
             fullWidth

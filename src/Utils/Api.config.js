@@ -6,4 +6,6 @@ export const ApiConfig = {
     QUALIFICATION_INPUTS:`/api/projects/1/data/submit/`,
     GET_QUALIFICATION_INPUTS:`/api/projects/1/data/`,
   UPLOAD_PDF_ANONYMOUS: `/api/projects/upload-pdf/`,
+  PROJECTLIST: `/api/projects/userprojects/`,
+  CREATEPROJECT: `/api/projects/create/`,
 };
