@@ -1,4 +1,4 @@
-import React, { act, useState, useContext } from "react";
+import React, { act, useState, useContext, useEffect } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
@@ -6,7 +6,7 @@ import { userContext } from "../context/ContextProvider";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 export default function Sidebar() {
@@ -34,6 +34,8 @@ export default function Sidebar() {
     "/TechnicalConfirmation",
     "/BGsummary",
   ];
+
+  const location = useLocation().pathname;
   const handleStepClick = (i) => {
     if (!jwtToken && i >= 2) {
       toast.info("You must be logged in to access this step.");
@@ -42,6 +44,14 @@ export default function Sidebar() {
     setActiveStep(i);
     navigate(stepRoutes[i]);
   };
+
+  useEffect(() => {
+    stepRoutes.forEach((route, index) => {
+      if (location === route) {
+        setActiveStep(index);
+      }
+    });
+  }, [location]);
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* Left Sidebar */}
@@ -56,7 +66,7 @@ export default function Sidebar() {
           justifyContent: "space-between",
           borderRadius: "0 20px 20px 0",
           overflow: "hidden",
-          boxShadow: "0px 0px 25px 0px #00000059",
+          boxShadow: "0px 0px 20px 0px #00000059",
         }}
       >
         <Box
@@ -64,7 +74,7 @@ export default function Sidebar() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "40px",
+            gap: "18px",
             ml: "22px",
           }}
         >
@@ -90,7 +100,9 @@ export default function Sidebar() {
               display: "flex",
               alignItems: "center",
               gap: 1,
+              cursor: "pointer",
             }}
+            onClick={() => navigate("/profile")}
           >
             <Box sx={{ width: 40, height: 40 }}>
               <img
@@ -127,6 +139,7 @@ export default function Sidebar() {
                 fontSize: "20px",
                 cursor: "pointer",
               }}
+              onClick={() => navigate("/profile")}
             >
               Profile
             </Box>
@@ -268,7 +281,7 @@ export default function Sidebar() {
         }}
         onClick={handleExpanded}
       >
-        {isExpanded === false ? (
+        {isExpanded === false && location !== "/profile" ? (
           <Box
             sx={{
               display: "flex",
@@ -313,7 +326,7 @@ export default function Sidebar() {
                       justifyContent: "center",
                       cursor: "pointer",
                     }}
-                    onClick={() => setActiveStep(i)} // 👈 expand on click
+                    onClick={() => setActiveStep(i)}
                   >
                     <CloudUploadOutlinedIcon fontSize="16" color="#0FB97D" />
                   </Box>

@@ -32,10 +32,9 @@ const Login = () => {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef([]);
-  const { sessionId } = useContext(userContext);
+  const { sessionId, setSessionId, projectId } = useContext(userContext);
+
   const navigate = useNavigate();
-
-
   const handleChange = (e, index) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     if (!value) return;
@@ -70,14 +69,19 @@ const Login = () => {
     try {
       const data = { phone_number: mobile, otp_code: "1234" };
       if (sessionId) {
-        data.sessionId = sessionId;
+        data.session_id = sessionId;
       }
       const response = await verifyOtp(data);
 
       if (response) {
         const { access } = response;
         localStorage.setItem("accessToken", access);
-        navigate("/profile");
+        if (sessionId) {
+          setSessionId(null);
+          navigate("/ReviewExtracted/" + projectId);
+        } else {
+          navigate("/profile");
+        }
         window.location.reload();
       }
     } catch (error) {
@@ -219,7 +223,7 @@ const Login = () => {
                 borderRadius: "20px",
                 px: 6,
               }}
-              onClick={() => navigate("/upload")} 
+              onClick={() => navigate("/upload")}
             >
               Upload File
             </Button>

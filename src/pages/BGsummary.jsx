@@ -53,7 +53,7 @@ const BGsummary = () => {
     <Box
       width="100%"
       display="flex"
-      height={"78vh"}
+      height={"85vh"}
       overflow={"auto"}
       flexDirection="column"
       gap={3}
@@ -75,8 +75,17 @@ const BGsummary = () => {
         {/* Results */}
         <Box display={"flex"} flexDirection={"column"} gap={2} mb={1}>
           {/* Qualification */}
-          <Box display="flex" flexDirection="column" alignItems="start" gap="4px">
-            <Typography fontWeight="500" fontSize={16} color={colors.black_text}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="start"
+            gap="4px"
+          >
+            <Typography
+              fontWeight="500"
+              fontSize={16}
+              color={colors.black_text}
+            >
               Qualification Result
             </Typography>
             <CustomButton
@@ -90,8 +99,17 @@ const BGsummary = () => {
           </Box>
 
           {/* BG Eligibility */}
-          <Box display="flex" flexDirection="column" alignItems="start" gap="4px">
-            <Typography fontWeight="500" fontSize={16} color={colors.black_text}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="start"
+            gap="4px"
+          >
+            <Typography
+              fontWeight="500"
+              fontSize={16}
+              color={colors.black_text}
+            >
               BG Eligibility Result
             </Typography>
             <CustomButton
@@ -111,7 +129,14 @@ const BGsummary = () => {
         </Box>
 
         {/* Download Summary Report */}
-        <Box display="flex" justifyContent="flex-end" alignItems="end" mt={3} mx={2} mb={1}>
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="end"
+          mt={3}
+          mx={2}
+          mb={1}
+        >
           <CustomButton
             label="Downloadable summary report"
             width="250px"
@@ -128,7 +153,9 @@ const BGsummary = () => {
 
       {/* Shortfall Modal */}
       <Dialog open={openShortfall} onClose={() => setOpenShortfall(false)}>
-        <DialogTitle sx={{ display: "flex", justifyContent: "flex-end", pb: 0 }}>
+        <DialogTitle
+          sx={{ display: "flex", justifyContent: "flex-end", pb: 0 }}
+        >
           <IconButton onClick={() => setOpenShortfall(false)} size="small">
             <CloseIcon />
           </IconButton>
@@ -137,13 +164,18 @@ const BGsummary = () => {
           <Typography fontSize={50} mb={1}>
             😟
           </Typography>
-          <Typography variant="h6" fontWeight="600" color={colors.green} gutterBottom>
+          <Typography
+            variant="h6"
+            fontWeight="600"
+            color={colors.green}
+            gutterBottom
+          >
             Shortfall Detected
           </Typography>
           <Typography color="text.secondary" mb={3}>
             BG shortfall identified. <br />
-            Review your financials and connect with our partnered Bank
-            Guarantee providers directly in-platform.
+            Review your financials and connect with our partnered Bank Guarantee
+            providers directly in-platform.
           </Typography>
           <Button
             variant="contained"
@@ -162,9 +194,18 @@ const BGsummary = () => {
       </Dialog>
 
       {/* Download Files Modal */}
-      <Dialog open={openDownload} onClose={() => setOpenDownload(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDownload}
+        onClose={() => setOpenDownload(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle
-          sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
           <Typography fontWeight="600" fontSize={18} color={colors.green}>
             Downloadable Summary Report
@@ -175,9 +216,19 @@ const BGsummary = () => {
         </DialogTitle>
         <DialogContent>
           {/* File Row */}
-          <Box display="flex" alignItems="center" justifyContent="space-between" p={2}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            p={2}
+          >
             <Box display="flex" alignItems="center" gap={2}>
-              <img src="src\assets\excel.png" alt="excel" width={35} height={35} />
+              <img
+                src="src\assets\excel.png"
+                alt="excel"
+                width={35}
+                height={35}
+              />
               <Box>
                 <Typography>Project Name.xlsx</Typography>
                 <Typography fontSize={12} color="text.secondary">
@@ -189,11 +240,21 @@ const BGsummary = () => {
               <DownloadIcon />
             </IconButton>
           </Box>
-<hr></hr>
+          <hr></hr>
           {/* File Row */}
-          <Box display="flex" alignItems="center" justifyContent="space-between" p={2}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            p={2}
+          >
             <Box display="flex" alignItems="center" gap={2}>
-              <img src="src\assets\PDF_file_icon.svg.png" alt="pdf" width={35} height={35} />
+              <img
+                src="src\assets\PDF_file_icon.svg.png"
+                alt="pdf"
+                width={35}
+                height={35}
+              />
               <Box>
                 <Typography>Project Name.pdf</Typography>
                 <Typography fontSize={12} color="text.secondary">

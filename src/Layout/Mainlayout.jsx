@@ -20,7 +20,7 @@ const Mainlayout = () => {
       }}
     >
       <Sidebar />
-      {location === "/profile" ? (
+      {location === "/" ? (
         <Box
           sx={{
             height: "95%",
@@ -48,7 +48,7 @@ const Mainlayout = () => {
             flexDirection: "column",
           }}
         >
-          <Box
+          {/* <Box
             sx={{
               display: "flex",
               alignItems: "center",
@@ -117,7 +117,7 @@ const Mainlayout = () => {
                 </IconButton>
               </Box>
             </Box>
-          </Box>
+          </Box> */}
           <Box
             sx={{
               flex: 1,

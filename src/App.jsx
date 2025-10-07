@@ -1,9 +1,7 @@
-
-import { useState } from "react";
 import { RouterProvider } from "react-router";
-import router from "./routes";
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './theme';
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme";
+import { router } from "./routes";
 
 function App() {
   return (

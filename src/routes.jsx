@@ -19,6 +19,8 @@ export const router = createBrowserRouter([
       { path: "/QualificationInputs", element: <QualificationInputs /> },
       { path: "/TechnicalConfirmation", element: <TechnicalConfirmation /> },
       { path: "/BGsummary", element: <BGsummary /> },
+      { path: "/upload/:project_id", element: <UploadPage /> },
+      { path: "/ReviewExtracted/:projectId", element: <ReviewExtracted /> },
     ],
   },
   {
@@ -27,4 +29,9 @@ export const router = createBrowserRouter([
   },
 ]);
 
-export default router;
+export const loginRoute = createBrowserRouter([
+  {
+    path: "/",
+    element: <Login />,
+  },
+]);
