@@ -7,7 +7,7 @@ const {
   PROJECTS,
   CREATEPROJECT,
   PROJECTLIST,
-, QUALIFICATION_INPUTS,GET_QUALIFICATION_INPUTS} = ApiConfig;
+ QUALIFICATION_INPUTS,GET_QUALIFICATION_INPUTS} = ApiConfig;
 
 export const sendOtp = async (data) => {
   try {

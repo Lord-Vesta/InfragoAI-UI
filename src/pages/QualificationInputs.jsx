@@ -455,7 +455,7 @@ const QualificationInputs = ({ height = "79vh", initialData }) => {
               alignItems: "center",
               justifyContent: "center",
               position: "relative",
-              padding: "24px",
+              // padding: "24px",
               marginBottom: "8px",
             }}
           >
