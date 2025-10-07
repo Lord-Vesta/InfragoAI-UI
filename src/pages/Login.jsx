@@ -80,7 +80,7 @@ const Login = () => {
           setSessionId(null);
           navigate("/ReviewExtracted");
         } else {
-          navigate("/profile");
+          navigate("/");
         }
         window.location.reload();
       }

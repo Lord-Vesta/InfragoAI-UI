@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     element: <Mainlayout />,
     children: [
       { path: "/upload", element: <UploadPage /> },
-      { path: "/profile", element: <Profile /> },
+      { path: "/", element: <Profile /> },
       { path: "/ReviewExtracted", element: <ReviewExtracted /> },
       { path: "/QualificationInputs", element: <QualificationInputs /> },
       { path: "/TechnicalConfirmation", element: <TechnicalConfirmation /> },
@@ -27,4 +27,9 @@ export const router = createBrowserRouter([
   },
 ]);
 
-export default router;
+export const loginRoute = createBrowserRouter([
+  {
+    path: "/",
+    element: <Login />,
+  },
+]);
