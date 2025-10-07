@@ -4,11 +4,14 @@ import FileUploadDialog from "../components/FileUploadDialog";
 import { uploadPdfAnonymous, uploadPdfAuthenticated } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
+import { useNavigate } from "react-router";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
   const [file, setFile] = useState(null);
   const { setSessionId, jwtToken } = useContext(userContext);
+
+  const navigate = useNavigate();
 
   const handleUploadPdfAnonymous = async () => {
     try {
@@ -86,6 +89,7 @@ const UploadPage = () => {
             fontSize: "10px",
             height: "2rem",
           }}
+          onClick={() => navigate("/ReviewExtracted")}
         >
           Next
         </Button>

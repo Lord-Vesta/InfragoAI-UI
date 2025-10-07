@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, IconButton, Typography,Button } from "@mui/material";
+import React, { useState, useEffect, useContext } from "react";
+import { Box, IconButton, Typography, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
@@ -8,65 +8,217 @@ import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-
 import Toggle from "../components/toggleButton";
+import { userContext } from "../context/ContextProvider";
+import { useNavigate } from "react-router";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
 
 const fieldConfig = [
-  { label: "Tender Name", type: "text", validation: { required: true, maxLength: 200 } },
-  { label: "Tender Id/No.", type: "text", validation: { required: true, pattern: /^[A-Za-z0-9-]+$/ } },
+  {
+    label: "Tender Name",
+    type: "text",
+    validation: { required: true, maxLength: 200 },
+  },
+  {
+    label: "Tender Id/No.",
+    type: "text",
+    validation: { required: true, pattern: /^[A-Za-z0-9-]+$/ },
+  },
   { label: "Procuring Entity", type: "text", validation: { required: true } },
-  { label: "Procurement Mode", type: "select", validation: { required: true, options: procurementModes } },
+  {
+    label: "Procurement Mode",
+    type: "select",
+    validation: { required: true, options: procurementModes },
+  },
   { label: "Location/State", type: "text", validation: { required: true } },
 
   { label: " Dates", type: "heading" },
-  { label: "Pre-Bid Date", type: "date", validation: { required: true, minDate: "today" } },
-  { label: "Submission Date", type: "date", validation: { required: true, minDate: "today", afterField: "Pre-Bid Date" } },
-  { label: "Technical Bid Opening", type: "date", validation: { required: true, afterField: "Submission Date" } },
-  { label: "Financial Bid Opening", type: "date", validation: { required: true, afterField: "Technical Bid Opening" } },
-  { label: "Bid Validity(Days)", type: "text", validation: { required: true, number: true, min: 1 } },
+  {
+    label: "Pre-Bid Date",
+    type: "date",
+    validation: { required: true, minDate: "today" },
+  },
+  {
+    label: "Submission Date",
+    type: "date",
+    validation: {
+      required: true,
+      minDate: "today",
+      afterField: "Pre-Bid Date",
+    },
+  },
+  {
+    label: "Technical Bid Opening",
+    type: "date",
+    validation: { required: true, afterField: "Submission Date" },
+  },
+  {
+    label: "Financial Bid Opening",
+    type: "date",
+    validation: { required: true, afterField: "Technical Bid Opening" },
+  },
+  {
+    label: "Bid Validity(Days)",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
 
   { label: "Commercial/Security", type: "heading" },
-  { label: "EMD Values", type: "text", validation: { required: true, number: true, min: 0.01 } },
-  { label: "EMD Validity (Days)", type: "text", validation: { required: true, number: true, min: 1 } },
-  { label: "PBG %", type: "text", validation: { required: true, number: true, min: 0, max: 10 } },
-  { label: "Additional PBG Rule (APBG)", type: "text", validation: { required: false } },
-  { label: "Security Deposit %", type: "text", validation: { required: true, number: true, min: 0, max: 10 } },
-  { label: "Retention %", type: "text", validation: { required: true, number: true, min: 0, max: 10 } },
-  { label: "Price Adjustment (Escalation)", type: "toggle", validation: { required: true } },
-  { label: "Procurement Mode ", type: "select", validation: { required: true, options: baseRates } },
-  { label: "Tenure (months)", type: "text", validation: { required: true, number: true, min: 1 } },
-  { label: "DLP (months)", type: "text", validation: { required: true, number: true, min: 1 } },
+  {
+    label: "EMD Values",
+    type: "text",
+    validation: { required: true, number: true, min: 0.01 },
+  },
+  {
+    label: "EMD Validity (Days)",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
+  {
+    label: "PBG %",
+    type: "text",
+    validation: { required: true, number: true, min: 0, max: 10 },
+  },
+  {
+    label: "Additional PBG Rule (APBG)",
+    type: "text",
+    validation: { required: false },
+  },
+  {
+    label: "Security Deposit %",
+    type: "text",
+    validation: { required: true, number: true, min: 0, max: 10 },
+  },
+  {
+    label: "Retention %",
+    type: "text",
+    validation: { required: true, number: true, min: 0, max: 10 },
+  },
+  {
+    label: "Price Adjustment (Escalation)",
+    type: "toggle",
+    validation: { required: true },
+  },
+  {
+    label: "Procurement Mode ",
+    type: "select",
+    validation: { required: true, options: baseRates },
+  },
+  {
+    label: "Tenure (months)",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
+  {
+    label: "DLP (months)",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
 
   { label: "Eligibility Thresholds (Tender-defined)", type: "heading" },
-  { label: "Avg Annual Turnover Threshold", type: "text", validation: { required: true, number: true, min: 1 } },
-  { label: "Similar Work Threshold (₹ Cr)", type: "text", validation: { required: true, number: true, min: 1 } },
-  { label: "Similar Work Definition", type: "text", validation: { required: true } },
-  { label: "Net Worth Requirement", type: "text", validation: { required: true } },
-  { label: "Liquid Assets / WC Requirement", type: "text", validation: { required: true, number: true, min: 1 } },
-  { label: "Bid Capacity Formula", type: "text", validation: { required: true } },
+  {
+    label: "Avg Annual Turnover Threshold",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
+  {
+    label: "Similar Work Threshold (₹ Cr)",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
+  {
+    label: "Similar Work Definition",
+    type: "text",
+    validation: { required: true },
+  },
+  {
+    label: "Net Worth Requirement",
+    type: "text",
+    validation: { required: true },
+  },
+  {
+    label: "Liquid Assets / WC Requirement",
+    type: "text",
+    validation: { required: true, number: true, min: 1 },
+  },
+  {
+    label: "Bid Capacity Formula",
+    type: "text",
+    validation: { required: true },
+  },
   { label: "JV Policy", type: "text", validation: { required: true } },
-  { label: "Key Personnel List", type: "textarea", validation: { required: true, minLength: 5 } },
-  { label: "Key Plant / Machinery List", type: "textarea", validation: { required: true, minLength: 5 } },
+  {
+    label: "Key Personnel List",
+    type: "textarea",
+    validation: { required: true, minLength: 5 },
+  },
+  {
+    label: "Key Plant / Machinery List",
+    type: "textarea",
+    validation: { required: true, minLength: 5 },
+  },
 ];
 
-const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
+const ReviewExtracted = ({ loggedIn, height = "79vh" }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
 
+  const { jwtToken } = useContext(userContext);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const response = [
-      { label: "Tender Name", value: "Lorem Ipsum", confidenceScore: 0.95, pageNo: 1 },
-      { label: "Tender Id/No.", value: "TND-001", confidenceScore: 0.98, pageNo: 1 },
-      { label: "Procuring Entity", value: "ABC Corp", confidenceScore: 0.92, pageNo: 1 },
-      { label: "Procurement Mode", value: "EPC", confidenceScore: 0.97, pageNo: 2 },
-      { label: "Location/State", value: "Maharashtra", confidenceScore: 0.93, pageNo: 2 },
-      { label: "Pre-Bid Date", value: "2025-10-01", confidenceScore: 0.96, pageNo: 3 },
-      { label: "Submission Date", value: "2025-10-10", confidenceScore: 0.94, pageNo: 3 },
-      { label: "Price Adjustment (Escalation)", value: "Yes", confidenceScore: 0.99, pageNo: 4 },
+      {
+        label: "Tender Name",
+        value: "Lorem Ipsum",
+        confidenceScore: 0.95,
+        pageNo: 1,
+      },
+      {
+        label: "Tender Id/No.",
+        value: "TND-001",
+        confidenceScore: 0.98,
+        pageNo: 1,
+      },
+      {
+        label: "Procuring Entity",
+        value: "ABC Corp",
+        confidenceScore: 0.92,
+        pageNo: 1,
+      },
+      {
+        label: "Procurement Mode",
+        value: "EPC",
+        confidenceScore: 0.97,
+        pageNo: 2,
+      },
+      {
+        label: "Location/State",
+        value: "Maharashtra",
+        confidenceScore: 0.93,
+        pageNo: 2,
+      },
+      {
+        label: "Pre-Bid Date",
+        value: "2025-10-01",
+        confidenceScore: 0.96,
+        pageNo: 3,
+      },
+      {
+        label: "Submission Date",
+        value: "2025-10-10",
+        confidenceScore: 0.94,
+        pageNo: 3,
+      },
+      {
+        label: "Price Adjustment (Escalation)",
+        value: "Yes",
+        confidenceScore: 0.99,
+        pageNo: 4,
+      },
     ];
 
     const apiData = fieldConfig.map((config) => {
@@ -142,15 +294,20 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
   };
 
   const handleNext = () => {
-    let valid = true;
-    fields.forEach((field, i) => {
-      if (field.type !== "heading") {
-        const error = validateField(i, field.value);
-        if (error) valid = false;
-      }
-    });
-    if (valid) {
-      alert("All validations passed!");
+    // let valid = true;
+    // fields.forEach((field, i) => {
+    //   if (field.type !== "heading") {
+    //     const error = validateField(i, field.value);
+    //     if (error) valid = false;
+    //   }
+    // });
+    // if (valid) {
+    //   alert("All validations passed!");
+    // }
+    if (jwtToken) {
+      navigate("/QualificationInputs");
+    } else {
+      navigate("/login");
     }
   };
 
@@ -159,42 +316,70 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
   return (
     <Box
       width="100%"
-      height={height}      
+      height={height}
       display="flex"
       flexDirection="column"
       gap={2}
       position="relative"
       overflow="auto"
     >
-      <Typography fontWeight="700" fontSize={24} color={colors.black_text} mb={2} mt={1}>
+      <Typography
+        fontWeight="700"
+        fontSize={24}
+        color={colors.black_text}
+        mb={2}
+        mt={1}
+      >
         Review & Qualification
       </Typography>
 
       {displayedFields.map((field, index) => (
         <Box key={index}>
           {field.type === "heading" ? (
-            <Typography fontWeight="700" fontSize={20} color={colors.green} mb={1}>
+            <Typography
+              fontWeight="700"
+              fontSize={20}
+              color={colors.green}
+              mb={1}
+            >
               {field.label}
             </Typography>
           ) : (
             <>
               <Box display="flex" alignItems="center" mb={1}>
-                <Typography variant="body1" fontWeight={500} color={colors.black_text}>
+                <Typography
+                  variant="body1"
+                  fontWeight={500}
+                  color={colors.black_text}
+                >
                   {field.label}
                 </Typography>
                 <Box display="flex" gap={2}>
                   <IconButton disableRipple>
-                    <CircleIcon style={{ color: colors.green, fontSize: "9px" }} />
+                    <CircleIcon
+                      style={{ color: colors.green, fontSize: "9px" }}
+                    />
                   </IconButton>
-				  <IconButton size="small" disableRipple onClick={() => handleExtract(index)}>
-                    <LogoutIcon style={{ color: colors.green, fontSize: "17px" }} />
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    onClick={() => handleExtract(index)}
+                  >
+                    <LogoutIcon
+                      style={{ color: colors.green, fontSize: "17px" }}
+                    />
                   </IconButton>
-                  <IconButton size="small" disableRipple onClick={() => handleEdit(index)}>
-                    <EditIcon style={{ color: colors.green, fontSize: "17px" }} />
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    onClick={() => handleEdit(index)}
+                  >
+                    <EditIcon
+                      style={{ color: colors.green, fontSize: "17px" }}
+                    />
                   </IconButton>
                 </Box>
               </Box>
-
 
               {field.type === "toggle" ? (
                 <Toggle
@@ -239,7 +424,6 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
                 />
               ) : null}
 
-
               {errors[index] && (
                 <Typography color="error" fontSize={12} mt={0.5}>
                   {errors[index]}
@@ -275,9 +459,7 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
         </Box>
       )}
 
-
       <Box
-
         sx={{
           position: "sticky",
           bottom: 16,
@@ -289,7 +471,6 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
         }}
       >
         <Button
-
           variant="contained"
           sx={{
             backgroundColor: colors.green,
@@ -308,7 +489,6 @@ const ReviewExtracted = ({ loggedIn,height = "79vh" }) => {
       </Box>
     </Box>
   );
-
 };
 
 export default ReviewExtracted;
