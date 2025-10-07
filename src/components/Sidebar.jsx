@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -93,7 +93,7 @@ export default function Sidebar() {
               />
             </Box>
             <Typography variant="h6" sx={{ fontSize: "22px", fontWeight: 700 }}>
-              Infravo AI
+              Infrago AI
             </Typography>
           </Box>
         </Box>
@@ -209,12 +209,10 @@ export default function Sidebar() {
                       }}
                       onClick={() => setActiveStep(i)}
                     >
-
                       <CloudUploadOutlinedIcon
                         fontSize="16"
                         sx={{ color: i < activeStep ? "#0FB97D" : "#fff" }}
                       />
-
                     </Box>
                     <Typography
                       variant="body2"
@@ -255,9 +253,9 @@ export default function Sidebar() {
           alignItems: "center",
           justifyContent: "center",
           maxWidth: 100,
-          ":hover":{
-            cursor:"pointer"
-          }
+          ":hover": {
+            cursor: "pointer",
+          },
         }}
         onClick={handleExpanded}
       >
@@ -294,7 +292,6 @@ export default function Sidebar() {
                   }}
                   onClick={() => handleStepClick(i)}
                 >
-
                   <Box
                     sx={{
                       width: 40,

@@ -1,15 +1,22 @@
-
-import React, { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const userContext = createContext();
 
-
 const ContextProvider = ({ children }) => {
-  const [authKey, setAuthKey] = useState(null);
+  const accessToken = localStorage.getItem("accessToken");
+  const [sessionId, setSessionId] = useState(null);
+  const [jwtToken, setJwtToken] = useState(accessToken || null);
 
-  const value = { authKey, setAuthKey };
-
-  return <userContext.Provider value={value}>{children}</userContext.Provider>;
+  useEffect(() => {
+    if (accessToken) {
+      setJwtToken(accessToken);
+    }
+  }, [accessToken]);
+  return (
+    <userContext.Provider value={{ sessionId, setSessionId, jwtToken }}>
+      {children}
+    </userContext.Provider>
+  );
 };
 
 export default ContextProvider;

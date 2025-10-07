@@ -14,11 +14,15 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import CancelIcon from "@mui/icons-material/Cancel";
 
-const FileUploadDialog = ({ open, onClose }) => {
-  const [file, setFile] = useState(null);
-
+const FileUploadDialog = ({
+  open,
+  onClose,
+  setFile,
+  file,
+  handlePdfUpload,
+}) => {
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0]; // only single file
+    const selectedFile = event.target.files[0];
     if (selectedFile) setFile(selectedFile);
   };
 
@@ -209,6 +213,7 @@ const FileUploadDialog = ({ open, onClose }) => {
         <Button
           variant="contained"
           sx={{ background: "#0FB97D", borderRadius: "8px", color: "#fff" }}
+          onClick={handlePdfUpload}
         >
           Next
         </Button>

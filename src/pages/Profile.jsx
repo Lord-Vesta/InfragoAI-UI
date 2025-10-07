@@ -14,161 +14,77 @@ import {
   LinearProgress,
   Chip,
 } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SearchIcon from "@mui/icons-material/Search";
 import Person from "../assets/Person.png";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import tableImg from "../assets/tableImg.jpg";
 import AddProject from "./AddProject.jsx";
+import { getProjects } from "../Utils/Api.utils.js";
+import { createProject } from "../Utils/Api.utils";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [openPopup, setOpenPopup] = useState(false);
-  const projects = [
-    {
-      id: 1,
-      company: "Lorem Ipsum Lorem Ipsum",
-      lorem: "Lorem Ipsum",
-      status: "Working",
-      completion: 60,
-    },
-    {
-      id: 2,
-      company: "Lorem Ipsum Lorem Ipsum",
-      lorem: "Lorem Ipsum",
-      status: "Completed",
-      completion: 100,
-    },
-    {
-      id: 3,
-      company: "Lorem Ipsum Lorem Ipsum",
-      lorem: "Lorem Ipsum",
-      status: "Pending",
-      completion: 50,
-    },
-    {
-      id: 4,
-      company: "Lorem Ipsum Lorem Ipsum",
-      lorem: "Lorem Ipsum",
-      status: "Completed",
-      completion: 100,
-    },
-  ];
+  const [projects, setProjects] = useState([]);
+
+  const [projectName, setProjectName] = useState("");
+  const handleAddProject = async (projectName) => {
+    const data = { name: projectName };
+    try {
+      await createProject(data);
+      toast.success("Project created successfully");
+      fetchProjects();
+      setOpenPopup(false);
+    } catch (error) {
+      toast.error("Error creating project:", error);
+    }
+    // handleClose();
+  };
 
   useEffect(() => {
-    console.log(openPopup, "---------------");
-    console.log("Profile page loaded");
-  }, [openPopup]);
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await getProjects();
+      if (response?.length > 0) {
+        setProjects(response);
+      } else {
+        toast.info("No projects found.", {
+          autoClose: 2000,
+          pauseOnHover: true,
+          closeOnClick: true,
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to fetch projects. Please try again.", {
+        autoClose: 2000,
+        pauseOnHover: true,
+        closeOnClick: true,
+      });
+    }
+  };
 
   const statusColors = {
-    Working: { bg: "#1E3A8A", color: "#fff" },
-    Completed: { bg: "#0FB97D", color: "#fff" },
-    Pending: { bg: "#9E9E9E", color: "#fff" },
+    working: { bg: "#1E3A8A", color: "#fff" },
+    completed: { bg: "#0FB97D", color: "#fff" },
+    pending: { bg: "#9E9E9E", color: "#fff" },
   };
 
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100vh",
         width: "100%",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",
         gap: 4,
+        overflow: "hidden",
       }}
     >
-      <Box
-        sx={{
-          bgcolor: "#0FB97D",
-          borderRadius: 2,
-          minHeight: 100,
-          position: "relative",
-        }}
-      >
-        <Box
-          sx={{
-            p: 3,
-            height: 85,
-            background:
-              "linear-gradient(270.41deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%)",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0px 2px 5.5px 0px #0000001A",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "absolute",
-            bottom: -40,
-            left: 20,
-            right: 20,
-            borderRadius: 2,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              style={{ width: "60px", height: "60px", borderRadius: "12px" }}
-            />
-            <Box>
-              <Typography fontWeight="bold" sx={{ color: "#000000" }}>
-                Lorem Ipsum
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#7F7F7F" }}>
-                esthera@simmmpple.com
-              </Typography>
-            </Box>
-          </Box>
-
-          <TextField
-            placeholder="Type here..."
-            variant="outlined"
-            size="small"
-            sx={{
-              width: 250,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "15px",
-                bgcolor: "white",
-                "& fieldset": {
-                  borderColor: "#E2E8F0",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#0FB97D",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#0FB97D",
-                },
-              },
-              "& input::placeholder": {
-                fontSize: "0.9rem",
-                color: "#999",
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton>
-              <SettingsIcon sx={{ color: "#0FB97D" }} />
-            </IconButton>
-            <IconButton>
-              <NotificationsIcon sx={{ color: "#0FB97D" }} />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
-      <Box sx={{ position: "relative", height: 190, mt: 5 }}>
+      <Box sx={{ position: "relative", height: 190, flexShrink: 0 }}>
         <Box
           sx={{
             position: "Absolute",
@@ -214,6 +130,7 @@ const Profile = () => {
               boxShadow: "none",
               "&:hover": { bgcolor: "#fff", boxShadow: "none" },
             }}
+            onClick={() => setOpenPopup(true)}
           >
             Create New <AddIcon sx={{ ml: 1 }} />
           </Button>
@@ -246,9 +163,10 @@ const Profile = () => {
           backgroundColor: "#FBFBFB",
           borderRadius: 2,
           mb: 5,
-          height: "380px",
           display: "flex",
           flexDirection: "column",
+          overflowY: "hidden",
+          flex: 1,
         }}
       >
         {/* Header */}
@@ -279,7 +197,7 @@ const Profile = () => {
             >
               Create New <AddIcon sx={{ ml: 1, fontSize: "14px" }} />
             </Button>
-            <Button
+            {/* <Button
               variant="outlined"
               size="small"
               sx={{
@@ -291,12 +209,12 @@ const Profile = () => {
               }}
             >
               View All
-            </Button>
+            </Button> */}
           </Box>
         </Box>
 
         {/* Table */}
-        <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", px: 2 }}>
+        <Box sx={{ px: 2, overflowY: "auto", flex: 1 }}>
           <Table>
             <TableHead>
               <TableRow
@@ -312,7 +230,7 @@ const Profile = () => {
             <TableBody>
               {projects.map((p) => (
                 <TableRow
-                  key={p.id}
+                  key={p.project_id}
                   sx={{
                     "& td": {
                       borderBottom: "1px solid #F0F0F0",
@@ -329,12 +247,12 @@ const Profile = () => {
                         alt="company"
                         style={{ borderRadius: "50%", width: 32, height: 32 }}
                       />
-                      <Typography fontSize={12}>{p.company}</Typography>
+                      <Typography fontSize={12}>{p.name}</Typography>
                     </Box>
                   </TableCell>
 
                   {/* Lorem */}
-                  <TableCell sx={{ fontSize: "12px" }}>{p.lorem}</TableCell>
+                  <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell>
 
                   {/* Status */}
                   <TableCell>
@@ -357,7 +275,7 @@ const Profile = () => {
                         fontWeight="bold"
                         fontSize={12}
                       >
-                        {p.completion}%
+                        {p.completion_percentage}%
                       </Typography>
                       <LinearProgress
                         variant="determinate"
@@ -392,9 +310,13 @@ const Profile = () => {
           </Table>
         </Box>
       </Box>
-      {openPopup && <AddProject handleClose={() => setOpenPopup(false)} />}
+      {openPopup && (
+        <AddProject
+          handleClose={() => setOpenPopup(false)}
+          handleAddProject={handleAddProject}
+        />
+      )}
     </Box>
-    
   );
 };
 

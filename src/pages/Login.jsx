@@ -1,5 +1,4 @@
-
-import React, { useState, useContext } from "react";
+import React, { useContext, useRef, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -31,10 +30,24 @@ const Login = () => {
   });
 
   const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const inputRefs = useRef([]);
+  const { sessionId } = useContext(userContext);
   const navigate = useNavigate();
 
 
-  const { setAuthKey } = useContext(userContext);
+  const handleChange = (e, index) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    if (!value) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
 
   const handleGetOtp = async () => {
     try {
@@ -45,7 +58,7 @@ const Login = () => {
         const response = await sendOtp({ phone_number: mobile });
         if (response) {
           toast.success("OTP sent successfully");
-          alert(`Your OTP is ${response.message}`); 
+          alert(`Your OTP is ${response.message}`);
         }
       }
     } catch (error) {
@@ -56,27 +69,42 @@ const Login = () => {
   const handleVerifyOtp = async () => {
     try {
       const data = { phone_number: mobile, otp_code: "1234" };
+      if (sessionId) {
+        data.sessionId = sessionId;
+      }
       const response = await verifyOtp(data);
 
-      console.log("verifyOtp response:", response); 
-
-     
-      const token =
-        response?.access;
-
-      if (token) {
+      if (response) {
         const { access } = response;
         localStorage.setItem("accessToken", access);
- 
-        setAuthKey(token);     
         navigate("/profile");
-      } else {
-        toast.error("Login failed: no token returned from server");
+        window.location.reload();
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
     }
   };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+
+      const newOtp = [...otp];
+      if (otp[index]) {
+        newOtp[index] = "";
+        setOtp(newOtp);
+      } else if (index > 0) {
+        inputRefs.current[index - 1].focus();
+        newOtp[index - 1] = "";
+        setOtp(newOtp);
+      }
+    }
+
+    if (e.key === "Enter") {
+      handleVerifyOtp(otp.join(""));
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -119,7 +147,7 @@ const Login = () => {
               }}
             >
               <img src={logo1} alt="logo" style={{ width: 30, height: 30 }} />{" "}
-              Infravo AI
+              Infrago AI
             </Typography>
 
             {/* Nav Links */}
@@ -283,6 +311,13 @@ const Login = () => {
             onChange={(e) => {
               setMobile(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                console.log("Enter key pressed, triggering OTP request");
+                handleGetOtp();
+              }
+            }}
           />
 
           <Button
@@ -313,6 +348,10 @@ const Login = () => {
               .map((_, idx) => (
                 <Grid item key={idx}>
                   <TextField
+                    inputRef={(el) => (inputRefs.current[idx] = el)}
+                    value={otp[idx]}
+                    onChange={(e) => handleChange(e, idx)}
+                    onKeyDown={(e) => handleKeyDown(e, idx)}
                     variant="outlined"
                     size="small"
                     inputProps={{
@@ -336,7 +375,6 @@ const Login = () => {
               ))}
           </Grid>
 
-          {/* Sign Up */}
           <Button
             theme={theme}
             fullWidth
