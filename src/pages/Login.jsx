@@ -73,7 +73,7 @@ const Login = () => {
 
   const handleVerifyOtp = async () => {
     try {
-      const data = { phone_number: mobile, otp_code: "123456" };
+      const data = { phone_number: mobile, otp_code: "1234" };
       if (sessionId) {
         data.sessionId = sessionId;
       }
