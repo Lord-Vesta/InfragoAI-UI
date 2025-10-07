@@ -9,9 +9,8 @@ import {
   TextField,
   Paper,
   Grid,
-  Link,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import background1 from "../assets/bg1.png";
 import background2 from "../assets/bg2.png";
 import logo1 from "../assets/logo1.png";
@@ -26,12 +25,8 @@ import { userContext } from "../context/ContextProvider";
 
 const Login = () => {
   const theme = createTheme({
-    typography: {
-      fontFamily: "Montserrat, sans-serif",
-    },
-    button: {
-      fontFamily: "Montserrat, sans-serif",
-    },
+    typography: { fontFamily: "Montserrat, sans-serif" },
+    button: { fontFamily: "Montserrat, sans-serif" },
   });
 
   const [mobile, setMobile] = useState("");
@@ -40,7 +35,6 @@ const Login = () => {
   const { sessionId } = useContext(userContext);
 
   const navigate = useNavigate();
-
   const handleChange = (e, index) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     if (!value) return;
@@ -67,7 +61,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error?.message || "Failed to send OTP");
     }
   };
 
@@ -224,6 +218,7 @@ const Login = () => {
                 borderRadius: "20px",
                 px: 6,
               }}
+              onClick={() => navigate("/upload")} 
             >
               Upload File
             </Button>
