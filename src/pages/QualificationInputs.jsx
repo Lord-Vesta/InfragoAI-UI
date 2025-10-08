@@ -8,12 +8,19 @@ import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
+import { useNavigate } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([
     { name: "", scope: "", year: "", value: "" },
   ]);
+  const [turnoverEditable, setTurnoverEditable] = useState(false);
+  const [litigationEditable, setLitigationEditable] = useState(false);
 
+  const [projectsEditable, setProjectsEditable] = useState(
+    projects.map(() => false)
+  );
   const [numericValues, setNumericValues] = useState({
     turnover3: "",
     turnover5: "",
@@ -35,7 +42,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         turnover3: initialData?.data?.turnover_past_3_years?.edited_value || "",
         turnover5: initialData?.data?.turnover_past_5_years?.edited_value || "",
         netWorth: initialData?.data?.net_worth?.edited_value || "",
-        workingCapital: initialData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
+        workingCapital: initialData?.data?.working_capital?.edited_value || "",
         workInHand: initialData?.data?.work_in_hand?.edited_value || "",
         bgLimit: initialData?.data?.bg_limit_sanctioned?.edited_value || "",
         bgUtilized: initialData?.data?.bg_utilized?.edited_value || "",
@@ -105,7 +112,11 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Qualification Inputs submitted successfully!");
+      if (!isInitialData) {
+        navigate("/TechnicalConfirmation");
+      } else {
+        navigate("/BGsummary");
+      }
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
@@ -115,250 +126,273 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
   const handleChange = (field, value) => {
-    if (value === "" || /^[0-9]*$/.test(value)) {
-      const updatedValues = { ...numericValues, [field]: value };
+    // ✅ Allow only numeric input for all numeric fields
+    const numericFields = [
+      "turnover3",
+      "turnover5",
+      "netWorth",
+      "workingCapital",
+      "workInHand",
+      "bgLimit",
+      "bgUtilized",
+      "bgAvailable",
+      "quotedPrice",
+    ];
 
-      if (field === "bgLimit" || field === "bgUtilized") {
-        const limit = Number(updatedValues.bgLimit) || 0;
-        const utilized = Number(updatedValues.bgUtilized) || 0;
-        updatedValues.bgAvailable =
-          limit - utilized > 0 ? String(limit - utilized) : "0";
-      }
-
-      setNumericValues(updatedValues);
-
-      if (value === "" || Number(value) <= 0) {
-        setErrors({ ...errors, [field]: "Value must be greater than 0" });
-      } else {
-        const updatedErrors = { ...errors };
-        delete updatedErrors[field];
-        setErrors(updatedErrors);
-      }
+    if (numericFields.includes(field) && value !== "" && !/^[0-9]*$/.test(value)) {
+      return; // Ignore non-numeric input
     }
-  };
 
-  return (
-    <Box
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      gap={3}
-      height={height}
-      position="relative"
-      overflow="auto"
-    >
-      <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-        Provide Qualification Inputs
-      </Typography>
+    const updatedValues = { ...numericValues, [field]: value };
 
-      <Box>
-        <Typography fontWeight="400" mb={1}>
-          Avg Annual Turnover (₹ Cr)
-        </Typography>
-        <Box display="flex" alignItems="center" gap={3}>
-          <Box display="flex" alignItems="center">
-            <Box
-              sx={{
-                "& button": {
-                  borderRadius: "12px 0 0 12px !important",
-                  boxShadow: "none",
-                  height: "40px !important",
-                },
-              }}
-            >
-              <CustomButton label="Past 3 years" />
-            </Box>
-            <Box
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0 12px 12px 0 !important",
-                  backgroundColor: "#fff",
-                },
-              }}
-            >
-              <CustomTextField
-                placeholder="Enter value"
-                width="300px"
-                value={numericValues.turnover3}
-                onChange={(e) => handleChange("turnover3", e.target.value)}
-                error={!!errors.turnover3}
-                helperText={errors.turnover3}
-                disabled={isInitialData}
-                showIcon={true}
-              />
-            </Box>
+    if (field === "bgLimit" || field === "bgUtilized") {
+      const limit = Number(updatedValues.bgLimit) || 0;
+      const utilized = Number(updatedValues.bgUtilized) || 0;
+      updatedValues.bgAvailable =
+        limit - utilized > 0 ? String(limit - utilized) : "0";
+    }
+
+    setNumericValues(updatedValues);
+
+    if (value === "" || Number(value) <= 0) {
+      setErrors({ ...errors, [field]: "Value must be greater than 0" });
+    } else {
+      const updatedErrors = { ...errors };
+      delete updatedErrors[field];
+      setErrors(updatedErrors);
+    }
+  }
+
+return (
+  <Box
+    width="100%"
+    display="flex"
+    flexDirection="column"
+    gap={3}
+    height={height}
+    position="relative"
+    overflow="auto"
+  >
+    <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
+      Provide Qualification Inputs
+    </Typography>
+
+    <Box>
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <Typography fontWeight="400">Avg Annual Turnover (₹ Cr)</Typography>
+
+        {/* Edit Icon */}
+        {isInitialData && !turnoverEditable && (
+          <IconButton
+            size="small" sx={{ ml: 1, color: "#0FB97D" }}
+            onClick={() => setTurnoverEditable(true)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+
+      <Box display="flex" alignItems="center" gap={2}>
+        <Box display="flex" alignItems="center">
+          <Box sx={{ "& button": { borderRadius: "12px 0 0 12px !important", boxShadow: "none", height: "40px !important" } }}>
+            <CustomButton label="Past 3 years" width="120px" />
           </Box>
+          <Box sx={{ "& .MuiOutlinedInput-root": { borderRadius: "0 12px 12px 0 !important", backgroundColor: "#fff" } }}>
+            <CustomTextField
+              placeholder="Enter value"
+              width="260px"
+              value={numericValues.turnover3}
+              onChange={(e) => handleChange("turnover3", e.target.value)}
+              error={!!errors.turnover3}
+              helperText={errors.turnover3}
+              disabled={!turnoverEditable && isInitialData}
+              showIcon={true}
+            />
+          </Box>
+        </Box>
 
-          <Box display="flex" alignItems="center">
-            <Box
-              sx={{
-                "& button": {
-                  borderRadius: "12px 0 0 12px !important",
-                  boxShadow: "none",
-                  height: "40px !important",
-                },
-              }}
-            >
-              <CustomButton label="Past 5 years" />
-            </Box>
-            <Box
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0 12px 12px 0 !important",
-                  backgroundColor: "#fff",
-                },
-              }}
-            >
-              <CustomTextField
-                placeholder="Enter value"
-                width="300px"
-                value={numericValues.turnover5}
-                onChange={(e) => handleChange("turnover5", e.target.value)}
-                error={!!errors.turnover5}
-                helperText={errors.turnover5}
-                disabled={isInitialData}
-                showIcon={true}
-              />
-            </Box>
+        <Box display="flex" alignItems="center">
+          <Box sx={{ "& button": { borderRadius: "12px 0 0 12px !important", boxShadow: "none", height: "40px !important" } }}>
+            <CustomButton label="Past 5 years" width="120px" />
+          </Box>
+          <Box sx={{ "& .MuiOutlinedInput-root": { borderRadius: "0 12px 12px 0 !important", backgroundColor: "#fff" } }}>
+            <CustomTextField
+              placeholder="Enter value"
+              width="270px"
+              value={numericValues.turnover5}
+              onChange={(e) => handleChange("turnover5", e.target.value)}
+              error={!!errors.turnover5}
+              helperText={errors.turnover5}
+              disabled={!turnoverEditable && isInitialData}
+              showIcon={true}
+            />
           </Box>
         </Box>
       </Box>
+    </Box>
 
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Typography fontWeight="400" fontSize={16}>
-          Similar Projects Executed
-        </Typography>
 
-        {projects.map((project, index) => (
-          <Paper
-            key={index}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: "12px",
-              border: "1px solid #E0E0E0",
-              bgcolor: "#fff",
-              width: "80%",
-            }}
-          >
+    <Box display="flex" flexDirection="column" gap={1}>
+      <Typography fontWeight="400" fontSize={16}>
+        Similar Projects Executed
+      </Typography>
+
+      {projects.map((project, index) => (
+        <Paper key={index} sx={{ p: 2, mb: 2, borderRadius: "12px", border: "1px solid #E0E0E0", bgcolor: "#fff", width: "75%" }}>
+          <Box display="flex" alignItems="center">
             <Typography fontWeight="700" fontSize={18} mb={2}>
               Project details {index + 1}
             </Typography>
-
-            {["name", "scope", "year", "value"].map((field) => (
-              <Box
-                key={field}
-                display="flex"
-                alignItems="center"
-                gap={2}
-                mb={1}
+            {isInitialData && (
+              <IconButton
+                onClick={() => {
+                  const updated = [...projectsEditable];
+                  updated[index] = true;
+                  setProjectsEditable(updated);
+                }}
+                size="small" sx={{ ml: 1, color: "#0FB97D", mb: 2 }}
               >
-                <Typography fontSize={12} fontWeight={700} width="80px">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}:
-                </Typography>
-                <CustomTextField
-                  placeholder={`Enter Project ${field}`}
-                  width="300px"
-                  value={project[field]}
-                  disabled={isInitialData}
-                  onChange={(e) => {
-                    const updated = [...projects];
-                    updated[index][field] = e.target.value;
-                    setProjects(updated);
-                  }}
-                  showIcon={true}
-                />
-              </Box>
-            ))}
-          </Paper>
-        ))}
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
 
-        <Box mb={2}>
-          <CustomButton label="Add More" onClick={handleAddProject} />
-        </Box>
+          {["name", "scope", "year", "value"].map((field) => (
+            <Box
+              key={field}
+              display="flex"
+              alignItems={field === "scope" ? "flex-start" : "center"}
+              gap={2}
+              mb={1}
+            >
+              <Typography
+                fontSize={12}
+                fontWeight={700}
+                width="80px"
+                mt={field === "scope" ? "6px" : 0}
+              >
+                {field.charAt(0).toUpperCase() + field.slice(1)}:
+              </Typography>
+              <CustomTextField
+                placeholder={`Enter Project ${field}`}
+                width="100%"
+                value={project[field]}
+                disabled={!projectsEditable[index] && isInitialData}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // ✅ Restrict only numeric input for year & value
+                  if (
+                    (field === "year" || field === "value") &&
+                    value !== "" &&
+                    !/^[0-9]*$/.test(value)
+                  ) {
+                    return; // Ignore non-numeric input
+                  }
+
+                  const updated = [...projects];
+                  updated[index][field] = value;
+                  setProjects(updated);
+                }}
+                showIcon={true}
+                multiline={field === "scope"}       // ✅ scope becomes textarea
+                minRows={field === "scope" ? 3 : 1} // ✅ adds height for textarea
+                type={field === "year" || field === "value" ? "number" : "text"} // ✅ show numeric keypad on mobile
+              />
+            </Box>
+          ))}
+
+
+        </Paper>
+
+      ))}
+
+      <Box mb={2}>
+        <CustomButton label="Add More" onClick={handleAddProject} />
       </Box>
+    </Box>
 
-      <Box display="flex" flexDirection="column" gap={2}>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="Net Worth (CA certified)"
-            label="Net Worth (CA certified)"
-            width="45vw"
-            value={numericValues.netWorth}
-            onChange={(e) => handleChange("netWorth", e.target.value)}
-            error={!!errors.netWorth}
-            helperText={errors.netWorth}
-            showIcon={true}
-            disabled={isInitialData}
-          />
-        </Box>
+    <Box display="flex" flexDirection="column" gap={2}>
+      <Box display="flex" alignItems="center" gap={1}>
         <CustomTextField
-          placeholder="Working Capital / Liquid Assets"
-          label="Working Capital / Liquid Assets"
-          width="45vw"
-          value={numericValues.workingCapital}
-          onChange={(e) => handleChange("workingCapital", e.target.value)}
-          error={!!errors.workingCapital}
-          helperText={errors.workingCapital}
-          disabled={isInitialData}
+          placeholder="Net Worth (CA certified)"
+          label="Net Worth (CA certified)"
+          width="75%"
+          value={numericValues.netWorth}
+          onChange={(e) => handleChange("netWorth", e.target.value)}
+          error={!!errors.netWorth}
+          helperText={errors.netWorth}
           showIcon={true}
-        />
-        <CustomTextField
-          placeholder="Work in Hand (B value for formula)"
-          label="Work in Hand (B value for formula)"
-          width="45vw"
-          value={numericValues.workInHand}
-          onChange={(e) => handleChange("workInHand", e.target.value)}
-          error={!!errors.workInHand}
-          helperText={errors.workInHand}
           disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Limit (Sanctioned)"
-          label="BG Limit (Sanctioned)"
-          width="45vw"
-          value={numericValues.bgLimit}
-          onChange={(e) => handleChange("bgLimit", e.target.value)}
-          error={!!errors.bgLimit}
-          helperText={errors.bgLimit}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Utilized"
-          label="BG Utilized"
-          width="45vw"
-          value={numericValues.bgUtilized}
-          onChange={(e) => handleChange("bgUtilized", e.target.value)}
-          error={!!errors.bgUtilized}
-          helperText={errors.bgUtilized}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Available (Sanctioned – Utilized)"
-          label="BG Available (Sanctioned – Utilized)"
-          width="45vw"
-          value={numericValues.bgAvailable}
-          error={!!errors.bgAvailable}
-          helperText={errors.bgAvailable}
-          disabled
-        />
-        <CustomTextField
-          placeholder="Quoted Price"
-          label="Quoted Price"
-          width="45vw"
-          value={numericValues.quotedPrice}
-          onChange={(e) => handleChange("quotedPrice", e.target.value)}
-          error={!!errors.quotedPrice}
-          helperText={errors.quotedPrice}
-          disabled={isInitialData}
-          showIcon={true}
         />
       </Box>
+      <CustomTextField
+        placeholder="Working Capital / Liquid Assets"
+        label="Working Capital / Liquid Assets"
+        width="75%"
+        value={numericValues.workingCapital}
+        onChange={(e) => handleChange("workingCapital", e.target.value)}
+        error={!!errors.workingCapital}
+        helperText={errors.workingCapital}
+        disabled={isInitialData}
+        showIcon={true}
+      />
+      <CustomTextField
+        placeholder="Work in Hand (B value for formula)"
+        label="Work in Hand (B value for formula)"
+        width="75%"
+        value={numericValues.workInHand}
+        onChange={(e) => handleChange("workInHand", e.target.value)}
+        error={!!errors.workInHand}
+        helperText={errors.workInHand}
+        disabled={isInitialData}
+        showIcon={true}
+      />
+      <CustomTextField
+        placeholder="BG Limit (Sanctioned)"
+        label="BG Limit (Sanctioned)"
+        width="75%"
+        value={numericValues.bgLimit}
+        onChange={(e) => handleChange("bgLimit", e.target.value)}
+        error={!!errors.bgLimit}
+        helperText={errors.bgLimit}
+        disabled={isInitialData}
+        showIcon={true}
+      />
+      <CustomTextField
+        placeholder="BG Utilized"
+        label="BG Utilized"
+        width="75%"
+        value={numericValues.bgUtilized}
+        onChange={(e) => handleChange("bgUtilized", e.target.value)}
+        error={!!errors.bgUtilized}
+        helperText={errors.bgUtilized}
+        disabled={isInitialData}
+        showIcon={true}
+      />
+      <CustomTextField
+        placeholder="BG Available (Sanctioned – Utilized)"
+        label="BG Available (Sanctioned – Utilized)"
+        width="75%"
+        value={numericValues.bgAvailable}
+        error={!!errors.bgAvailable}
+        helperText={errors.bgAvailable}
+        disabled
+      />
+      <CustomTextField
+        placeholder="Quoted Price"
+        label="Quoted Price"
+        width="75%"
+        value={numericValues.quotedPrice}
+        onChange={(e) => handleChange("quotedPrice", e.target.value)}
+        error={!!errors.quotedPrice}
+        helperText={errors.quotedPrice}
+        disabled={isInitialData}
+        showIcon={true}
+      />
+    </Box>
 
-      <Box mb={3} display={"flex"} flexDirection="column">
+    {/* <Box mb={3} display={"flex"} flexDirection="column">
         <Typography fontWeight="400" fontSize={14} mb={1}>
           Litigation/Blacklist Declaration
         </Typography>
@@ -374,15 +408,54 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           />
           <CustomTextField
             placeholder="Details if any"
-            width="37vw"
+            width="65%"
             value={litigationDetails}
             onChange={(e) => setLitigationDetails(e.target.value)}
             disabled={isInitialData}
           />
         </Box>
+      </Box> */}
+    <Box mb={3} display={"flex"} flexDirection="column">
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <Typography fontWeight="400" fontSize={14}>
+          Litigation/Blacklist Declaration
+        </Typography>
+
+        {/* ✅ Edit Icon for Litigation Section */}
+        {isInitialData && (
+          <IconButton
+            size="small"
+            sx={{ color: "#0FB97D" }}
+            onClick={() => setLitigationEditable(true)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
       </Box>
 
-      <Box mb={3}>
+      <Box mb={3} display="flex" gap={2}>
+        <CustomSelect
+          options={["Yes", "No"]}
+          placeholder="Select"
+          width="100px"
+          value={litigationStatus}
+          onChange={(event) => setLitigationStatus(event.target.value)}
+          disabled={isInitialData && !litigationEditable}
+        />
+        <CustomTextField
+          placeholder="Details if any"
+          width="65%"
+          value={litigationDetails}
+          onChange={(e) => setLitigationDetails(e.target.value)}
+          disabled={isInitialData && !litigationEditable}
+          showIcon={true}
+        />
+      </Box>
+    </Box>
+
+
+    {/* Registration / Certificates */}
+<Box mb={3}>
         <Typography
           fontWeight="400"
           fontSize={14}
@@ -563,20 +636,23 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         )}
       </Box>
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: 16,
-          right: 32,
-          display: "flex",
-          marginRight: 4,
-          justifyContent: "flex-end",
-        }}
-      >
-        <CustomButton label="Next" onClick={handleNext} />
-      </Box>
+
+
+
+    <Box
+      sx={{
+        position: "sticky",
+        bottom: 16,
+        right: 32,
+        display: "flex",
+        marginRight: 4,
+        justifyContent: "flex-end",
+      }}
+    >
+      <CustomButton label="Next" onClick={handleNext} />
     </Box>
-  );
+  </Box>
+);
 };
 
 export default QualificationInputs;

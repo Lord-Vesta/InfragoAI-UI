@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
@@ -9,19 +9,25 @@ import { getQualificationInputs } from "../Utils/Api.utils";
 const TechnicalConfirmation = () => {
   const [activeTab, setActiveTab] = useState("extracted");
   const [qualificationData, setQualificationData] = useState(null);
+  const [loading, setLoading] = useState(false); // optional: show loading
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const handleUserInputClick = async () => {
+    setActiveTab("userInput");
+
+    // Only fetch if not already fetched
+    if (!qualificationData) {
+      setLoading(true);
       try {
         const res = await getQualificationInputs();
         setQualificationData(res);
       } catch (err) {
         console.error("Error fetching qualification inputs:", err);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchData();
-  }, []);
   return (
     <Box
       width="100%"
@@ -61,7 +67,7 @@ const TechnicalConfirmation = () => {
         >
           <CustomButton
             label={"User Input Data"}
-            onClick={() => setActiveTab("userInput")}
+            onClick={handleUserInputClick}
           />
         </Box>
       </Box>
@@ -69,7 +75,16 @@ const TechnicalConfirmation = () => {
       <Box mt={2}>
         {activeTab === "extracted" && <ReviewExtracted height="70vh" />}
         {activeTab === "userInput" && (
-          <QualificationInputs height="70vh" initialData={qualificationData} />
+          <>
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <QualificationInputs
+                height="60vh"
+                initialData={qualificationData}
+              />
+            )}
+          </>
         )}
       </Box>
     </Box>

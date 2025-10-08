@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { TextField, Typography, Box, IconButton } from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-
+import EditIcon from "@mui/icons-material/Edit";
 const CustomTextField = ({
   value,
   onChange,
@@ -46,17 +45,9 @@ const CustomTextField = ({
 
 
           {showIcon && disabled && (
-            <IconButton
-              onClick={handleEditClick}
-              size="small"
-              sx={{
-                padding: 0.5,
-                color: "#555",
-                "&:hover": { backgroundColor: "transparent", color: "#1976d2" },
-              }}
-            >
-              <EditOutlinedIcon fontSize="small" />
-            </IconButton>
+           <IconButton size="small" sx={{ ml: 1, color: "#0FB97D" }} onClick={handleEditClick}>
+                <EditIcon fontSize="small" />
+              </IconButton>
           )}
         </Box>
       )}
