@@ -11,7 +11,7 @@ import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate } from "react-router";
-
+import { getExtractedData } from "../Utils/Api.utils";
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
 
@@ -168,74 +168,34 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
 
   const { jwtToken } = useContext(userContext);
   const navigate = useNavigate();
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      console.log("hello")
+      const response = await getExtractedData();
+      const apiData = fieldConfig.map((config) => {
+        if (config.type === "heading") return config;
+        const match = response.find((r) => r.label === config.label);
+        return {
+          ...config,
+          value: match ? match.value : config.type === "toggle" ? "No" : "", // default toggle to "No"
+          confidenceScore: match ? match.confidenceScore : null,
+          pageNo: match ? match.pageNo : null,
+        };
+      });
 
-  useEffect(() => {
-    const response = [
-      {
-        label: "Tender Name",
-        value: "Lorem Ipsum",
-        confidenceScore: 0.95,
-        pageNo: 1,
-      },
-      {
-        label: "Tender Id/No.",
-        value: "TND-001",
-        confidenceScore: 0.98,
-        pageNo: 1,
-      },
-      {
-        label: "Procuring Entity",
-        value: "ABC Corp",
-        confidenceScore: 0.92,
-        pageNo: 1,
-      },
-      {
-        label: "Procurement Mode",
-        value: "EPC",
-        confidenceScore: 0.97,
-        pageNo: 2,
-      },
-      {
-        label: "Location/State",
-        value: "Maharashtra",
-        confidenceScore: 0.93,
-        pageNo: 2,
-      },
-      {
-        label: "Pre-Bid Date",
-        value: "2025-10-01",
-        confidenceScore: 0.96,
-        pageNo: 3,
-      },
-      {
-        label: "Submission Date",
-        value: "2025-10-10",
-        confidenceScore: 0.94,
-        pageNo: 3,
-      },
-      {
-        label: "Price Adjustment (Escalation)",
-        value: "Yes",
-        confidenceScore: 0.99,
-        pageNo: 4,
-      },
-    ];
+      setFields(apiData);
+      setEditableFields(new Array(apiData.length).fill(false));
+      setErrors(new Array(apiData.length).fill(""));
+    } catch (err) {
+      console.error("Error fetching extracted data:", err);
+    }
+  };
 
-    const apiData = fieldConfig.map((config) => {
-      if (config.type === "heading") return config;
-      const match = response.find((r) => r.label === config.label);
-      return {
-        ...config,
-        value: match ? match.value : config.type === "toggle" ? "No" : "", // default toggle to "No"
-        confidenceScore: match ? match.confidenceScore : null,
-        pageNo: match ? match.pageNo : null,
-      };
-    });
+  fetchData();
+}, []);
 
-    setFields(apiData);
-    setEditableFields(new Array(apiData.length).fill(false));
-    setErrors(new Array(apiData.length).fill(""));
-  }, []);
+ 
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;
