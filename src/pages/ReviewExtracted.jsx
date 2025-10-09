@@ -323,15 +323,22 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
       position="relative"
       overflow="auto"
     >
-      <Typography
-        fontWeight="700"
-        fontSize={24}
-        color={colors.black_text}
-        mb={2}
-        mt={1}
-      >
-        Review & Qualification
-      </Typography>
+      <Box display="flex" alignItems="center" justifyContent={"space-between"} gap={1} mb={2} mt={1} >
+        <Typography
+          fontWeight="700"
+          fontSize={24}
+          color={colors.black_text}
+        >
+          Review & Qualification
+        </Typography>
+        <img
+          src="src/assets/PDF_file_icon.svg.png"
+          alt="pdf"
+          width={50}
+          height={50}
+          style={{ marginRight: "16px" }}
+        />
+      </Box>
 
       {displayedFields.map((field, index) => (
         <Box key={index}>
