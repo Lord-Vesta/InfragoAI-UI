@@ -9,6 +9,7 @@ const {
   PROJECTLIST,
   QUALIFICATION_INPUTS,
   GET_QUALIFICATION_INPUTS,
+  GET_EXTRACTED_DATA,
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -46,6 +47,15 @@ export const getQualificationInputs = async (data) => {
     throw error;
   }
 };
+
+export const getExtractedData=async(data)=>{
+  try{
+    const response= await axiosclient.get(GET_EXTRACTED_DATA);
+    return response.data;
+  }catch(error){
+    throw error;
+  }
+}
 
 export const uploadPdfAnonymous = async (data) => {
   try {
