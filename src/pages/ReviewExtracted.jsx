@@ -17,6 +17,8 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
+import PdfViewer from "../components/PdfViewer";
+import sample_pdf from "../assets/sample_pdf.pdf";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -171,7 +173,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
+  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
+  const [pdfPageNumber, setPdfPageNumber] = useState(1);
+  const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(true);
+  const [viewFullPdf, setViewFullPdf] = useState(false);
 
   const { jwtToken } = useContext(userContext);
   const navigate = useNavigate();
@@ -576,7 +582,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
             .toLowerCase()
             .replace(/[\s-/_()]+/g, ""),
         }));
-        console.log("normalizedKey", normalizedResponse);
         const apiData = fieldConfig.map((config) => {
           if (config.type === "heading") return config;
 
@@ -615,6 +620,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
         setFields(apiData);
         setEditableFields(new Array(apiData.length).fill(false));
         setErrors(new Array(apiData.length).fill(""));
+        setPdfUrl(response?.pdf_file?.download_url || sample_pdf);
       } catch (err) {
         console.error("Error fetching extracted data:", err);
       } finally {
@@ -681,6 +687,15 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
       prev.map((editable, i) => (i === index ? false : editable))
     );
   };
+  const handleExtract = (index) => {
+    const pageNo = fields[index]?.pageNo;
+    if (pageNo) {
+      setViewFullPdf(false);
+      setPdfPageNumber(pageNo);
+      setIsPdfViewerOpen(true);
+    }
+  };
+
   const handleLoginRedirect = () => {
     window.location.href = "/login";
   };
@@ -704,7 +719,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   };
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
-  console.log("dissssssssssssssssss", displayedFields);
   return loading ? (
     <Box
       width="100%"
@@ -724,7 +738,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
       display="flex"
       flexDirection="column"
       gap={2}
-      position="relative"
       overflow="auto"
     >
       <Box
@@ -748,7 +761,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
           alt="pdf"
           width={50}
           height={50}
-          style={{ marginRight: "16px" }}
+          style={{ marginRight: "16px", cursor: "pointer" }}
+          onClick={() => {
+            setIsPdfViewerOpen(true);
+            setViewFullPdf(true);
+          }}
         />
       </Box>
 
@@ -1016,6 +1033,61 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
       >
         <CustomButton label="Next" onClick={handleNext} />
       </Box>
+
+      {isPdfViewerOpen && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 100,
+            background: "rgba(0,0,0,0.15)",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "stretch",
+          }}
+          onClick={() => setIsPdfViewerOpen(false)}
+        >
+          <Box
+            sx={{
+              width: "60%",
+              height: "100%",
+              position: "relative",
+              borderTopLeftRadius: "2rem",
+              borderBottomLeftRadius: "2rem",
+              boxShadow: "-5px 0 15px rgba(0,0,0,0.1)",
+              bgcolor: "white",
+              transition: "transform 0.3s ease-in-out",
+              transform: isPdfViewerOpen ? "translateX(0)" : "translateX(100%)",
+              overflowY: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PdfViewer
+              fileUrl={pdfUrl}
+              initialPage={pdfPageNumber}
+              viewFullPdf={viewFullPdf}
+            />
+          </Box>
+        </Box>
+
+        // <Box
+        // sx={{
+        //   width: "90%",
+        //   height: "100%",
+        //   background: "red",
+        //   position: "absolute",
+        //   right: 0,
+        //   top: 0,
+        //   color: "white",
+        //   zIndex: 90,
+        // }}
+        // >
+        //   Closed
+        // </Box>
+      )}
     </Box>
   );
 };
