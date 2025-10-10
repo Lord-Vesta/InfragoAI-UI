@@ -9,6 +9,7 @@ import {
   TextField,
   Paper,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import background1 from "../assets/bg1.png";
@@ -31,6 +32,8 @@ const Login = () => {
 
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const inputRefs = useRef([]);
   const { sessionId, setSessionId, projectId } = useContext(userContext);
 
@@ -53,15 +56,19 @@ const Login = () => {
       if (!mobile) {
         toast.error("Please enter mobile number 9876543210");
         return;
-      } else {
-        const response = await sendOtp({ phone_number: mobile });
+      } 
+      setIsSendingOtp(true);
+      const response = await sendOtp({ phone_number: mobile });
+       
         if (response) {
           toast.success("OTP sent successfully");
           alert(`Your OTP is ${response.message}`);
         }
-      }
+      
     } catch (error) {
       toast.error(error?.message || "Failed to send OTP");
+    }finally {
+      setIsSendingOtp(false);
     }
   };
 
@@ -86,6 +93,8 @@ const Login = () => {
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
+    }finally {
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -334,8 +343,13 @@ const Login = () => {
               borderRadius: "12px",
             }}
             onClick={handleGetOtp}
+            disabled={isSendingOtp}
           >
-            Get OTP
+            {isSendingOtp ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+            "Get OTP"
+            )}
           </Button>
 
           {/* OTP Boxes */}
@@ -385,8 +399,13 @@ const Login = () => {
             variant="contained"
             sx={{ bgcolor: "#0FB97D", mb: 2, borderRadius: "12px" }}
             onClick={handleVerifyOtp}
+            disabled={isVerifyingOtp}
           >
-            SIGN UP
+            {isVerifyingOtp ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "SIGN UP"
+            )}
           </Button>
         </Paper>
       </Container>

@@ -13,6 +13,7 @@ import {
   TableRow,
   LinearProgress,
   Chip,
+  Skeleton,
 } from "@mui/material";
 import Person from "../assets/Person.png";
 import AddIcon from "@mui/icons-material/Add";
@@ -27,17 +28,22 @@ import { useNavigate } from "react-router";
 const Profile = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const handleAddProject = async (projectName) => {
-    const data = { name: projectName };
+  const handleAddProject = async (projectName, setBtnLoading) => {
+    setBtnLoading(true);
+
     try {
+      const data = { name: projectName };
       await createProject(data);
       toast.success("Project created successfully");
       fetchProjects();
       setOpenPopup(false);
     } catch (error) {
       toast.error("Error creating project:", error);
+    } finally {
+      setBtnLoading(false);
     }
     // handleClose();
   };
@@ -48,9 +54,10 @@ const Profile = () => {
 
   const fetchProjects = async () => {
     try {
+      setLoading(true);
       const response = await getProjects();
       if (response?.length > 0) {
-        setProjects(response);
+        setProjects(response || []);
       } else {
         toast.info("No projects found.", {
           autoClose: 2000,
@@ -64,6 +71,8 @@ const Profile = () => {
         pauseOnHover: true,
         closeOnClick: true,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -183,7 +192,7 @@ const Profile = () => {
             Projects
           </Typography>
           <Box display="flex" gap={2}>
-            <Button
+            {/* <Button
               variant="outlined"
               size="small"
               sx={{
@@ -196,7 +205,7 @@ const Profile = () => {
               onClick={() => setOpenPopup(true)}
             >
               Create New <AddIcon sx={{ ml: 1, fontSize: "14px" }} />
-            </Button>
+            </Button> */}
             {/* <Button
               variant="outlined"
               size="small"
@@ -228,86 +237,114 @@ const Profile = () => {
               </TableRow>
             </TableHead>
             <TableBody sx={{ overflowY: "auto" }}>
-              {projects.map((p) => (
-                <TableRow
-                  key={p.project_id}
-                  sx={{
-                    "& td": {
-                      borderBottom: "1px solid #F0F0F0",
-                      py: 1.5,
-                      color: "#000000",
-                      cursor: "pointer",
-                    },
-                  }}
-                  onClick={() => navigate(`/upload/${p.project_id}`)}
-                >
-                  {/* Company + Avatar */}
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <img
-                        src={tableImg}
-                        alt="company"
-                        style={{ borderRadius: "50%", width: 32, height: 32 }}
-                      />
-                      <Typography fontSize={12}>{p.name}</Typography>
-                    </Box>
-                  </TableCell>
-
-                  {/* Lorem */}
-                  <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell>
-
-                  {/* Status */}
-                  <TableCell>
-                    <Chip
-                      label={p.status}
+              {loading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton variant="circular" width={32} height={32} />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton width="80%" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton width="50%" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton width="90%" />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Skeleton
+                          variant="rectangular"
+                          width={24}
+                          height={24}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : projects.map((p) => (
+                    <TableRow
+                      key={p.project_id}
                       sx={{
-                        bgcolor: statusColors[p.status].bg,
-                        color: statusColors[p.status].color,
-                        fontWeight: "bold",
-                        fontSize: 12,
+                        "& td": {
+                          borderBottom: "1px solid #F0F0F0",
+                          py: 1.5,
+                          color: "#000000",
+                          cursor: "pointer",
+                        },
                       }}
-                    />
-                  </TableCell>
+                      onClick={() => navigate(`/upload/${p.project_id}`)}
+                    >
+                      {/* Company + Avatar */}
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <img
+                            src={tableImg}
+                            alt="company"
+                            style={{
+                              borderRadius: "50%",
+                              width: 32,
+                              height: 32,
+                            }}
+                          />
+                          <Typography fontSize={12}>{p.name}</Typography>
+                        </Box>
+                      </TableCell>
 
-                  {/* Completion */}
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        fontSize={12}
-                      >
-                        {p.completion_percentage}%
-                      </Typography>
-                      <LinearProgress
-                        variant="determinate"
-                        value={p.completion}
-                        sx={{
-                          flex: 1,
-                          height: 5,
-                          borderRadius: 5,
-                          bgcolor: "#E0E0E0",
-                          "& .MuiLinearProgress-bar": {
-                            bgcolor:
-                              p.status === "Working"
-                                ? "#1E3A8A"
-                                : p.status === "Completed"
-                                ? "#0FB97D"
-                                : "#9E9E9E",
-                          },
-                        }}
-                      />
-                    </Box>
-                  </TableCell>
+                      {/* Lorem */}
+                      <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell>
 
-                  {/* Menu Icon */}
-                  <TableCell align="right">
-                    <IconButton>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      {/* Status */}
+                      <TableCell>
+                        <Chip
+                          label={p.status}
+                          sx={{
+                            bgcolor: statusColors[p.status].bg,
+                            color: statusColors[p.status].color,
+                            fontWeight: "bold",
+                            fontSize: 12,
+                          }}
+                        />
+                      </TableCell>
+
+                      {/* Completion */}
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                            fontSize={12}
+                          >
+                            {p.completion_percentage}%
+                          </Typography>
+                          <LinearProgress
+                            variant="determinate"
+                            value={p.completion}
+                            sx={{
+                              flex: 1,
+                              height: 5,
+                              borderRadius: 5,
+                              bgcolor: "#E0E0E0",
+                              "& .MuiLinearProgress-bar": {
+                                bgcolor:
+                                  p.status === "Working"
+                                    ? "#1E3A8A"
+                                    : p.status === "Completed"
+                                    ? "#0FB97D"
+                                    : "#9E9E9E",
+                              },
+                            }}
+                          />
+                        </Box>
+                      </TableCell>
+
+                      {/* Menu Icon */}
+                      <TableCell align="right">
+                        <IconButton>
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </Box>

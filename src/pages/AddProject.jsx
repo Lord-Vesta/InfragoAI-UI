@@ -8,14 +8,16 @@ import {
   IconButton,
   Dialog,
   DialogContent,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect } from "react";
 
 const AddProject = ({ handleClose, handleAddProject }) => {
- const [projectName, setProjectName] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [btnLoading, setBtnLoading] = useState(false);
 
-   const handleSubmit = () => {
+  const handleSubmit = () => {
     if (!projectName.trim()) return;
     handleAddProject(projectName); // ✅ calls parent function to create project
   };
@@ -97,8 +99,6 @@ const AddProject = ({ handleClose, handleAddProject }) => {
               fullWidth
               required
             />
-            
-           
           </Box>
 
           {/* Buttons */}
@@ -129,9 +129,14 @@ const AddProject = ({ handleClose, handleAddProject }) => {
                 bgcolor: "#0FB97D",
                 "&:hover": { bgcolor: "#0ca76f" },
               }}
-              onClick={handleSubmit}
+              disabled={btnLoading}
+              onClick={() => handleAddProject(projectName, setBtnLoading)}
             >
-              NEXT
+              {btnLoading ? (
+                <CircularProgress size={20} sx={{ color: "white" }} />
+              ) : (
+                "NEXT"
+              )}
             </Button>
           </Box>
         </DialogContent>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Box, Typography, Paper, Button } from "@mui/material";
+import { Box, Typography, Paper, Button, CircularProgress } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
 import { uploadPdfAnonymous, uploadPdfAuthenticated } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
@@ -10,13 +10,19 @@ import colors from "../assets/colors";
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
 
   const navigate = useNavigate();
   const { project_id } = useParams();
 
   const handleUploadPdfAnonymous = async () => {
+    if (!file) {
+      toast.warning("Please select a file first");
+      return;
+    }
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("pdf_file", file);
       const response = await uploadPdfAnonymous(formData);
@@ -28,10 +34,18 @@ const UploadPage = () => {
     } catch (error) {
       toast.error(error);
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleFileUploadAuthenticated = async () => {
+     if (!file) {
+      toast.warning("Please select a file first");
+      return;
+    }
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("pdf_file", file);
       formData.append("project_id", project_id);
@@ -41,6 +55,8 @@ const UploadPage = () => {
       }
     } catch (error) {
       toast.error(error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -68,6 +84,7 @@ const UploadPage = () => {
           handlePdfUpload={
             jwtToken ? handleFileUploadAuthenticated : handleUploadPdfAnonymous
           }
+          loading={loading}
         />
       </Box>
       <Box
@@ -88,9 +105,14 @@ const UploadPage = () => {
             boxShadow: 3,
             "&:hover": { backgroundColor: "#059669" },
           }}
+          disabled={loading}
           onClick={() => navigate("/ReviewExtracted")}
         >
-          Next
+          {loading ? (
+            <CircularProgress size={22} sx={{ color: "#fff" }} />
+          ) : (
+            "Next"
+          )}
         </Button>
       </Box>
     </Box>

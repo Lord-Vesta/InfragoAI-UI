@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Icon, Paper, Typography } from "@mui/material";
+import { Box, Icon, Paper, Typography,Backdrop, CircularProgress } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
@@ -8,6 +8,7 @@ import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
+import { toast } from "react-toastify";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -29,6 +30,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (initialData) {
       setNumericValues({
@@ -76,6 +78,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
   const handleNext = async () => {
     try {
+      setLoading(true);
       const payload = {
         turnover_past_3_years: numericValues.turnover3,
         turnover_past_5_years: numericValues.turnover5,
@@ -101,7 +104,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         formData.append("registration_certification", certificateFile);
       }
 
-      const response = await qualificationInputs(formData, {
+      const response = await qualificationInputs(formData, {  
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -112,6 +115,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       } else {
         console.error(" Request Setup Error:", err.message);
       }
+    }finally {
+      setLoading(false);
     }
   };
   const handleChange = (field, value) => {
@@ -138,6 +143,14 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
 
   return (
+    <>
+    <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     <Box
       width="100%"
       display="flex"
@@ -576,6 +589,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         <CustomButton label="Next" onClick={handleNext} />
       </Box>
     </Box>
+    </>
   );
 };
 

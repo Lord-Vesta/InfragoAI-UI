@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import ReviewExtracted from "./ReviewExtracted";
@@ -9,14 +9,18 @@ import { getQualificationInputs } from "../Utils/Api.utils";
 const TechnicalConfirmation = () => {
   const [activeTab, setActiveTab] = useState("extracted");
   const [qualificationData, setQualificationData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const res = await getQualificationInputs();
         setQualificationData(res);
       } catch (err) {
         console.error("Error fetching qualification inputs:", err);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -67,9 +71,22 @@ const TechnicalConfirmation = () => {
       </Box>
 
       <Box mt={2}>
+        {loading ? (
+           <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="70vh"
+          >
+            <CircularProgress size={40} sx={{ color: colors.green }} />
+          </Box>
+        ) : (
+          <>
         {activeTab === "extracted" && <ReviewExtracted height="70vh" />}
         {activeTab === "userInput" && (
           <QualificationInputs height="70vh" initialData={qualificationData} />
+        )}
+        </>
         )}
       </Box>
     </Box>
