@@ -44,6 +44,7 @@ const CustomSelect = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-start",
+              background:"#ffffff"
             },
           }}
         >

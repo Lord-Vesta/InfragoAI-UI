@@ -18,6 +18,8 @@ const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
         display: "flex",
         "& .MuiOutlinedInput-root": {
           borderRadius: "12px",
+          background:"#ffffff"
+          
         },
         "& .MuiInputBase-input": {
           padding: "8px 12px",
