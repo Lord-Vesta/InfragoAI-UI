@@ -81,7 +81,7 @@ const CustomTextField = ({
             },
           },
           "& .MuiInputBase-input": {
-            backgroundColor: "#ffffff",
+            // backgroundColor: "#ffffff",
             color: !isEditable ? "rgba(0, 0, 0, 0.50)" : "black",
            
           },
