@@ -1,7 +1,11 @@
 import React, { useContext, useState } from "react";
-import { Box, Typography, Paper, Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
-import { uploadPdfAnonymous, uploadPdfAuthenticated } from "../Utils/Api.utils";
+import {
+  uploadPdfAnonymous,
+  uploadPdfAuthenticated,
+  getExtractedData,
+} from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate, useParams } from "react-router";
@@ -10,38 +14,67 @@ import colors from "../assets/colors";
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
   const [file, setFile] = useState(null);
-  const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
+  const [uploadedProjectId, setUploadedProjectId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false); 
 
+  const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
   const { project_id } = useParams();
 
-  const handleUploadPdfAnonymous = async () => {
+  const fetchExtractedData = async (projId) => {
     try {
-      const formData = new FormData();
-      formData.append("pdf_file", file);
-      const response = await uploadPdfAnonymous(formData);
+      setIsExtracting(true); 
+      const response = await getExtractedData(projId);
       if (response) {
-        response?.session_id && setSessionId(response?.session_id);
-        response?.project_id && setProjectId(response?.project_id);
-        toast.success("File uploaded successfully");
+        toast.success("Extracted data fetched successfully");
       }
     } catch (error) {
-      toast.error(error);
+      toast.error("Failed to fetch extracted data");
+      console.error(error);
+    } finally {
+      setIsExtracting(false); 
     }
   };
-  console.log("projectttt",project_id)
 
-  const handleFileUploadAuthenticated = async () => {
+  
+  const handlePdfUpload = async () => {
+    if (!file) {
+      toast.error("Please select a file first");
+      return;
+    }
+
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("pdf_file", file);
-      formData.append("project_id", project_id);
-      const response = await uploadPdfAuthenticated(formData, project_id);
+
+      let response;
+
+      if (jwtToken) {
+        formData.append("project_id", project_id);
+        response = await uploadPdfAuthenticated(formData, project_id);
+      } else {
+        response = await uploadPdfAnonymous(formData);
+      }
+
       if (response) {
         toast.success("File uploaded successfully");
+
+        if (response.session_id) setSessionId(response.session_id);
+        if (response.project_id) {
+          setProjectId(response.project_id);
+          setUploadedProjectId(response.project_id);
+        }
+
+        const targetProjectId = project_id || response.project_id;
+        if (targetProjectId) await fetchExtractedData(targetProjectId);
       }
     } catch (error) {
-      toast.error(error);
+      toast.error("Error uploading file");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,11 +99,12 @@ const UploadPage = () => {
           onClose={() => setOpen(false)}
           setFile={setFile}
           file={file}
-          handlePdfUpload={
-            jwtToken ? handleFileUploadAuthenticated : handleUploadPdfAnonymous
-          }
+          handlePdfUpload={handlePdfUpload}
+          loading={loading}
+          isExtracting={isExtracting} 
         />
       </Box>
+
       <Box
         sx={{
           position: "absolute",
@@ -79,6 +113,7 @@ const UploadPage = () => {
         }}
       >
         <Button
+          disabled={loading || isExtracting} 
           sx={{
             backgroundColor: colors.green,
             color: "#fff",
@@ -89,9 +124,11 @@ const UploadPage = () => {
             boxShadow: 3,
             "&:hover": { backgroundColor: "#059669" },
           }}
-          onClick={() => navigate(`/ReviewExtracted/${project_id || response?.project_id}`)}
+          onClick={() =>
+            navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
+          }
         >
-          Next
+          { "Next"}
         </Button>
       </Box>
     </Box>

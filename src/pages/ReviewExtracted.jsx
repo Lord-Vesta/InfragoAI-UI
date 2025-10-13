@@ -17,7 +17,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import { updateEditedFields } from "../Utils/Api.utils";
+import { updateEditedFields,getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 
@@ -207,82 +207,81 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
 
 
+useEffect(() => {
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      let dataArray = [];
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        let dataArray = [];
+      if (!extractedData) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        if (!extractedData) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+        const response = await getExtractedInputs(project_id);
 
-          const response = await getExtractedData(project_id);
+        console.log("API response:", response);
+        dataArray = Array.isArray(response.data) ? response.data : [];
+      } else {
+        console.log("Using existing extractedData");
+        dataArray = extractedData.data;
+      }
 
+      const normalizedResponse = dataArray.map((item) => ({
+        ...item,
+        normalizedKey: item.field_key
+          .toLowerCase()
+          .replace(/[\s-/_()]+/g, ""),
+      }));
 
-          console.log("API response:", response);
-          dataArray = Array.isArray(response.data) ? response.data : [];
-        } else {
-          console.log("Using existing extractedData");
-          dataArray = extractedData.data;
+      const apiData = fieldConfig.map((config) => {
+        if (config.type === "heading") return config;
+
+        const normalizedLabel = config.label
+          .toLowerCase()
+          .replace(/[\s-/_()]+/g, "");
+
+        const match = normalizedResponse.find(
+          (r) => r.normalizedKey === normalizedLabel
+        );
+
+        let value = match
+          ? match.edited_value ?? match.field_value
+          : config.type === "toggle"
+          ? "No"
+          : "";
+
+        if (
+          match &&
+          config.type === "date" &&
+          /^\d{2}\/\d{2}\/\d{4}$/.test(value)
+        ) {
+          const [day, month, year] = value.split("/");
+          value = `${year}-${month}-${day}`;
         }
 
-        const normalizedResponse = dataArray.map((item) => ({
-          ...item,
-          normalizedKey: item.field_key
-            .toLowerCase()
-            .replace(/[\s-/_()]+/g, ""),
-        }));
+        return {
+          ...config,
+          value,
+          confidenceScore: match ? parseFloat(match.confidence_score) : null,
+          pageNo: match ? match.source_page_number : null,
+          snippet: match ? match.snippet : "",
+          extraction_id: match ? match.extraction_id : null,
+        };
+      });
 
-        const apiData = fieldConfig.map((config) => {
-          if (config.type === "heading") return config;
+      setFields(apiData);
+      setEditableFields(new Array(apiData.length).fill(false));
+      setErrors(new Array(apiData.length).fill(""));
+    } catch (err) {
+      console.error("Error loading data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-          const normalizedLabel = config.label
-            .toLowerCase()
-            .replace(/[\s-/_()]+/g, "");
+  loadData();
+}, [extractedData]);
 
-          const match = normalizedResponse.find(
-            (r) => r.normalizedKey === normalizedLabel
-          );
-
-          let value = match
-            ? match.edited_value ?? match.field_value
-            : config.type === "toggle" ? "No" : "";
-
-          // Normalize date if needed
-          if (
-            match &&
-            config.type === "date" &&
-            /^\d{2}\/\d{2}\/\d{4}$/.test(value)
-          ) {
-            const [day, month, year] = value.split("/");
-            value = `${year}-${month}-${day}`;
-          }
-
-          return {
-            ...config,
-            value,
-            confidenceScore: match ? parseFloat(match.confidence_score) : null,
-            pageNo: match ? match.source_page_number : null,
-            snippet: match ? match.snippet : "",
-            extraction_id: match ? match.extraction_id : null,
-          };
-        });
-
-
-        setFields(apiData);
-        setEditableFields(new Array(apiData.length).fill(false));
-        setErrors(new Array(apiData.length).fill(""));
-      } catch (err) {
-        console.error("Error loading data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [extractedData]);
-
+  
   useEffect(() => {
     console.log("Component mounted, downloading PDF...");
     handleDownloadPdf();
