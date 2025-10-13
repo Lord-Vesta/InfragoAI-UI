@@ -19,6 +19,8 @@
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "pdfjs-dist": "^5.4.296",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-pdf": "^8.0.2",

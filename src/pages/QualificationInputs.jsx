@@ -8,6 +8,7 @@ import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
+import GetAppIcon from "@mui/icons-material/GetApp";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -148,7 +149,15 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       overflow="auto"
     >
       <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-        Provide Qualification Inputs
+        {initialData ? "Review " : "Provide "}
+          Qualification Inputs{" "}
+        {initialData ? (
+          <Box component="span" sx={{ display: "inline-block" }}>
+            <GetAppIcon
+              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
+            />
+          </Box>
+        ) : null}
       </Typography>
 
       <Box>
