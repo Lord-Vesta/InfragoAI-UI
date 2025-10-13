@@ -215,7 +215,7 @@ const FileUploadDialog = ({
           sx={{ background: "#0FB97D", borderRadius: "8px", color: "#fff" }}
           onClick={handlePdfUpload}
         >
-          Next
+          Upload
         </Button>
       </DialogActions>
     </Paper>

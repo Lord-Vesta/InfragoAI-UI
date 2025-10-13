@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { TextField, Typography, Box, IconButton } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -19,7 +18,6 @@ const CustomTextField = ({
 }) => {
   const [isEditable, setIsEditable] = useState(!disabled);
 
-
   useEffect(() => {
     setIsEditable(!disabled);
   }, [disabled]);
@@ -31,19 +29,12 @@ const CustomTextField = ({
   return (
     <div style={{ width }}>
       {label && (
-        <Box
-          display="flex"
-          alignItems="center"
-          sx={{ marginBottom: "6px", color: "#333" }}
-        >
-
+        <Box display="flex" alignItems="center" sx={{ marginBottom: "6px" }}>
           <Box display="flex" alignItems="center" gap={0.5}>
-
             <Typography variant="body2" fontWeight={400} fontSize={14}>
               {label}
             </Typography>
           </Box>
-
 
           {showIcon && disabled && (
             <IconButton
@@ -77,6 +68,7 @@ const CustomTextField = ({
         sx={{
           "& .MuiOutlinedInput-root": {
             borderRadius: "12px",
+            backgroundColor: "#ffffff",
             "& fieldset": {
               borderColor: "#e2e8f0",
             },
@@ -88,6 +80,13 @@ const CustomTextField = ({
               borderWidth: "1px !important",
             },
           },
+          "& .MuiInputBase-input": {
+            // backgroundColor: "#ffffff",
+            color: !isEditable ? "rgba(0, 0, 0, 0.50)" : "black",
+           
+          },
+          
+          
         }}
       />
     </div>

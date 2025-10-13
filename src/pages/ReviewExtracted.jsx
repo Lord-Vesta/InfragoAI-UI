@@ -11,6 +11,14 @@ import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate } from "react-router";
+import { downloadPdf, getExtractedData } from "../Utils/Api.utils";
+import { toTitleCase } from "../Utils/stringUtils";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import AlertTooltip from "../components/Tooltip";
+import Tooltip from "@mui/material/Tooltip";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import PdfViewer from "../components/PdfViewer";
+import { toast } from "react-toastify";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -22,7 +30,7 @@ const fieldConfig = [
     validation: { required: true, maxLength: 200 },
   },
   {
-    label: "Tender Id/No.",
+    label: "tender ID",
     type: "text",
     validation: { required: true, pattern: /^[A-Za-z0-9-]+$/ },
   },
@@ -32,16 +40,16 @@ const fieldConfig = [
     type: "select",
     validation: { required: true, options: procurementModes },
   },
-  { label: "Location/State", type: "text", validation: { required: true } },
+  { label: "Location", type: "text", validation: { required: true } },
 
   { label: " Dates", type: "heading" },
   {
-    label: "Pre-Bid Date",
+    label: "pre-Bid-Date",
     type: "date",
     validation: { required: true, minDate: "today" },
   },
   {
-    label: "Submission Date",
+    label: "submission-Deadline",
     type: "date",
     validation: {
       required: true,
@@ -50,29 +58,29 @@ const fieldConfig = [
     },
   },
   {
-    label: "Technical Bid Opening",
+    label: "technical-Bid-Opening",
     type: "date",
     validation: { required: true, afterField: "Submission Date" },
   },
   {
-    label: "Financial Bid Opening",
+    label: "financial-Bid-Opening",
     type: "date",
     validation: { required: true, afterField: "Technical Bid Opening" },
   },
   {
-    label: "Bid Validity(Days)",
+    label: "bid-Validity",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
 
   { label: "Commercial/Security", type: "heading" },
   {
-    label: "EMD Values",
+    label: "EMD Value",
     type: "text",
     validation: { required: true, number: true, min: 0.01 },
   },
   {
-    label: "EMD Validity (Days)",
+    label: "EMD Validity",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
@@ -82,12 +90,12 @@ const fieldConfig = [
     validation: { required: true, number: true, min: 0, max: 10 },
   },
   {
-    label: "Additional PBG Rule (APBG)",
+    label: "additional PBG Rule",
     type: "text",
     validation: { required: false },
   },
   {
-    label: "Security Deposit %",
+    label: "security Deposit %",
     type: "text",
     validation: { required: true, number: true, min: 0, max: 10 },
   },
@@ -97,7 +105,7 @@ const fieldConfig = [
     validation: { required: true, number: true, min: 0, max: 10 },
   },
   {
-    label: "Price Adjustment (Escalation)",
+    label: "price Adjustment",
     type: "toggle",
     validation: { required: true },
   },
@@ -107,24 +115,24 @@ const fieldConfig = [
     validation: { required: true, options: baseRates },
   },
   {
-    label: "Tenure (months)",
+    label: "tenure(months)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "DLP (months)",
+    label: "DLP(months)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
 
   { label: "Eligibility Thresholds (Tender-defined)", type: "heading" },
   {
-    label: "Avg Annual Turnover Threshold",
+    label: "avg annual turnover threshold",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Similar Work Threshold (₹ Cr)",
+    label: "similar work threshold",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
@@ -150,7 +158,7 @@ const fieldConfig = [
   },
   { label: "JV Policy", type: "text", validation: { required: true } },
   {
-    label: "Key Personnel List",
+    label: "key Personnel Requirement",
     type: "textarea",
     validation: { required: true, minLength: 5 },
   },
@@ -165,77 +173,100 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
+  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
+  const [pdfPageNumber, setPdfPageNumber] = useState(1);
+  const [loading, setLoading] = useState(true);
 
+  const [pdfBuffer, setPdfBuffer] = useState(null);
   const { jwtToken } = useContext(userContext);
+
   const navigate = useNavigate();
 
+  const handleDownloadPdf = async () => {
+    try {
+      const response = await downloadPdf(1);
+      const arrayBuffer = await response.arrayBuffer();
+      setPdfBuffer(arrayBuffer);
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   useEffect(() => {
-    const response = [
-      {
-        label: "Tender Name",
-        value: "Lorem Ipsum",
-        confidenceScore: 0.95,
-        pageNo: 1,
-      },
-      {
-        label: "Tender Id/No.",
-        value: "TND-001",
-        confidenceScore: 0.98,
-        pageNo: 1,
-      },
-      {
-        label: "Procuring Entity",
-        value: "ABC Corp",
-        confidenceScore: 0.92,
-        pageNo: 1,
-      },
-      {
-        label: "Procurement Mode",
-        value: "EPC",
-        confidenceScore: 0.97,
-        pageNo: 2,
-      },
-      {
-        label: "Location/State",
-        value: "Maharashtra",
-        confidenceScore: 0.93,
-        pageNo: 2,
-      },
-      {
-        label: "Pre-Bid Date",
-        value: "2025-10-01",
-        confidenceScore: 0.96,
-        pageNo: 3,
-      },
-      {
-        label: "Submission Date",
-        value: "2025-10-10",
-        confidenceScore: 0.94,
-        pageNo: 3,
-      },
-      {
-        label: "Price Adjustment (Escalation)",
-        value: "Yes",
-        confidenceScore: 0.99,
-        pageNo: 4,
-      },
-    ];
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await getExtractedData();
 
-    const apiData = fieldConfig.map((config) => {
-      if (config.type === "heading") return config;
-      const match = response.find((r) => r.label === config.label);
-      return {
-        ...config,
-        value: match ? match.value : config.type === "toggle" ? "No" : "", // default toggle to "No"
-        confidenceScore: match ? match.confidenceScore : null,
-        pageNo: match ? match.pageNo : null,
-      };
-    });
+        const dataArray = Array.isArray(response.data) ? response.data : [];
 
-    setFields(apiData);
-    setEditableFields(new Array(apiData.length).fill(false));
-    setErrors(new Array(apiData.length).fill(""));
+        const normalizedResponse = dataArray.map((item) => ({
+          ...item,
+          normalizedKey: item.field_key
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, ""),
+        }));
+        const apiData = fieldConfig.map((config) => {
+          if (config.type === "heading") return config;
+
+          const normalizedLabel = config.label
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, "");
+
+          const match = normalizedResponse.find(
+            (r) => r.normalizedKey === normalizedLabel
+          );
+
+          let value = match
+            ? match.field_value
+            : config.type === "toggle"
+            ? "No"
+            : "";
+
+          if (
+            match &&
+            config.type === "date" &&
+            /^\d{2}\/\d{2}\/\d{4}$/.test(match.field_value)
+          ) {
+            const [day, month, year] = match.field_value.split("/");
+            value = `${year}-${month}-${day}`;
+          }
+
+          return {
+            ...config,
+            value,
+            confidenceScore: match ? parseFloat(match.confidence_score) : null,
+            pageNo: match ? match.source_page_number : null,
+            snippet: match ? match.snippet : "test",
+          };
+        });
+
+        setFields(apiData);
+        setEditableFields(new Array(apiData.length).fill(false));
+        setErrors(new Array(apiData.length).fill(""));
+      } catch (err) {
+        console.error("Error fetching extracted data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    console.log("Component mounted, downloading PDF...");
+    handleDownloadPdf();
+  }, []);
+
+  useEffect(() => {
+    console.log("PDF buffer updated:", pdfBuffer);
+  }, [pdfBuffer]);
+
+  useEffect(() => {
+    console.log("PDF modal opened", isPdfViewerOpen);
+    console.log("pdfBuffer", pdfBuffer);
+  }, [isPdfViewerOpen]);
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;
@@ -288,6 +319,18 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
     );
     validateField(index, newValue);
   };
+  const handleBlur = (index) => {
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? false : editable))
+    );
+  };
+  const handleExtract = (index) => {
+    const pageNo = fields[index]?.pageNo;
+    if (pageNo && !isPdfViewerOpen) {
+      setPdfPageNumber(pageNo);
+      setIsPdfViewerOpen(true);
+    }
+  };
 
   const handleLoginRedirect = () => {
     window.location.href = "/login";
@@ -312,26 +355,56 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   };
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
-
-  return (
+  return loading ? (
+    <Box
+      width="100%"
+      height={height}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Typography fontSize={18} color={colors.green}>
+        Loading...
+      </Typography>
+    </Box>
+  ) : (
     <Box
       width="100%"
       height={height}
       display="flex"
       flexDirection="column"
       gap={2}
-      position="relative"
       overflow="auto"
     >
-      <Typography
-        fontWeight="700"
-        fontSize={24}
-        color={colors.black_text}
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent={"space-between"}
+        gap={1}
         mb={2}
         mt={1}
       >
-        Review & Qualification
-      </Typography>
+        <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
+          Review & Qualification{" "}
+          <Box component="span" sx={{ display: "inline-block" }}>
+            <GetAppIcon
+              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
+            />
+          </Box>
+        </Typography>
+        <img
+          src="src/assets/PDF_file_icon.svg.png"
+          alt="pdf"
+          width={50}
+          height={50}
+          style={{ marginRight: "16px", cursor: "pointer" }}
+          onClick={() => {
+            if (!isPdfViewerOpen) {
+              setIsPdfViewerOpen(true);
+            }
+          }}
+        />
+      </Box>
 
       {displayedFields.map((field, index) => (
         <Box key={index}>
@@ -352,14 +425,25 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                   fontWeight={500}
                   color={colors.black_text}
                 >
-                  {field.label}
+                  {toTitleCase(field.label)}
                 </Typography>
-                <Box display="flex" gap={2}>
+
+                <Box display="flex" gap={2} alignItems="center">
+                  {/* Confidence circle */}
                   <IconButton disableRipple>
                     <CircleIcon
-                      style={{ color: colors.green, fontSize: "9px" }}
+                      style={{
+                        color: (() => {
+                          const score = field.confidenceScore ?? 10; // default 0 if null
+                          if (score >= 0.8) return "green";
+                          if (score >= 0.5) return "orange";
+                          return "red";
+                        })(),
+                        fontSize: "9px",
+                      }}
                     />
                   </IconButton>
+
                   <IconButton
                     size="small"
                     disableRipple
@@ -369,6 +453,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                       style={{ color: colors.green, fontSize: "17px" }}
                     />
                   </IconButton>
+
                   <IconButton
                     size="small"
                     disableRipple
@@ -378,50 +463,164 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                       style={{ color: colors.green, fontSize: "17px" }}
                     />
                   </IconButton>
+                  {(!field.value ||
+                    field.value === "" ||
+                    field.value === "Not found in document") && (
+                    <AlertTooltip
+                      title="No value found for particular label in document"
+                      type="error"
+                    >
+                      <ErrorOutlineIcon
+                        style={{
+                          color: "red",
+                          fontSize: 18,
+                          cursor: "pointer",
+                        }}
+                      />
+                    </AlertTooltip>
+                  )}
                 </Box>
               </Box>
 
               {field.type === "toggle" ? (
                 <Toggle
                   label={field.label}
-                  value={field.value || "No"}
-                  onChange={(val) => handleChange(index, val)}
-                  disabled={!editableFields[index]}
+                  value={field.value}
+                  onChange={(val) => handleChange(index, val ? "yes" : "no")}
+                  // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
-                <CustomTextField
-                  value={field.value}
-                  placeholder={field.label}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  disabled={!editableFields[index]}
-                  width="45vw"
-                />
-              ) : field.type === "select" ? (
-                <CustomSelect
-                  value={field.value}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  placeholder={field.label}
-                  options={field.validation?.options || []}
-                  disabled={!editableFields[index]}
-                />
+                <AlertTooltip
+                  title={
+                    <Typography sx={{ fontSize: 12 }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  type="success"
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <span>
+                    <CustomTextField
+                      value={field.value}
+                      placeholder={field.label}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      onBlur={() => handleBlur(index)}
+                      disabled={!editableFields[index]}
+                      width="45vw"
+                    />
+                  </span>
+                </AlertTooltip>
+              ) : // <CustomTextField
+              //   value={field.value}
+              //   placeholder={field.label}
+              //   onChange={(e) => handleChange(index, e.target.value)}
+              //   onBlur={() => handleBlur(index)}
+              //   disabled={!editableFields[index]}
+              //   width="45vw"
+              // />
+              field.type === "select" ? (
+                <Tooltip
+                  title={
+                    <Typography sx={{ fontSize: 12 }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <span>
+                    <CustomSelect
+                      value={field.value}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      placeholder={field.label}
+                      options={field.validation?.options || []}
+                      disabled={!editableFields[index]}
+                    />
+                  </span>
+                </Tooltip>
               ) : field.type === "date" ? (
-                <CustomDatePicker
-                  value={field.value}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  placeholder={`Select ${field.label}`}
-                  disabled={!editableFields[index]}
-                  width="40vw"
-                />
+                <Tooltip
+                  title={
+                    <Typography sx={{ fontSize: 12 }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <span>
+                    <CustomDatePicker
+                      value={field.value}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      placeholder={`Select ${field.label}`}
+                      disabled={!editableFields[index]}
+                      width="40vw"
+                    />
+                  </span>
+                </Tooltip>
               ) : field.type === "textarea" ? (
-                <CustomTextField
-                  value={field.value}
-                  placeholder={field.label}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  disabled={!editableFields[index]}
-                  multiline
-                  minRows={3}
-                  width="45vw"
-                />
+                <Tooltip
+                  title={
+                    <Typography sx={{ fontSize: 12 }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <span>
+                    <CustomTextField
+                      value={field.value}
+                      placeholder={field.label}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      disabled={!editableFields[index]}
+                      multiline
+                      minRows={3}
+                      width="45vw"
+                    />
+                  </span>
+                </Tooltip>
               ) : null}
 
               {errors[index] && (
@@ -471,6 +670,51 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
       >
         <CustomButton label="Next" onClick={handleNext} />
       </Box>
+
+      {isPdfViewerOpen && pdfBuffer && pdfBuffer.byteLength > 0 && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 100,
+            background: "rgba(0,0,0,0.15)",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "stretch",
+          }}
+          onClick={() => {
+            setIsPdfViewerOpen(false);
+          }}
+        >
+          <Box
+            sx={{
+              width: "60%",
+              height: "100%",
+              position: "relative",
+              borderTopLeftRadius: "2rem",
+              borderBottomLeftRadius: "2rem",
+              boxShadow: "-5px 0 15px rgba(0,0,0,0.1)",
+              bgcolor: "white",
+              transition: "transform 0.3s ease-in-out",
+              transform: isPdfViewerOpen ? "translateX(0)" : "translateX(100%)",
+              overflowY: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PdfViewer
+              fileUrl={
+                pdfBuffer.slice
+                  ? pdfBuffer.slice(0)
+                  : new Uint8Array(pdfBuffer).buffer
+              }
+              initialPage={pdfPageNumber}
+            />
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

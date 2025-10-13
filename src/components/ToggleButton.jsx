@@ -3,9 +3,11 @@ import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import colors from "../assets/colors";
 
 const Toggle = ({ label, value, onChange }) => {
+  const normalizedValue = value?.toLowerCase() || "no";
+
   const handleChange = (event, newValue) => {
     if (newValue !== null) {
-      onChange(newValue);
+      onChange(newValue === "yes" ? "Yes" : "No");
     }
   };
 
@@ -18,7 +20,7 @@ const Toggle = ({ label, value, onChange }) => {
       }}
     >
       <ToggleButtonGroup
-        value={value}
+        value={normalizedValue}
         exclusive
         onChange={handleChange}
         size="small"
@@ -29,11 +31,11 @@ const Toggle = ({ label, value, onChange }) => {
             textTransform: "none",
             width: "50%",
             border: `1px solid ${colors.green}`,
-            backgroundColor: "#fff", 
+            backgroundColor: "#fff",
             color: colors.green,
             "&:hover": {
-              backgroundColor: "none",
-              color: "#fff",
+              backgroundColor: "#e6f4ea", 
+              color: colors.green,
             },
             "&.Mui-selected": {
               backgroundColor: colors.green,
@@ -45,8 +47,8 @@ const Toggle = ({ label, value, onChange }) => {
           },
         }}
       >
-        <ToggleButton value="Yes">Yes</ToggleButton>
-        <ToggleButton value="No">No</ToggleButton>
+        <ToggleButton value="yes">Yes</ToggleButton>
+        <ToggleButton value="no">No</ToggleButton>
       </ToggleButtonGroup>
     </Box>
   );

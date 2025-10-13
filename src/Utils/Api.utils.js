@@ -9,6 +9,7 @@ const {
   PROJECTLIST,
   QUALIFICATION_INPUTS,
   GET_QUALIFICATION_INPUTS,
+  GET_EXTRACTED_DATA,
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -47,6 +48,15 @@ export const getQualificationInputs = async (data) => {
   }
 };
 
+export const getExtractedData = async (data) => {
+  try {
+    const response = await axiosclient.get(GET_EXTRACTED_DATA);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const uploadPdfAnonymous = async (data) => {
   try {
     const response = await axiosclient.post(UPLOAD_PDF_ANONYMOUS, data, {
@@ -61,10 +71,10 @@ export const uploadPdfAnonymous = async (data) => {
   }
 };
 
-export const uploadPdfAuthenticated = async (data,project_id) => {
+export const uploadPdfAuthenticated = async (data, project_id) => {
   try {
     const response = await axiosclient.post(
-      PROJECTS + project_id + "/" + "upload-pdf/",
+      PROJECTS + project_id  + "/upload-pdf/",
       data,
       {
         headers: {
@@ -94,6 +104,20 @@ export const getProjects = async () => {
 export const createProject = async (data) => {
   try {
     const response = await axiosclient.post(CREATEPROJECT, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const downloadPdf = async (projectId) => {
+  try {
+    const response = await axiosclient.get(
+      ApiConfig.PDF_DOWNLOAD + projectId + "/download-pdf/",
+      {
+        responseType: "blob", // Important for file download
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;

@@ -7,7 +7,7 @@ const CustomSelect = ({
   placeholder,
   options = [],
   disabled,
-  width = "163px",
+  width = "45vw",
   label,
 }) => {
   return (
@@ -44,6 +44,7 @@ const CustomSelect = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-start",
+              background:"#ffffff"
             },
           }}
         >
