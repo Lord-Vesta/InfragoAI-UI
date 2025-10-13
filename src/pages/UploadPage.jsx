@@ -29,6 +29,7 @@ const UploadPage = () => {
       toast.error(error);
     }
   };
+  console.log("projectttt",project_id)
 
   const handleFileUploadAuthenticated = async () => {
     try {
@@ -88,7 +89,7 @@ const UploadPage = () => {
             boxShadow: 3,
             "&:hover": { backgroundColor: "#059669" },
           }}
-          onClick={() => navigate("/ReviewExtracted")}
+          onClick={() => navigate(`/ReviewExtracted/${project_id || response?.project_id}`)}
         >
           Next
         </Button>

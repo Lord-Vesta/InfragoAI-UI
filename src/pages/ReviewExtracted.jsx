@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Box, IconButton, Typography, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -10,13 +10,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { downloadPdf, getExtractedData } from "../Utils/Api.utils";
 import { toTitleCase } from "../Utils/stringUtils";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
+import { updateEditedFields } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 
@@ -158,6 +159,11 @@ const fieldConfig = [
   },
   { label: "JV Policy", type: "text", validation: { required: true } },
   {
+    label: "Evaluation Process",
+    type: "textarea",
+    validation: { required: true, minLength: 5 },
+  },
+  {
     label: "key Personnel Requirement",
     type: "textarea",
     validation: { required: true, minLength: 5 },
@@ -169,7 +175,7 @@ const fieldConfig = [
   },
 ];
 
-const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
+const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -178,7 +184,12 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   const [loading, setLoading] = useState(true);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
-  const { jwtToken } = useContext(userContext);
+  console.log("extratc", extractedData)
+  const { jwtToken, projectId } = useContext(userContext);
+
+  console.log("projec", projectId)
+  const { project_id } = useParams();
+  console.log("sds", project_id)
 
   const navigate = useNavigate();
 
@@ -192,13 +203,29 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
     }
   };
 
+  const fieldRefs = useRef([]);
+
+
+
+
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const response = await getExtractedData();
+        let dataArray = [];
 
-        const dataArray = Array.isArray(response.data) ? response.data : [];
+        if (!extractedData) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+
+          const response = await getExtractedData(project_id);
+
+
+          console.log("API response:", response);
+          dataArray = Array.isArray(response.data) ? response.data : [];
+        } else {
+          console.log("Using existing extractedData");
+          dataArray = extractedData.data;
+        }
 
         const normalizedResponse = dataArray.map((item) => ({
           ...item,
@@ -206,6 +233,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
             .toLowerCase()
             .replace(/[\s-/_()]+/g, ""),
         }));
+
         const apiData = fieldConfig.map((config) => {
           if (config.type === "heading") return config;
 
@@ -218,17 +246,16 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
           );
 
           let value = match
-            ? match.field_value
-            : config.type === "toggle"
-            ? "No"
-            : "";
+            ? match.edited_value ?? match.field_value
+            : config.type === "toggle" ? "No" : "";
 
+          // Normalize date if needed
           if (
             match &&
             config.type === "date" &&
-            /^\d{2}\/\d{2}\/\d{4}$/.test(match.field_value)
+            /^\d{2}\/\d{2}\/\d{4}$/.test(value)
           ) {
-            const [day, month, year] = match.field_value.split("/");
+            const [day, month, year] = value.split("/");
             value = `${year}-${month}-${day}`;
           }
 
@@ -237,22 +264,24 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
             value,
             confidenceScore: match ? parseFloat(match.confidence_score) : null,
             pageNo: match ? match.source_page_number : null,
-            snippet: match ? match.snippet : "test",
+            snippet: match ? match.snippet : "",
+            extraction_id: match ? match.extraction_id : null,
           };
         });
+
 
         setFields(apiData);
         setEditableFields(new Array(apiData.length).fill(false));
         setErrors(new Array(apiData.length).fill(""));
       } catch (err) {
-        console.error("Error fetching extracted data:", err);
+        console.error("Error loading data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    loadData();
+  }, [extractedData]);
 
   useEffect(() => {
     console.log("Component mounted, downloading PDF...");
@@ -267,6 +296,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
     console.log("PDF modal opened", isPdfViewerOpen);
     console.log("pdfBuffer", pdfBuffer);
   }, [isPdfViewerOpen]);
+
+
+
+
+
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;
@@ -306,20 +340,34 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
   };
 
   const handleEdit = (index) => {
-    setEditableFields((prev) =>
-      prev.map((editable, i) => (i === index ? true : editable))
-    );
+    setEditableFields((prev) => prev.map((editable, i) => (i === index ? true : editable)));
+
+    // Autofocus using ref
+    setTimeout(() => {
+      fieldRefs.current[index]?.focus();
+      // Scroll field into view if needed
+      fieldRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
   };
 
+  // const handleChange = (index, newValue) => {
+  //   setFields((prev) =>
+  //     prev.map((field, i) =>
+  //       i === index ? { ...field, value: newValue } : field
+  //     )
+  //   );
+  //   validateField(index, newValue);
+  // };
   const handleChange = (index, newValue) => {
     setFields((prev) =>
       prev.map((field, i) =>
-        i === index ? { ...field, value: newValue } : field
+        i === index ? { ...field, value: newValue, isEdited: true } : field
       )
     );
     validateField(index, newValue);
   };
   const handleBlur = (index) => {
+    console.log("came")
     setEditableFields((prev) =>
       prev.map((editable, i) => (i === index ? false : editable))
     );
@@ -336,19 +384,28 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
     window.location.href = "/login";
   };
 
-  const handleNext = () => {
-    // let valid = true;
-    // fields.forEach((field, i) => {
-    //   if (field.type !== "heading") {
-    //     const error = validateField(i, field.value);
-    //     if (error) valid = false;
-    //   }
-    // });
-    // if (valid) {
-    //   alert("All validations passed!");
-    // }
+
+  const handleNext = async () => {
+    // Collect only the fields that were edited
+    const editedFields = fields
+      .filter((field) => field.value !== undefined && field.value !== "" && field.isEdited)
+      .map((field) => ({
+        extraction_id: field.extraction_id, // use extraction_id instead of field_key
+        edited_value: field.value,
+      }));
+
+    const payload = { fields: editedFields };
+
+    console.log("Payload to send:", payload);
+
     if (jwtToken) {
-      navigate("/QualificationInputs");
+      try {
+        const response = await updateEditedFields(payload, project_id);
+        console.log("API Response:", response);
+        navigate(`/QualificationInputs/${project_id}`);
+      } catch (error) {
+        console.error("API Error:", error);
+      }
     } else {
       navigate("/login");
     }
@@ -419,6 +476,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
             </Typography>
           ) : (
             <>
+
               <Box display="flex" alignItems="center" mb={1}>
                 <Typography
                   variant="body1"
@@ -466,19 +524,19 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                   {(!field.value ||
                     field.value === "" ||
                     field.value === "Not found in document") && (
-                    <AlertTooltip
-                      title="No value found for particular label in document"
-                      type="error"
-                    >
-                      <ErrorOutlineIcon
-                        style={{
-                          color: "red",
-                          fontSize: 18,
-                          cursor: "pointer",
-                        }}
-                      />
-                    </AlertTooltip>
-                  )}
+                      <AlertTooltip
+                        title="No value found for particular label in document"
+                        type="error"
+                      >
+                        <ErrorOutlineIcon
+                          style={{
+                            color: "red",
+                            fontSize: 18,
+                            cursor: "pointer",
+                          }}
+                        />
+                      </AlertTooltip>
+                    )}
                 </Box>
               </Box>
 
@@ -487,7 +545,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                   label={field.label}
                   value={field.value}
                   onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                  // disabled={!editableFields[index]}
+                // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <AlertTooltip
@@ -511,117 +569,125 @@ const ReviewExtracted = ({ loggedIn, height = "85vh" }) => {
                   }}
                 >
                   <span>
-                    <CustomTextField
-                      value={field.value}
-                      placeholder={field.label}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      onBlur={() => handleBlur(index)}
-                      disabled={!editableFields[index]}
-                      width="45vw"
-                    />
+                    {(() => {
+                      // Clean text by removing multiple spaces/line breaks
+                      const cleanedText = field.value
+                        ? field.value.replace(/\s+/g, " ")
+                        : "";
+                      const isLongText = cleanedText.length > 100;
+
+                      return (
+                        <CustomTextField
+                          value={field.value}
+                          ref={(el) => (fieldRefs.current[index] = el)}
+                          placeholder={field.label}
+                          onChange={(e) => handleChange(index, e.target.value)}
+                          onBlur={() => handleBlur(index)}
+                          disabled={!editableFields[index]}
+                          width="45vw"
+                          multiline={isLongText}
+                          minRows={isLongText ? Math.ceil(cleanedText.length / 80) : 1}
+                        />
+                      );
+                    })()}
                   </span>
                 </AlertTooltip>
-              ) : // <CustomTextField
-              //   value={field.value}
-              //   placeholder={field.label}
-              //   onChange={(e) => handleChange(index, e.target.value)}
-              //   onBlur={() => handleBlur(index)}
-              //   disabled={!editableFields[index]}
-              //   width="45vw"
-              // />
-              field.type === "select" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+              ) :
+                field.type === "select" ? (
+                  <Tooltip
+                    title={
+                      <Typography sx={{ fontSize: 12 }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomSelect
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      placeholder={field.label}
-                      options={field.validation?.options || []}
-                      disabled={!editableFields[index]}
-                    />
-                  </span>
-                </Tooltip>
-              ) : field.type === "date" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                    }}
+                  >
+                    <span>
+                      <CustomSelect
+                        value={field.value}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        placeholder={field.label}
+                        onBlur={() => handleBlur(index)}
+                        options={field.validation?.options || []}
+                        disabled={!editableFields[index]}
+                      />
+                    </span>
+                  </Tooltip>
+                ) : field.type === "date" ? (
+                  <Tooltip
+                    title={
+                      <Typography sx={{ fontSize: 12 }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomDatePicker
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      placeholder={`Select ${field.label}`}
-                      disabled={!editableFields[index]}
-                      width="40vw"
-                    />
-                  </span>
-                </Tooltip>
-              ) : field.type === "textarea" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                    }}
+                  >
+                    <span>
+                      <CustomDatePicker
+                        value={field.value}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        onBlur={() => handleBlur(index)}
+                        placeholder={`Select ${field.label}`}
+                        disabled={!editableFields[index]}
+                        width="40vw"
+                      />
+                    </span>
+                  </Tooltip>
+                ) : field.type === "textarea" ? (
+                  <Tooltip
+                    title={
+                      <Typography sx={{ fontSize: 12 }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomTextField
-                      value={field.value}
-                      placeholder={field.label}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      disabled={!editableFields[index]}
-                      multiline
-                      minRows={3}
-                      width="45vw"
-                    />
-                  </span>
-                </Tooltip>
-              ) : null}
+                    }}
+                  >
+                    <span>
+                      <CustomTextField
+                        value={field.value}
+                        placeholder={field.label}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        disabled={!editableFields[index]}
+                        multiline
+                        minRows={3}
+                        width="45vw"
+                      />
+                    </span>
+                  </Tooltip>
+                ) : null}
 
               {errors[index] && (
                 <Typography color="error" fontSize={12} mt={0.5}>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { Select, MenuItem, FormControl, Typography } from "@mui/material";
 
 const CustomSelect = ({
@@ -9,7 +10,9 @@ const CustomSelect = ({
   disabled,
   width = "45vw",
   label,
+  onBlur,
 }) => {
+    const [isEditable, setIsEditable] = useState(!disabled);
   return (
     <div style={{ width }}>
       {label && (
@@ -26,6 +29,10 @@ const CustomSelect = ({
           value={value}
           onChange={onChange}
           disabled={disabled}
+           onBlur={(e) => {
+    setIsEditable(false); 
+    if (onBlur) onBlur(e); 
+  }}
           displayEmpty
           renderValue={(selected) => {
             if (!selected) {

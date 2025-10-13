@@ -6,13 +6,14 @@ import { userContext } from "../context/ContextProvider";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate,useParams } from "react-router";
 import { toast } from "react-toastify";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const { project_id } = useParams();
   const { jwtToken } = useContext(userContext);
 
   const handleExpanded = () => {
@@ -27,13 +28,13 @@ export default function Sidebar() {
     "Eligibility & BG Check",
   ];
 
-  const stepRoutes = [
-    "/upload",
-    "/ReviewExtracted",
-    "/QualificationInputs",
-    "/TechnicalConfirmation",
-    "/BGsummary",
-  ];
+ const stepRoutes = [
+  `/upload/${project_id}`,
+  `/ReviewExtracted/${project_id}`,
+  `/QualificationInputs/${project_id}`,
+  `/TechnicalConfirmation/${project_id}`,
+  `/BGsummary/${project_id}`,
+];
 
   const location = useLocation().pathname;
   const handleStepClick = (i) => {
