@@ -1,20 +1,28 @@
-import React, { useState } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { Box } from "@mui/material";
 import { Document, Page, pdfjs } from "react-pdf";
-import pdf from "../assets/sample_pdf1.pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 import "../../node_modules/react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../../node_modules/react-pdf/dist/esm/Page/TextLayer.css";
 
-const PdfViewer = ({ fileUrl, initialPage = 1, viewFullPdf = false }) => {
+const PdfViewer = ({ fileUrl, initialPage = 1}) => {
   const [numPages, setNumPages] = useState(null);
-  console.log("fileUrl", fileUrl);
-  console.log("initialPage", initialPage);
+  const pageRefs = useRef([]);
+
   const handleDocumentLoad = ({ numPages }) => {
     setNumPages(numPages);
   };
+
+  useEffect(() => {
+    if (numPages && pageRefs.current[initialPage - 1]) {
+      pageRefs.current[initialPage - 1].scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [numPages, initialPage]);
 
   return (
     <Box
@@ -31,22 +39,19 @@ const PdfViewer = ({ fileUrl, initialPage = 1, viewFullPdf = false }) => {
       {" "}
       {/* PDF Content */}
       <Document
-        file={pdf}
+        file={fileUrl}
         onLoadSuccess={handleDocumentLoad}
         onLoadError={(err) => console.error("PDF Load Error:", err)}
       >
-        {viewFullPdf ? (
-          Array.from(new Array(numPages), (el, index) => (
-            <Page
-              key={index}
-              pageNumber={index + 1}
-              width={800}
-              renderMode="canvas"
-            />
-          ))
-        ) : (
-          <Page pageNumber={initialPage} width={800} />
-        )}
+        {Array.from(new Array(numPages), (_, index) => (
+          <div
+            key={index}
+            ref={(el) => (pageRefs.current[index] = el)} // assign ref to each page wrapper
+            style={{ marginBottom: "16px" }}
+          >
+            <Page pageNumber={index + 1} width={800} renderMode="canvas" />
+          </div>
+        ))}
       </Document>
     </Box>
   );

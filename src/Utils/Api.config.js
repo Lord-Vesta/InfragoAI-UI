@@ -8,5 +8,6 @@ export const ApiConfig = {
   UPLOAD_PDF_ANONYMOUS: `/api/projects/upload-pdf/`,
   PROJECTLIST: `/api/projects/userprojects/`,
   CREATEPROJECT: `/api/projects/create/`,
-  GET_EXTRACTED_DATA:`/api/projects/1/extract/`,
+  GET_EXTRACTED_DATA: `/api/projects/1/extract/`,
+  PDF_DOWNLOAD: `/api/projects/`,
 };
