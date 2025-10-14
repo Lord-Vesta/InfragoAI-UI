@@ -1,13 +1,19 @@
 import React from "react";
+import { useState } from "react";
 import { TextField } from "@mui/material";
 
-const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
+const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur}) => {
+    const [isEditable, setIsEditable] = useState(!disabled);
   return (
     <TextField
       type="date"
       value={value || ""}
       onChange={onChange}
-      disabled={disabled}
+       onBlur={(e) => {
+    setIsEditable(false); 
+    if (onBlur) onBlur(e); 
+  }}
+       disabled={disabled}
       fullWidth
       size="small"
       variant="outlined"

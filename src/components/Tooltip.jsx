@@ -7,7 +7,7 @@ const StyledTooltip = styled(
       {...props}
       classes={{ popper: className }}
       arrow
-      placement="right" 
+      placement="top" 
     />
   )
 )(({ theme, type }) => {
