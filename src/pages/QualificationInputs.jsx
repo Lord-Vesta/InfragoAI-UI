@@ -6,6 +6,10 @@ import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
+import EditIcon from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
 import { useParams, useNavigate } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
@@ -14,8 +18,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   ]);
 
   const [numericValues, setNumericValues] = useState({
-    turnover3: "",
-    turnover5: "",
+    Turnover_3_years: "",
+    Turnover_5_years: "",
     netWorth: "",
     workingCapital: "",
     workInHand: "",
@@ -33,8 +37,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   useEffect(() => {
     if (initialData) {
       setNumericValues({
-        turnover3: initialData?.data?.turnover_past_3_years?.edited_value || "",
-        turnover5: initialData?.data?.turnover_past_5_years?.edited_value || "",
+        Turnover_3_years: initialData?.data?.turnover_past_3_years?.edited_value || "",
+        Turnover_5_years: initialData?.data?.turnover_past_5_years?.edited_value || "",
         netWorth: initialData?.data?.net_worth?.edited_value || "",
         workingCapital: initialData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
         workInHand: initialData?.data?.work_in_hand?.edited_value || "",
@@ -149,7 +153,23 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       overflow="auto"
     >
       <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-        Provide Qualification Inputs
+        {initialData ? "Review " : "Provide "}
+        Qualification Inputs{" "}
+        {initialData ? (
+          <Box component="span" sx={{ display: "inline-block" }}>
+            <GetAppIcon
+              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
+              onClick={() =>
+                GenerateQualificationPDF(
+                  numericValues,
+                  litigationStatus,
+                  litigationDetails,
+                  projects
+                )
+              }
+            />
+          </Box>
+        ) : null}
       </Typography>
 
       <Box>

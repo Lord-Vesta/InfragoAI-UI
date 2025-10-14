@@ -20,6 +20,7 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import { updateEditedFields,getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
+import GeneratePDF from "../components/GeneratePdf";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -445,6 +446,18 @@ useEffect(() => {
           <Box component="span" sx={{ display: "inline-block" }}>
             <GetAppIcon
               style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
+              onClick={() => {
+                const pdfData = fields
+                  .filter((f) => f.type !== "heading")
+                  .map((f) => ({
+                    field_key: f.label,
+                    field_value: f.value,
+                    confidence_score: f.confidenceScore ?? "",
+                    source_page_number: f.pageNo ?? "-",
+                  }));
+
+                GeneratePDF(pdfData, "extracted_data.pdf");
+              }}
             />
           </Box>
         </Typography>
