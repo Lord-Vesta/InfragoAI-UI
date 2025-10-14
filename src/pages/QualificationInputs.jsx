@@ -6,8 +6,7 @@ import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
-import EditIcon from "@mui/icons-material/Edit";
-import IconButton from "@mui/material/IconButton";
+import { useParams, useNavigate } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -29,6 +28,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const { project_id } = useParams();
+  const navigate = useNavigate();
   useEffect(() => {
     if (initialData) {
       setNumericValues({
@@ -101,11 +102,11 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         formData.append("registration_certification", certificateFile);
       }
 
-      const response = await qualificationInputs(formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await qualificationInputs(formData, project_id);
+      if (response) {
+        navigate(`/TechnicalConfirmation/${project_id}`);
+      }
 
-      alert("Qualification Inputs submitted successfully!");
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);

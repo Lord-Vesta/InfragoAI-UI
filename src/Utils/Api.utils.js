@@ -10,6 +10,8 @@ const {
   QUALIFICATION_INPUTS,
   GET_QUALIFICATION_INPUTS,
   GET_EXTRACTED_DATA,
+  GET_EXTRACTED_INPUTS,
+  EDIT_EXTRACTED_DATA,
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -30,30 +32,48 @@ export const verifyOtp = async (data) => {
   }
 };
 
-export const qualificationInputs = async (data) => {
+export const qualificationInputs = async (data,project_id) => {
   try {
-    const response = await axiosclient.post(QUALIFICATION_INPUTS, data);
+    const response = await axiosclient.post(QUALIFICATION_INPUTS(project_id), data);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const getQualificationInputs = async (data) => {
+export const getQualificationInputs = async (projectId) => {
   try {
-    const response = await axiosclient.get(GET_QUALIFICATION_INPUTS);
+    const response = await axiosclient.get(GET_QUALIFICATION_INPUTS(projectId));
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const getExtractedData = async (data) => {
-  try {
-    const response = await axiosclient.get(GET_EXTRACTED_DATA);
+// export const getExtractedData=async()=>{
+//   try{
+//     const response= await axiosclient.get(GET_EXTRACTED_DATA);
+//     return response.data;
+//   }catch(error){
+//     throw error;
+//   }
+// }
+export const getExtractedData = async (projectId) => {
+  const response = await axiosclient.get(GET_EXTRACTED_DATA(projectId));
+  return response.data;
+};
+
+export const updateEditedFields=async(data,projectId)=>{
+  const response=await axiosclient.patch(EDIT_EXTRACTED_DATA(projectId),data);
+  return response.data;
+};
+
+export const getExtractedInputs=async(projectId)=>{
+  try{
+    const response=await axiosclient.get(GET_EXTRACTED_INPUTS(projectId));
     return response.data;
-  } catch (error) {
-    throw error;
+  }catch(err){
+    throw err;
   }
 };
 
