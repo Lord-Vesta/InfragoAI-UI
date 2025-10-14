@@ -154,7 +154,7 @@ const fieldConfig = [
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Bid Capacity Formula",
+    label: "Bid Capacity",
     type: "text",
     validation: { required: true },
   },
@@ -339,25 +339,28 @@ useEffect(() => {
     return error;
   };
 
-  const handleEdit = (index) => {
-    setEditableFields((prev) => prev.map((editable, i) => (i === index ? true : editable)));
+const handleEdit = (index) => {
+  console.log("🟡 handleEdit triggered for index:", index);
+  
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? true : editable))
+  );
 
-    // Autofocus using ref
-    setTimeout(() => {
-      fieldRefs.current[index]?.focus();
-      // Scroll field into view if needed
-      fieldRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
-  };
+  setTimeout(() => {
+    const input = fieldRefs.current[index];
 
-  // const handleChange = (index, newValue) => {
-  //   setFields((prev) =>
-  //     prev.map((field, i) =>
-  //       i === index ? { ...field, value: newValue } : field
-  //     )
-  //   );
-  //   validateField(index, newValue);
-  // };
+    if (input) {
+      input.focus();
+      const length = input.value?.length || 0;
+      input.setSelectionRange(length, length);
+    }
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+};
+
+
+
+
   const handleChange = (index, newValue) => {
     setFields((prev) =>
       prev.map((field, i) =>
@@ -462,7 +465,7 @@ useEffect(() => {
           </Box>
         </Typography>
         <img
-          src="src/assets/PDF_file_icon.svg.png"
+          src="src\assets\PDF_file_icon.png"
           alt="pdf"
           width={50}
           height={50}
@@ -499,12 +502,11 @@ useEffect(() => {
                 </Typography>
 
                 <Box display="flex" gap={2} alignItems="center">
-                  {/* Confidence circle */}
                   <IconButton disableRipple>
                     <CircleIcon
                       style={{
                         color: (() => {
-                          const score = field.confidenceScore ?? 10; // default 0 if null
+                          const score = field.confidenceScore ?? 10;
                           if (score >= 0.8) return "green";
                           if (score >= 0.5) return "orange";
                           return "red";
@@ -562,7 +564,7 @@ useEffect(() => {
               ) : field.type === "text" ? (
                 <AlertTooltip
                   title={
-                    <Typography sx={{ fontSize: 12 }}>
+                    <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
                       {field.snippet}
                     </Typography>
                   }
@@ -582,7 +584,6 @@ useEffect(() => {
                 >
                   <span>
                     {(() => {
-                      // Clean text by removing multiple spaces/line breaks
                       const cleanedText = field.value
                         ? field.value.replace(/\s+/g, " ")
                         : "";
@@ -606,25 +607,27 @@ useEffect(() => {
                 </AlertTooltip>
               ) :
                 field.type === "select" ? (
-                  <Tooltip
-                    title={
-                      <Typography sx={{ fontSize: 12 }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
+                    <AlertTooltip
+                  title={
+                  <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  
+                  type="success"
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
                         },
                       },
-                    }}
-                  >
+                    },
+                  }}
+                >
                     <span>
                       <CustomSelect
                         value={field.value}
@@ -635,27 +638,28 @@ useEffect(() => {
                         disabled={!editableFields[index]}
                       />
                     </span>
-                  </Tooltip>
+                  </AlertTooltip>
                 ) : field.type === "date" ? (
-                  <Tooltip
-                    title={
-                      <Typography sx={{ fontSize: 12 }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
+                    <AlertTooltip
+                  title={
+                   <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  type="success"
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
                         },
                       },
-                    }}
-                  >
+                    },
+                  }}
+                >
                     <span>
                       <CustomDatePicker
                         value={field.value}
@@ -666,27 +670,28 @@ useEffect(() => {
                         width="40vw"
                       />
                     </span>
-                  </Tooltip>
+                 </AlertTooltip>
                 ) : field.type === "textarea" ? (
-                  <Tooltip
-                    title={
-                      <Typography sx={{ fontSize: 12 }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
+                    <AlertTooltip
+                  title={
+                   <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
+                      {field.snippet}
+                    </Typography>
+                  }
+                  type="success"
+                  placement="top"
+                  arrow
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        "& .MuiTooltip-tooltip": {
+                          maxWidth: "700px",
+                          whiteSpace: "normal",
                         },
                       },
-                    }}
-                  >
+                    },
+                  }}
+                >
                     <span>
                       <CustomTextField
                         value={field.value}
@@ -698,7 +703,7 @@ useEffect(() => {
                         width="45vw"
                       />
                     </span>
-                  </Tooltip>
+                 </AlertTooltip>
                 ) : null}
 
               {errors[index] && (

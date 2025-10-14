@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { TextField, Typography, Box, IconButton } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
-const CustomTextField = ({
+const CustomTextField = forwardRef(({
   value,
   onChange,
   placeholder,
@@ -16,7 +16,7 @@ const CustomTextField = ({
   error,
   helperText,
   onBlur,
-}) => {
+}, ref) => {
   const [isEditable, setIsEditable] = useState(!disabled);
 
   useEffect(() => {
@@ -57,10 +57,10 @@ const CustomTextField = ({
         fullWidth
         value={value}
         onChange={onChange}
-         onBlur={(e) => {
-    setIsEditable(false); 
-    if (onBlur) onBlur(e); 
-  }}
+        onBlur={(e) => {
+          setIsEditable(false);
+          if (onBlur) onBlur(e);
+        }}
         placeholder={placeholder}
         disabled={!isEditable}
         multiline={multiline}
@@ -70,6 +70,7 @@ const CustomTextField = ({
         helperText={helperText}
         variant="outlined"
         size="small"
+        inputRef={ref} 
         sx={{
           "& .MuiOutlinedInput-root": {
             borderRadius: "12px",
@@ -86,16 +87,12 @@ const CustomTextField = ({
             },
           },
           "& .MuiInputBase-input": {
-            // backgroundColor: "#ffffff",
             color: !isEditable ? "rgba(0, 0, 0, 0.50)" : "black",
-           
           },
-          
-          
         }}
       />
     </div>
   );
-};
+});
 
 export default CustomTextField;
