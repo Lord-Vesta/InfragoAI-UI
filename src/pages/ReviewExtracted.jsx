@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button, Icon } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
@@ -17,10 +17,12 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import { updateEditedFields,getExtractedInputs } from "../Utils/Api.utils";
+import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import GeneratePDF from "../components/GeneratePdf";
+import DownloadIcon from '@mui/icons-material/Download';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -208,81 +210,81 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
 
 
-useEffect(() => {
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      let dataArray = [];
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        let dataArray = [];
 
-      if (!extractedData) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (!extractedData) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        const response = await getExtractedInputs(project_id);
+          const response = await getExtractedInputs(project_id);
 
-        console.log("API response:", response);
-        dataArray = Array.isArray(response.data) ? response.data : [];
-      } else {
-        console.log("Using existing extractedData");
-        dataArray = extractedData.data;
-      }
-
-      const normalizedResponse = dataArray.map((item) => ({
-        ...item,
-        normalizedKey: item.field_key
-          .toLowerCase()
-          .replace(/[\s-/_()]+/g, ""),
-      }));
-
-      const apiData = fieldConfig.map((config) => {
-        if (config.type === "heading") return config;
-
-        const normalizedLabel = config.label
-          .toLowerCase()
-          .replace(/[\s-/_()]+/g, "");
-
-        const match = normalizedResponse.find(
-          (r) => r.normalizedKey === normalizedLabel
-        );
-
-        let value = match
-          ? match.edited_value ?? match.field_value
-          : config.type === "toggle"
-          ? "No"
-          : "";
-
-        if (
-          match &&
-          config.type === "date" &&
-          /^\d{2}\/\d{2}\/\d{4}$/.test(value)
-        ) {
-          const [day, month, year] = value.split("/");
-          value = `${year}-${month}-${day}`;
+          console.log("API response:", response);
+          dataArray = Array.isArray(response.data) ? response.data : [];
+        } else {
+          console.log("Using existing extractedData");
+          dataArray = extractedData.data;
         }
 
-        return {
-          ...config,
-          value,
-          confidenceScore: match ? parseFloat(match.confidence_score) : null,
-          pageNo: match ? match.source_page_number : null,
-          snippet: match ? match.snippet : "",
-          extraction_id: match ? match.extraction_id : null,
-        };
-      });
+        const normalizedResponse = dataArray.map((item) => ({
+          ...item,
+          normalizedKey: item.field_key
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, ""),
+        }));
 
-      setFields(apiData);
-      setEditableFields(new Array(apiData.length).fill(false));
-      setErrors(new Array(apiData.length).fill(""));
-    } catch (err) {
-      console.error("Error loading data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const apiData = fieldConfig.map((config) => {
+          if (config.type === "heading") return config;
 
-  loadData();
-}, [extractedData]);
+          const normalizedLabel = config.label
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, "");
 
-  
+          const match = normalizedResponse.find(
+            (r) => r.normalizedKey === normalizedLabel
+          );
+
+          let value = match
+            ? match.edited_value ?? match.field_value
+            : config.type === "toggle"
+              ? "No"
+              : "";
+
+          if (
+            match &&
+            config.type === "date" &&
+            /^\d{2}\/\d{2}\/\d{4}$/.test(value)
+          ) {
+            const [day, month, year] = value.split("/");
+            value = `${year}-${month}-${day}`;
+          }
+
+          return {
+            ...config,
+            value,
+            confidenceScore: match ? parseFloat(match.confidence_score) : null,
+            pageNo: match ? match.source_page_number : null,
+            snippet: match ? match.snippet : "",
+            extraction_id: match ? match.extraction_id : null,
+          };
+        });
+
+        setFields(apiData);
+        setEditableFields(new Array(apiData.length).fill(false));
+        setErrors(new Array(apiData.length).fill(""));
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [extractedData]);
+
+
   useEffect(() => {
     console.log("Component mounted, downloading PDF...");
     handleDownloadPdf();
@@ -339,24 +341,23 @@ useEffect(() => {
     return error;
   };
 
-const handleEdit = (index) => {
-  console.log("🟡 handleEdit triggered for index:", index);
-  
-  setEditableFields((prev) =>
-    prev.map((editable, i) => (i === index ? true : editable))
-  );
+  const handleEdit = (index) => {
 
-  setTimeout(() => {
-    const input = fieldRefs.current[index];
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? true : editable))
+    );
 
-    if (input) {
-      input.focus();
-      const length = input.value?.length || 0;
-      input.setSelectionRange(length, length);
-    }
-    input?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 100);
-};
+    setTimeout(() => {
+      const input = fieldRefs.current[index];
+
+      if (input) {
+        input.focus();
+        const length = input.value?.length || 0;
+        input.setSelectionRange(length, length);
+      }
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
 
 
 
@@ -446,36 +447,67 @@ const handleEdit = (index) => {
       >
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
-          <Box component="span" sx={{ display: "inline-block" }}>
-            <GetAppIcon
-              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
-              onClick={() => {
-                const pdfData = fields
-                  .filter((f) => f.type !== "heading")
-                  .map((f) => ({
-                    field_key: f.label,
-                    field_value: f.value,
-                    confidence_score: f.confidenceScore ?? "",
-                    source_page_number: f.pageNo ?? "-",
-                  }));
 
-                GeneratePDF(pdfData, "extracted_data.pdf");
-              }}
-            />
-          </Box>
         </Typography>
-        <img
-          src="src\assets\PDF_file_icon.png"
-          alt="pdf"
-          width={50}
-          height={50}
-          style={{ marginRight: "16px", cursor: "pointer" }}
-          onClick={() => {
-            if (!isPdfViewerOpen) {
-              setIsPdfViewerOpen(true);
-            }
-          }}
-        />
+        <Box display="flex" gap={2} mx={2}>
+
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              const pdfData = fields
+                .filter((f) => f.type !== "heading")
+                .map((f) => ({
+                  field_key: f.label,
+                  field_value: f.value,
+                  confidence_score: f.confidenceScore ?? "",
+                  source_page_number: f.pageNo ?? "-",
+                }));
+
+              GeneratePDF(pdfData, "extracted_data.pdf");
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                <DownloadIcon />
+              </IconButton>
+              <Typography>Download pdf</Typography>
+            </Box>
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              if (!isPdfViewerOpen) {
+                setIsPdfViewerOpen(true);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                < FileCopyIcon />
+              </IconButton>
+              <Typography>View pdf</Typography>
+            </Box>
+          </Button>
+        </Box>
+
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -564,7 +596,7 @@ const handleEdit = (index) => {
               ) : field.type === "text" ? (
                 <AlertTooltip
                   title={
-                    <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
+                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                       {field.snippet}
                     </Typography>
                   }
@@ -590,44 +622,60 @@ const handleEdit = (index) => {
                       const isLongText = cleanedText.length > 100;
 
                       return (
-                        <CustomTextField
-                          value={field.value}
-                          ref={(el) => (fieldRefs.current[index] = el)}
-                          placeholder={field.label}
-                          onChange={(e) => handleChange(index, e.target.value)}
-                          onBlur={() => handleBlur(index)}
-                          disabled={!editableFields[index]}
-                          width="45vw"
-                          multiline={isLongText}
-                          minRows={isLongText ? Math.ceil(cleanedText.length / 80) : 1}
-                        />
+
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <CustomTextField
+                            value={field.value}
+                            ref={(el) => (fieldRefs.current[index] = el)}
+                            placeholder={field.label}
+                            onChange={(e) => handleChange(index, e.target.value)}
+                            onBlur={() => handleBlur(index)}
+                            disableOnBlur={true}
+                            disabled={!editableFields[index]}
+                            width="45vw"
+                            multiline={isLongText}
+                            minRows={isLongText ? Math.ceil(field.value.length / 80) : 1}
+                          />
+
+                          {editableFields[index] && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => handleCancel(index)}
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </Box>
+
                       );
                     })()}
                   </span>
                 </AlertTooltip>
               ) :
                 field.type === "select" ? (
-                    <AlertTooltip
-                  title={
-                  <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
+                    }}
+                  >
                     <span>
                       <CustomSelect
                         value={field.value}
@@ -640,26 +688,26 @@ const handleEdit = (index) => {
                     </span>
                   </AlertTooltip>
                 ) : field.type === "date" ? (
-                    <AlertTooltip
-                  title={
-                   <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
+                    }}
+                  >
                     <span>
                       <CustomDatePicker
                         value={field.value}
@@ -670,28 +718,28 @@ const handleEdit = (index) => {
                         width="40vw"
                       />
                     </span>
-                 </AlertTooltip>
+                  </AlertTooltip>
                 ) : field.type === "textarea" ? (
-                    <AlertTooltip
-                  title={
-                   <Typography sx={{ fontSize: 12,fontWeight:500,color:"#4B555F" }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
+                    }}
+                  >
                     <span>
                       <CustomTextField
                         value={field.value}
@@ -703,7 +751,7 @@ const handleEdit = (index) => {
                         width="45vw"
                       />
                     </span>
-                 </AlertTooltip>
+                  </AlertTooltip>
                 ) : null}
 
               {errors[index] && (

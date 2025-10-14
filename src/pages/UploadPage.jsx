@@ -16,7 +16,7 @@ const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [uploadedProjectId, setUploadedProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isExtracting, setIsExtracting] = useState(false); 
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const UploadPage = () => {
 
   const fetchExtractedData = async (projId) => {
     try {
-      setIsExtracting(true); 
+      setIsExtracting(true);
       const response = await getExtractedData(projId);
       if (response) {
         toast.success("Extracted data fetched successfully");
@@ -33,11 +33,11 @@ const UploadPage = () => {
       toast.error("Failed to fetch extracted data");
       console.error(error);
     } finally {
-      setIsExtracting(false); 
+      setIsExtracting(false);
     }
   };
 
-  
+
   const handlePdfUpload = async () => {
     if (!file) {
       toast.error("Please select a file first");
@@ -101,36 +101,15 @@ const UploadPage = () => {
           file={file}
           handlePdfUpload={handlePdfUpload}
           loading={loading}
-          isExtracting={isExtracting} 
+          isExtracting={isExtracting}
+          extractionComplete={!isExtracting && uploadedProjectId}
+          handleNext={() =>
+            navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
+          }
         />
       </Box>
 
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "5rem",
-          right: "2rem",
-        }}
-      >
-        <Button
-          disabled={loading || isExtracting} 
-          sx={{
-            backgroundColor: colors.green,
-            color: "#fff",
-            width: "180px",
-            borderRadius: "12px",
-            px: 4,
-            py: 1,
-            boxShadow: 3,
-            "&:hover": { backgroundColor: "#059669" },
-          }}
-          onClick={() =>
-            navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
-          }
-        >
-          { "Next"}
-        </Button>
-      </Box>
+
     </Box>
   );
 };

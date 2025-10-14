@@ -10,12 +10,13 @@ const CustomTextField = forwardRef(({
   label,
   minRows = 1,
   maxRows,
-  width = "52vw",
+  width = "100%",
   showIcon = false,
   disabled = false,
   error,
   helperText,
   onBlur,
+  disableOnBlur = false, 
 }, ref) => {
   const [isEditable, setIsEditable] = useState(!disabled);
 
@@ -58,7 +59,7 @@ const CustomTextField = forwardRef(({
         value={value}
         onChange={onChange}
         onBlur={(e) => {
-          setIsEditable(false);
+          if (disableOnBlur) setIsEditable(false);
           if (onBlur) onBlur(e);
         }}
         placeholder={placeholder}
