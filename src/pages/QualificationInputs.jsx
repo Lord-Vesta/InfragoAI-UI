@@ -6,9 +6,11 @@ import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
-import { useParams, useNavigate } from "react-router";
+import EditIcon from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
+import { useParams, useNavigate } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
