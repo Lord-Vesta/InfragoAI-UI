@@ -15,6 +15,7 @@ const CustomTextField = ({
   disabled = false,
   error,
   helperText,
+  onBlur,
 }) => {
   const [isEditable, setIsEditable] = useState(!disabled);
 
@@ -56,6 +57,10 @@ const CustomTextField = ({
         fullWidth
         value={value}
         onChange={onChange}
+         onBlur={(e) => {
+    setIsEditable(false); 
+    if (onBlur) onBlur(e); 
+  }}
         placeholder={placeholder}
         disabled={!isEditable}
         multiline={multiline}
