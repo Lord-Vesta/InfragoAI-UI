@@ -29,8 +29,8 @@ const GeneratePDF = (data, pdfFileName = "extracted_data.pdf") => {
   autoTable(doc, {
     columns,
     body: rows,
-    startY: 10,
-    margin: { right: 30 },
+    // startY: 10,
+    // margin: { right: 10 },
     styles: { fontSize: 10, cellWidth: "wrap" },
     headStyles: { fillColor: [41, 128, 185] },
     columnStyles: {
