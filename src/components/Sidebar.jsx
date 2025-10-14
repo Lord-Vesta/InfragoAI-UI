@@ -3,18 +3,18 @@ import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import { userContext } from "../context/ContextProvider";
-import { useLocation } from "react-router";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import {  useNavigate } from "react-router";
+import { useLocation, useNavigate,useParams } from "react-router";
 import { toast } from "react-toastify";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-   const { jwtToken } = useContext(userContext);
+  const { project_id } = useParams();
+  const { jwtToken } = useContext(userContext);
 
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -28,13 +28,13 @@ export default function Sidebar() {
     "Eligibility & BG Check",
   ];
 
-  const stepRoutes = [
-    "/upload",
-    "/ReviewExtracted",
-    "/QualificationInputs",
-    "/TechnicalConfirmation",
-    "/BGsummary",
-  ];
+ const stepRoutes = [
+  `/upload/${project_id}`,
+  `/ReviewExtracted/${project_id}`,
+  `/QualificationInputs/${project_id}`,
+  `/TechnicalConfirmation/${project_id}`,
+  `/BGsummary/${project_id}`,
+];
 
   const location = useLocation().pathname;
     useEffect(() => {

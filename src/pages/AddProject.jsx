@@ -13,9 +13,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect } from "react";
 
 const AddProject = ({ handleClose, handleAddProject }) => {
- const [projectName, setProjectName] = useState("");
+  const [projectName, setProjectName] = useState("");
 
-   const handleSubmit = () => {
+  const handleSubmit = () => {
     if (!projectName.trim()) return;
     handleAddProject(projectName); // ✅ calls parent function to create project
   };
@@ -32,7 +32,7 @@ const AddProject = ({ handleClose, handleAddProject }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 1300,
+        zIndex: 13,
       }}
       onClick={handleClose}
     >
@@ -97,8 +97,6 @@ const AddProject = ({ handleClose, handleAddProject }) => {
               fullWidth
               required
             />
-            
-           
           </Box>
 
           {/* Buttons */}

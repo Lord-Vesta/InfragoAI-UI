@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   DialogTitle,
   DialogContent,
@@ -8,11 +8,11 @@ import {
   IconButton,
   Paper,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
-import CancelIcon from "@mui/icons-material/Cancel";
 
 const FileUploadDialog = ({
   open,
@@ -20,6 +20,8 @@ const FileUploadDialog = ({
   setFile,
   file,
   handlePdfUpload,
+  loading,       
+  isExtracting,  
 }) => {
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -29,6 +31,7 @@ const FileUploadDialog = ({
   const handleCancelUploadFile = () => {
     setFile(null);
   };
+
   return (
     <Paper
       open={open}
@@ -81,6 +84,7 @@ const FileUploadDialog = ({
           <CloseIcon />
         </IconButton>
       </DialogTitle>
+
       <DialogContent sx={{ p: 0 }}>
         <Paper
           variant="outlined"
@@ -140,7 +144,7 @@ const FileUploadDialog = ({
 
             <input
               type="file"
-              accept=".jpg,.png,.svg,.zip"
+              accept=".pdf"
               onChange={handleFileChange}
               style={{ display: "none" }}
               id="file-upload-input"
@@ -163,9 +167,11 @@ const FileUploadDialog = ({
           </Box>
         </Paper>
       </DialogContent>
+
       <Typography variant="caption" color="#6D6D6D">
-        Only support .jpg, .png and .svg and zip files
+        Only supports PDF files
       </Typography>
+
       {file && (
         <Box
           sx={{
@@ -192,8 +198,8 @@ const FileUploadDialog = ({
               </Typography>
               <Typography variant="caption" color="#6D6D6D">
                 {file.size / 1024 / 1024 < 1
-                  ? `${file.size / 1024} KB`
-                  : `${file.size / 1024 / 1024} MB`}
+                  ? `${(file.size / 1024).toFixed(1)} KB`
+                  : `${(file.size / 1024 / 1024).toFixed(2)} MB`}
               </Typography>
             </Box>
           </Box>
@@ -202,20 +208,39 @@ const FileUploadDialog = ({
           </IconButton>
         </Box>
       )}
+
       <DialogActions sx={{ justifyContent: "end", px: 0, py: 0 }}>
         <Button
           variant="outlined"
           onClick={onClose}
           sx={{ borderRadius: "8px", color: "#6D6D6D", borderColor: "#CECECE" }}
+          disabled={loading || isExtracting} 
         >
           Cancel
         </Button>
         <Button
           variant="contained"
-          sx={{ background: "#0FB97D", borderRadius: "8px", color: "#fff" }}
+          sx={{
+            background: "#0FB97D",
+            borderRadius: "8px",
+            color: "#fff",
+            minWidth: "140px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+          }}
+          disabled={!file || loading || isExtracting} 
           onClick={handlePdfUpload}
         >
-          Next
+          {loading || isExtracting ? (
+            <>
+              <CircularProgress size={18} sx={{ color: "#fff" }} />
+              Extracting...
+            </>
+          ) : (
+            "Upload & Extract"
+          )}
         </Button>
       </DialogActions>
     </Paper>

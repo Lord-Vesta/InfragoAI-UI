@@ -8,7 +8,9 @@ import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { qualificationInputs } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
-import { useNavigate } from "react-router";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
+import { useParams, useNavigate } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const navigate = useNavigate();
@@ -22,8 +24,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     projects.map(() => false)
   );
   const [numericValues, setNumericValues] = useState({
-    turnover3: "",
-    turnover5: "",
+    Turnover_3_years: "",
+    Turnover_5_years: "",
     netWorth: "",
     workingCapital: "",
     workInHand: "",
@@ -36,11 +38,12 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const { project_id } = useParams();
   useEffect(() => {
     if (initialData) {
       setNumericValues({
-        turnover3: initialData?.data?.turnover_past_3_years?.edited_value || "",
-        turnover5: initialData?.data?.turnover_past_5_years?.edited_value || "",
+        Turnover_3_years: initialData?.data?.turnover_past_3_years?.edited_value || "",
+        Turnover_5_years: initialData?.data?.turnover_past_5_years?.edited_value || "",
         netWorth: initialData?.data?.net_worth?.edited_value || "",
         workingCapital: initialData?.data?.working_capital?.edited_value || "",
         workInHand: initialData?.data?.work_in_hand?.edited_value || "",
@@ -108,15 +111,14 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         formData.append("registration_certification", certificateFile);
       }
 
-      const response = await qualificationInputs(formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      const response = await qualificationInputs(formData, project_id);
+      
       if (!isInitialData) {
-        navigate("/TechnicalConfirmation");
+        navigate(`/TechnicalConfirmation/${project_id}`);
       } else {
-        navigate("/BGsummary");
+        navigate(`/BGSummary/${project_id}`);
       }
+
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
@@ -163,19 +165,35 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   }
 
-return (
-  <Box
-    width="100%"
-    display="flex"
-    flexDirection="column"
-    gap={3}
-    height={height}
-    position="relative"
-    overflow="auto"
-  >
-    <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-      Provide Qualification Inputs
-    </Typography>
+  return (
+    <Box
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      gap={3}
+      height={height}
+      position="relative"
+      overflow="auto"
+    >
+      <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
+        {initialData ? "Review " : "Provide "}
+        Qualification Inputs{" "}
+        {initialData ? (
+          <Box component="span" sx={{ display: "inline-block" }}>
+            <GetAppIcon
+              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
+              onClick={() =>
+                GenerateQualificationPDF(
+                  numericValues,
+                  litigationStatus,
+                  litigationDetails,
+                  projects
+                )
+              }
+            />
+          </Box>
+        ) : null}
+      </Typography>
 
     <Box>
       <Box display="flex" alignItems="center" gap={1} mb={1}>
