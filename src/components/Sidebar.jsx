@@ -8,6 +8,7 @@ import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { logoutUser } from "../Utils/Api.utils";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
@@ -53,6 +54,27 @@ export default function Sidebar() {
       }
     });
   }, [location]);
+
+    const handleLogout = async () => {
+    try {
+      const response = await logoutUser({refresh_token : jwtToken})
+      console.log("Logout response:", response);
+
+      if (response.status === 200) {
+        toast.success("Logged out successfully");
+        localStorage.removeItem("accessToken");
+
+        navigate("/login");
+      } else {
+      const errorMessage = response.data?.message || "Logout failed.";
+      toast.error(errorMessage);
+    }
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* Left Sidebar */}
@@ -159,16 +181,14 @@ export default function Sidebar() {
                 py: 4,
               }}
             >
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ flexGrow: 1, cursor: "pointer" }} onClick={handleLogout}>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  Lorem Ipsum
+                  Logout
                 </Typography>
-                <Typography variant="body2" sx={{ color: "gray" }}>
-                  Lorem Ipsum Lorem
-                </Typography>
+                
               </Box>
               <IconButton>
-                <LogoutIcon fontSize="small" />
+                <LogoutIcon fontSize="small"  />
               </IconButton>
             </Box>
           </Box>

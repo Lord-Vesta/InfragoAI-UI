@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button, Icon } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
@@ -22,6 +22,8 @@ import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
+import DownloadIcon from '@mui/icons-material/Download';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -155,7 +157,7 @@ const fieldConfig = [
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Bid Capacity Formula",
+    label: "Bid Capacity",
     type: "text",
     validation: { required: true },
   },
@@ -314,31 +316,68 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
     setErrors((prev) => prev.map((err, i) => (i === index ? error : err)));
     return error;
   };
+const handleEdit = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, prevValue: field.value } 
+        : field
+    )
+  );
 
-  const handleEdit = (index) => {
-    setEditableFields((prev) =>
-      prev.map((editable, i) => (i === index ? true : editable))
-    );
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? true : editable))
+  );
 
-    // Autofocus using ref
-    setTimeout(() => {
-      fieldRefs.current[index]?.focus();
-      // Scroll field into view if needed
-      fieldRefs.current[index]?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 0);
-  };
+  setTimeout(() => {
+    const input = fieldRefs.current[index];
+    if (input) {
+      input.focus();
+      const length = input.value?.length || 0;
+      input.setSelectionRange(length, length);
+    }
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+};
 
-  // const handleChange = (index, newValue) => {
-  //   setFields((prev) =>
-  //     prev.map((field, i) =>
-  //       i === index ? { ...field, value: newValue } : field
-  //     )
+  // const handleEdit = (index) => {
+
+  //   setEditableFields((prev) =>
+  //     prev.map((editable, i) => (i === index ? true : editable))
   //   );
-  //   validateField(index, newValue);
+
+  //   setTimeout(() => {
+  //     const input = fieldRefs.current[index];
+
+  //     if (input) {
+  //       input.focus();
+  //       const length = input.value?.length || 0;
+  //       input.setSelectionRange(length, length);
+  //     }
+  //     input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  //   }, 100);
   // };
+  const handleCancel = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
+        : field
+    )
+  );
+
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? false : editable))
+  );
+
+  setErrors((prev) =>
+    prev.map((err, i) => (i === index ? "" : err))
+  );
+};
+
+
+
+
   const handleChange = (index, newValue) => {
     setFields((prev) =>
       prev.map((field, i) =>
@@ -426,36 +465,67 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
       >
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
-          <Box component="span" sx={{ display: "inline-block" }}>
-            <GetAppIcon
-              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
-              onClick={() => {
-                const pdfData = fields
-                  .filter((f) => f.type !== "heading")
-                  .map((f) => ({
-                    field_key: f.label,
-                    field_value: f.value,
-                    confidence_score: f.confidenceScore ?? "",
-                    source_page_number: f.pageNo ?? "-",
-                  }));
 
-                GeneratePDF(pdfData, "extracted_data.pdf");
-              }}
-            />
-          </Box>
         </Typography>
-        <img
-          src={pdfImage}
-          alt="pdf"
-          width={50}
-          height={50}
-          style={{ marginRight: "16px", cursor: "pointer" }}
-          onClick={() => {
-            if (!isPdfViewerOpen) {
-              setIsPdfViewerOpen(true);
-            }
-          }}
-        />
+        <Box display="flex" gap={2} mx={2}>
+
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              const pdfData = fields
+                .filter((f) => f.type !== "heading")
+                .map((f) => ({
+                  field_key: f.label,
+                  field_value: f.value,
+                  confidence_score: f.confidenceScore ?? "",
+                  source_page_number: f.pageNo ?? "-",
+                }));
+
+              GeneratePDF(pdfData, "extracted_data.pdf");
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                <DownloadIcon />
+              </IconButton>
+              <Typography>Download Bid Data</Typography>
+            </Box>
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              if (!isPdfViewerOpen) {
+                setIsPdfViewerOpen(true);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                < FileCopyIcon />
+              </IconButton>
+              <Typography>View pdf</Typography>
+            </Box>
+          </Button>
+        </Box>
+
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -481,12 +551,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                 </Typography>
 
                 <Box display="flex" gap={2} alignItems="center">
-                  {/* Confidence circle */}
                   <IconButton disableRipple>
                     <CircleIcon
                       style={{
                         color: (() => {
-                          const score = field.confidenceScore ?? 10; // default 0 if null
+                          const score = field.confidenceScore ?? 10;
                           if (score >= 0.8) return "green";
                           if (score >= 0.5) return "orange";
                           return "red";
@@ -544,7 +613,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
               ) : field.type === "text" ? (
                 <AlertTooltip
                   title={
-                    <Typography sx={{ fontSize: 12 }}>
+                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                       {field.snippet}
                     </Typography>
                   }
@@ -564,125 +633,143 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                 >
                   <span>
                     {(() => {
-                      // Clean text by removing multiple spaces/line breaks
                       const cleanedText = field.value
                         ? field.value.replace(/\s+/g, " ")
                         : "";
                       const isLongText = cleanedText.length > 100;
 
                       return (
-                        <CustomTextField
-                          value={field.value}
-                          ref={(el) => (fieldRefs.current[index] = el)}
-                          placeholder={field.label}
-                          onChange={(e) => handleChange(index, e.target.value)}
-                          onBlur={() => handleBlur(index)}
-                          disabled={!editableFields[index]}
-                          width="45vw"
-                          multiline={isLongText}
-                          minRows={
-                            isLongText ? Math.ceil(cleanedText.length / 80) : 1
-                          }
-                        />
+
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <CustomTextField
+                            value={field.value}
+                            ref={(el) => (fieldRefs.current[index] = el)}
+                            placeholder={field.label}
+                            onChange={(e) => handleChange(index, e.target.value)}
+                            onBlur={() => handleBlur(index)}
+                            disableOnBlur={true}
+                            disabled={!editableFields[index]}
+                            width="45vw"
+                            multiline={isLongText}
+                            minRows={isLongText ? Math.ceil(field.value.length / 80) : 1}
+                          />
+
+                          {editableFields[index] && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => handleCancel(index)}
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </Box>
+
                       );
                     })()}
                   </span>
                 </AlertTooltip>
-              ) : field.type === "select" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+              ) :
+                field.type === "select" ? (
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomSelect
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      placeholder={field.label}
-                      onBlur={() => handleBlur(index)}
-                      options={field.validation?.options || []}
-                      disabled={!editableFields[index]}
-                    />
-                  </span>
-                </Tooltip>
-              ) : field.type === "date" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                    }}
+                  >
+                    <span>
+                      <CustomSelect
+                        value={field.value}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        placeholder={field.label}
+                        onBlur={() => handleBlur(index)}
+                        options={field.validation?.options || []}
+                        disabled={!editableFields[index]}
+                      />
+                    </span>
+                  </AlertTooltip>
+                ) : field.type === "date" ? (
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomDatePicker
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      onBlur={() => handleBlur(index)}
-                      placeholder={`Select ${field.label}`}
-                      disabled={!editableFields[index]}
-                      width="40vw"
-                    />
-                  </span>
-                </Tooltip>
-              ) : field.type === "textarea" ? (
-                <Tooltip
-                  title={
-                    <Typography sx={{ fontSize: 12 }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
+                    }}
+                  >
+                    <span>
+                      <CustomDatePicker
+                        value={field.value}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        onBlur={() => handleBlur(index)}
+                        placeholder={`Select ${field.label}`}
+                        disabled={!editableFields[index]}
+                        width="40vw"
+                      />
+                    </span>
+                  </AlertTooltip>
+                ) : field.type === "textarea" ? (
+                  <AlertTooltip
+                    title={
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+                        {field.snippet}
+                      </Typography>
+                    }
+                    type="success"
+                    placement="top"
+                    arrow
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          "& .MuiTooltip-tooltip": {
+                            maxWidth: "700px",
+                            whiteSpace: "normal",
+                          },
                         },
                       },
-                    },
-                  }}
-                >
-                  <span>
-                    <CustomTextField
-                      value={field.value}
-                      placeholder={field.label}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      disabled={!editableFields[index]}
-                      multiline
-                      minRows={3}
-                      width="45vw"
-                    />
-                  </span>
-                </Tooltip>
-              ) : null}
+                    }}
+                  >
+                    <span>
+                      <CustomTextField
+                        value={field.value}
+                        placeholder={field.label}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        disabled={!editableFields[index]}
+                        multiline
+                        minRows={3}
+                        width="45vw"
+                      />
+                    </span>
+                  </AlertTooltip>
+                ) : null}
 
               {errors[index] && (
                 <Typography color="error" fontSize={12} mt={0.5}>

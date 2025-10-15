@@ -126,34 +126,12 @@ const UploadPage = () => {
           handlePdfUpload={handlePdfUpload}
           loading={loading}
           isExtracting={isExtracting}
-        />
-      </Box>
-
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "5rem",
-          right: "2rem",
-        }}
-      >
-        <Button
-          disabled={loading || isExtracting}
-          sx={{
-            backgroundColor: colors.green,
-            color: "#fff",
-            width: "180px",
-            borderRadius: "12px",
-            px: 4,
-            py: 1,
-            boxShadow: 3,
-            "&:hover": { backgroundColor: "#059669" },
-          }}
-          onClick={() =>
+          extractionComplete={!isExtracting && uploadedProjectId}
+          handleNext={() =>
             navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
           }
-        >
-          {"Next"}
-        </Button>
+          setUploadedProjectId={setUploadedProjectId} // ✅ Added this
+        />
       </Box>
     </Box>
   );
