@@ -1,3 +1,4 @@
+import { data } from "react-router";
 import { ApiConfig } from "./Api.config";
 import axiosclient from "./Axios-Client";
 const {
@@ -12,6 +13,7 @@ const {
   GET_EXTRACTED_DATA,
   GET_EXTRACTED_INPUTS,
   EDIT_EXTRACTED_DATA,
+  LOGOUT,
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -139,6 +141,15 @@ export const downloadPdf = async (projectId) => {
       }
     );
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logoutUser = async (data) => {
+  try {
+    const response = await axiosclient.post(LOGOUT, data);
+    return response;
   } catch (error) {
     throw error;
   }
