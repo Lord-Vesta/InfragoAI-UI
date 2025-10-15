@@ -20,6 +20,7 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
+import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from '@mui/icons-material/Download';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -187,18 +188,14 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [loading, setLoading] = useState(true);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
-  console.log("extratc", extractedData)
-  const { jwtToken, projectId } = useContext(userContext);
-
-  console.log("projec", projectId)
+  const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
-  console.log("sds", project_id)
 
   const navigate = useNavigate();
 
   const handleDownloadPdf = async () => {
     try {
-      const response = await downloadPdf(1);
+      const response = await downloadPdf(project_id);
       const arrayBuffer = await response.arrayBuffer();
       setPdfBuffer(arrayBuffer);
     } catch (error) {
@@ -207,8 +204,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   };
 
   const fieldRefs = useRef([]);
-
-
 
   useEffect(() => {
     const loadData = async () => {
@@ -249,8 +244,8 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
           let value = match
             ? match.edited_value ?? match.field_value
             : config.type === "toggle"
-              ? "No"
-              : "";
+            ? "No"
+            : "";
 
           if (
             match &&
@@ -272,6 +267,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         });
 
         setFields(apiData);
+        handleDownloadPdf();
         setEditableFields(new Array(apiData.length).fill(false));
         setErrors(new Array(apiData.length).fill(""));
       } catch (err) {
@@ -283,26 +279,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
     loadData();
   }, [extractedData]);
-
-
-  useEffect(() => {
-    console.log("Component mounted, downloading PDF...");
-    handleDownloadPdf();
-  }, []);
-
-  useEffect(() => {
-    console.log("PDF buffer updated:", pdfBuffer);
-  }, [pdfBuffer]);
-
-  useEffect(() => {
-    console.log("PDF modal opened", isPdfViewerOpen);
-    console.log("pdfBuffer", pdfBuffer);
-  }, [isPdfViewerOpen]);
-
-
-
-
-
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;
@@ -411,7 +387,7 @@ const handleEdit = (index) => {
     validateField(index, newValue);
   };
   const handleBlur = (index) => {
-    console.log("came")
+    console.log("came");
     setEditableFields((prev) =>
       prev.map((editable, i) => (i === index ? false : editable))
     );
@@ -428,11 +404,13 @@ const handleEdit = (index) => {
     window.location.href = "/login";
   };
 
-
   const handleNext = async () => {
     // Collect only the fields that were edited
     const editedFields = fields
-      .filter((field) => field.value !== undefined && field.value !== "" && field.isEdited)
+      .filter(
+        (field) =>
+          field.value !== undefined && field.value !== "" && field.isEdited
+      )
       .map((field) => ({
         extraction_id: field.extraction_id, // use extraction_id instead of field_key
         edited_value: field.value,
@@ -563,7 +541,6 @@ const handleEdit = (index) => {
             </Typography>
           ) : (
             <>
-
               <Box display="flex" alignItems="center" mb={1}>
                 <Typography
                   variant="body1"
@@ -610,19 +587,19 @@ const handleEdit = (index) => {
                   {(!field.value ||
                     field.value === "" ||
                     field.value === "Not found in document") && (
-                      <AlertTooltip
-                        title="No value found for particular label in document"
-                        type="error"
-                      >
-                        <ErrorOutlineIcon
-                          style={{
-                            color: "red",
-                            fontSize: 18,
-                            cursor: "pointer",
-                          }}
-                        />
-                      </AlertTooltip>
-                    )}
+                    <AlertTooltip
+                      title="No value found for particular label in document"
+                      type="error"
+                    >
+                      <ErrorOutlineIcon
+                        style={{
+                          color: "red",
+                          fontSize: 18,
+                          cursor: "pointer",
+                        }}
+                      />
+                    </AlertTooltip>
+                  )}
                 </Box>
               </Box>
 
@@ -631,7 +608,7 @@ const handleEdit = (index) => {
                   label={field.label}
                   value={field.value}
                   onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                // disabled={!editableFields[index]}
+                  // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <AlertTooltip

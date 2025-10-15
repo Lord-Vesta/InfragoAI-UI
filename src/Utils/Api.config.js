@@ -13,4 +13,5 @@ export const ApiConfig = {
   EDIT_EXTRACTED_DATA: (projectId) => `/api/projects/${projectId}/update-edited-fields/`,
   GET_EXTRACTED_INPUTS: (projectId) => `/api/projects/${projectId}/extracted-data/`,
   LOGOUT: `/api/users/logout/`,
+  GET_PROJECT_BY_ID: (projectId) => `/api/projects/${projectId}/detail`,
 };
