@@ -182,7 +182,7 @@ const Profile = () => {
             Projects
           </Typography>
           <Box display="flex" gap={2}>
-            <Button
+            {/* <Button
               variant="outlined"
               size="small"
               sx={{
@@ -195,7 +195,7 @@ const Profile = () => {
               onClick={() => setOpenPopup(true)}
             >
               Create New <AddIcon sx={{ ml: 1, fontSize: "14px" }} />
-            </Button>
+            </Button> */}
             {/* <Button
               variant="outlined"
               size="small"
@@ -220,7 +220,7 @@ const Profile = () => {
                 sx={{ "& th": { borderBottom: "none", color: "#929292" } }}
               >
                 <TableCell>Companies</TableCell>
-                <TableCell>Lorem</TableCell>
+                {/* <TableCell>Lorem</TableCell> */}
                 <TableCell>Status</TableCell>
                 <TableCell>Completion</TableCell>
                 <TableCell></TableCell>
@@ -253,7 +253,7 @@ const Profile = () => {
                   </TableCell>
 
                   {/* Lorem */}
-                  <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell>
+                  {/* <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell> */}
 
                   {/* Status */}
                   <TableCell>
