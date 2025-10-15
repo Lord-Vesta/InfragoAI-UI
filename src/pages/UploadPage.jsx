@@ -1,5 +1,6 @@
+
 import React, { useContext, useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
 import {
   uploadPdfAnonymous,
@@ -9,7 +10,6 @@ import {
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate, useParams } from "react-router";
-import colors from "../assets/colors";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
@@ -36,7 +36,6 @@ const UploadPage = () => {
       setIsExtracting(false);
     }
   };
-
 
   const handlePdfUpload = async () => {
     if (!file) {
@@ -106,10 +105,9 @@ const UploadPage = () => {
           handleNext={() =>
             navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
           }
+          setUploadedProjectId={setUploadedProjectId} // ✅ Added this
         />
       </Box>
-
-
     </Box>
   );
 };

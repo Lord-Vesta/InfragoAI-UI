@@ -340,24 +340,64 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
     setErrors((prev) => prev.map((err, i) => (i === index ? error : err)));
     return error;
   };
+const handleEdit = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, prevValue: field.value } 
+        : field
+    )
+  );
 
-  const handleEdit = (index) => {
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? true : editable))
+  );
 
-    setEditableFields((prev) =>
-      prev.map((editable, i) => (i === index ? true : editable))
-    );
+  setTimeout(() => {
+    const input = fieldRefs.current[index];
+    if (input) {
+      input.focus();
+      const length = input.value?.length || 0;
+      input.setSelectionRange(length, length);
+    }
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+};
 
-    setTimeout(() => {
-      const input = fieldRefs.current[index];
+  // const handleEdit = (index) => {
 
-      if (input) {
-        input.focus();
-        const length = input.value?.length || 0;
-        input.setSelectionRange(length, length);
-      }
-      input?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
-  };
+  //   setEditableFields((prev) =>
+  //     prev.map((editable, i) => (i === index ? true : editable))
+  //   );
+
+  //   setTimeout(() => {
+  //     const input = fieldRefs.current[index];
+
+  //     if (input) {
+  //       input.focus();
+  //       const length = input.value?.length || 0;
+  //       input.setSelectionRange(length, length);
+  //     }
+  //     input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  //   }, 100);
+  // };
+  const handleCancel = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
+        : field
+    )
+  );
+
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? false : editable))
+  );
+
+  setErrors((prev) =>
+    prev.map((err, i) => (i === index ? "" : err))
+  );
+};
 
 
 
@@ -479,7 +519,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
               <IconButton sx={{ p: 0, color: colors.green }}>
                 <DownloadIcon />
               </IconButton>
-              <Typography>Download pdf</Typography>
+              <Typography>Download Bid Data</Typography>
             </Box>
           </Button>
           <Button

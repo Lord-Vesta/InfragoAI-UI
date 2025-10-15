@@ -105,16 +105,15 @@ const Profile = () => {
             fontWeight="bold"
             sx={{ color: "#fff", px: 7, pt: 3, pb: 1 }}
           >
-            Lorem Ipsum
+            Check your tender in minutes.
           </Typography>
           <Typography
             variant="body2"
             sx={{ color: "#fff", px: 7, width: "75%", fontWeight: 400 }}
           >
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum is simply dummy text of the printing and
-            typesetting industry.Lorem Ipsum is simply dummy.
+           Upload your bid document and Infrago AI will highlight key requirements, show your eligibility, and help you prepare your bid confidently.
           </Typography>
+        
           <Button
             variant="contained"
             sx={{
@@ -133,7 +132,7 @@ const Profile = () => {
             }}
             onClick={() => setOpenPopup(true)}
           >
-            Create New <AddIcon sx={{ ml: 1 }} />
+            Start New Assessment →
           </Button>
         </Box>
         <Box
