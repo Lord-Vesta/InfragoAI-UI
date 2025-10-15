@@ -1,13 +1,18 @@
 import { RouterProvider } from "react-router";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
-import { router } from "./routes";
+import { loginRoute, router } from "./routes";
 
 function App() {
+  const auth = localStorage.getItem("accessToken");
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      {auth ? (
+        <RouterProvider router={router} />
+      ) : (
+        <RouterProvider router={loginRoute} />
+      )}
     </ThemeProvider>
   );
 }

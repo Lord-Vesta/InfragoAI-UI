@@ -32,10 +32,12 @@ const Profile = () => {
   const handleAddProject = async (projectName) => {
     const data = { name: projectName };
     try {
-      await createProject(data);
-      toast.success("Project created successfully");
-      fetchProjects();
-      setOpenPopup(false);
+      const response = await createProject(data);
+      if (response) {
+        navigate(`/upload/${response.project_id}`);
+        fetchProjects();
+        setOpenPopup(false);
+      }
     } catch (error) {
       toast.error("Error creating project:", error);
     }
@@ -239,7 +241,11 @@ const Profile = () => {
                       cursor: "pointer",
                     },
                   }}
-                  onClick={() => navigate(`/upload/${p.project_id}`)}
+                  onClick={() =>
+                    navigate(`/upload/${p.project_id}`, {
+                      state: { project: p },
+                    })
+                  }
                 >
                   {/* Company + Avatar */}
                   <TableCell>
