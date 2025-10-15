@@ -1,5 +1,6 @@
+
 import React, { useContext, useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
 import {
   uploadPdfAnonymous,
@@ -9,14 +10,13 @@ import {
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
 import { useNavigate, useParams } from "react-router";
-import colors from "../assets/colors";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
   const [file, setFile] = useState(null);
   const [uploadedProjectId, setUploadedProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isExtracting, setIsExtracting] = useState(false); 
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const UploadPage = () => {
 
   const fetchExtractedData = async (projId) => {
     try {
-      setIsExtracting(true); 
+      setIsExtracting(true);
       const response = await getExtractedData(projId);
       if (response) {
         toast.success("Extracted data fetched successfully");
@@ -33,11 +33,10 @@ const UploadPage = () => {
       toast.error("Failed to fetch extracted data");
       console.error(error);
     } finally {
-      setIsExtracting(false); 
+      setIsExtracting(false);
     }
   };
 
-  
   const handlePdfUpload = async () => {
     if (!file) {
       toast.error("Please select a file first");
@@ -101,35 +100,13 @@ const UploadPage = () => {
           file={file}
           handlePdfUpload={handlePdfUpload}
           loading={loading}
-          isExtracting={isExtracting} 
-        />
-      </Box>
-
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "5rem",
-          right: "2rem",
-        }}
-      >
-        <Button
-          disabled={loading || isExtracting} 
-          sx={{
-            backgroundColor: colors.green,
-            color: "#fff",
-            width: "180px",
-            borderRadius: "12px",
-            px: 4,
-            py: 1,
-            boxShadow: 3,
-            "&:hover": { backgroundColor: "#059669" },
-          }}
-          onClick={() =>
+          isExtracting={isExtracting}
+          extractionComplete={!isExtracting && uploadedProjectId}
+          handleNext={() =>
             navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
           }
-        >
-          { "Next"}
-        </Button>
+          setUploadedProjectId={setUploadedProjectId} // ✅ Added this
+        />
       </Box>
     </Box>
   );
