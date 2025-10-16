@@ -10,8 +10,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
-import { useNavigate, useParams } from "react-router";
-import { downloadPdf, getExtractedData } from "../Utils/Api.utils";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { downloadPdf, updateProjectStatus } from "../Utils/Api.utils";
 import { toTitleCase } from "../Utils/stringUtils";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
@@ -190,6 +190,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [pdfBuffer, setPdfBuffer] = useState(null);
   const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
+  const location = useLocation().pathname;
 
   const navigate = useNavigate();
 
@@ -213,13 +214,9 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
         if (!extractedData) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
-
           const response = await getExtractedInputs(project_id);
-
-          console.log("API response:", response);
           dataArray = Array.isArray(response.data) ? response.data : [];
         } else {
-          console.log("Using existing extractedData");
           dataArray = extractedData.data;
         }
 
@@ -385,7 +382,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
     validateField(index, newValue);
   };
   const handleBlur = (index) => {
-    console.log("came");
     setEditableFields((prev) =>
       prev.map((editable, i) => (i === index ? false : editable))
     );
@@ -399,30 +395,39 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   };
 
   const handleLoginRedirect = () => {
-    window.location.href = "/login";
+    navigate("/");
   };
 
   const handleNext = async () => {
-    // Collect only the fields that were edited
     const editedFields = fields
       .filter(
         (field) =>
           field.value !== undefined && field.value !== "" && field.isEdited
       )
       .map((field) => ({
-        extraction_id: field.extraction_id, // use extraction_id instead of field_key
+        extraction_id: field.extraction_id,
         edited_value: field.value,
       }));
 
     const payload = { fields: editedFields };
 
-    console.log("Payload to send:", payload);
-
     if (jwtToken) {
       try {
         const response = await updateEditedFields(payload, project_id);
-        console.log("API Response:", response);
-        navigate(`/QualificationInputs/${project_id}`);
+        await updateProjectStatus(
+          {
+            completion_percentage: location
+              .toLowerCase()
+              .includes("reviewextracted")
+              ? 40
+              : 80,
+            project_status: "in progress",
+          },
+          response.project_id || project_id
+        );
+        location.toLowerCase().includes("reviewextracted")
+          ? navigate(`/QualificationInputs/${project_id}`)
+          : navigate(`/BGsummary/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
       }
@@ -614,29 +619,22 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                     const isLongText = cleanedText.length > 100;
 
                     return (
-                      
                       <Box display="flex" alignItems="center" gap={1}>
-                       
-                          <CustomTextField
-                            value={field.value}
-                            ref={(el) => (fieldRefs.current[index] = el)}
-                            placeholder={field.label}
-                            onChange={(e) =>
-                              handleChange(index, e.target.value)
-                            }
-                            onBlur={() => handleBlur(index)}
-                            disableOnBlur={true}
-                            disabled={!editableFields[index]}
-                            width="45vw"
-                            multiline={isLongText}
-                            minRows={
-                              isLongText
-                                ? Math.ceil(field.value.length / 80)
-                                : 1
-                            }
-                            tooltip={field.snippet}
-                          /> 
-                        
+                        <CustomTextField
+                          value={field.value}
+                          ref={(el) => (fieldRefs.current[index] = el)}
+                          placeholder={field.label}
+                          onChange={(e) => handleChange(index, e.target.value)}
+                          onBlur={() => handleBlur(index)}
+                          disableOnBlur={true}
+                          disabled={!editableFields[index]}
+                          width="45vw"
+                          multiline={isLongText}
+                          minRows={
+                            isLongText ? Math.ceil(field.value.length / 80) : 1
+                          }
+                          tooltip={field.snippet}
+                        />
 
                         {editableFields[index] && (
                           <Button
@@ -649,52 +647,47 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                           </Button>
                         )}
                       </Box>
-                     
                     );
                   })()}
                 </span>
               ) : field.type === "select" ? (
-              
-                  <span>
-                    <CustomSelect
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      placeholder={field.label}
-                      onBlur={() => handleBlur(index)}
-                      options={field.validation?.options || []}
-                      disabled={!editableFields[index]}
-                      tooltipText={field.snippet}
-                    />
-                  </span>
+                <span>
+                  <CustomSelect
+                    value={field.value}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    placeholder={field.label}
+                    onBlur={() => handleBlur(index)}
+                    options={field.validation?.options || []}
+                    disabled={!editableFields[index]}
+                    tooltipText={field.snippet}
+                  />
+                </span>
               ) : field.type === "date" ? (
-               
-                  <span>
-                    <CustomDatePicker
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      onBlur={() => handleBlur(index)}
-                      placeholder={`Select ${field.label}`}
-                      disabled={!editableFields[index]}
-                      width="40vw"
-                      tooltipText={field.snippet}
-                    />
-                  </span>
-                
+                <span>
+                  <CustomDatePicker
+                    value={field.value}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onBlur={() => handleBlur(index)}
+                    placeholder={`Select ${field.label}`}
+                    disabled={!editableFields[index]}
+                    width="40vw"
+                    tooltipText={field.snippet}
+                  />
+                </span>
               ) : field.type === "textarea" ? (
-                
-                  <span>
-                    <CustomTextField
-                      value={field.value}
-                      placeholder={field.label}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      disabled={!editableFields[index]}
-                      multiline
-                      minRows={3}
-                      width="45vw"
-                      ref={(el) => (fieldRefs.current[index] = el)}
-                      tooltip={field.snippet}
-                    />
-                  </span>
+                <span>
+                  <CustomTextField
+                    value={field.value}
+                    placeholder={field.label}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    disabled={!editableFields[index]}
+                    multiline
+                    minRows={3}
+                    width="45vw"
+                    ref={(el) => (fieldRefs.current[index] = el)}
+                    tooltip={field.snippet}
+                  />
+                </span>
               ) : null}
 
               {errors[index] && (
@@ -732,18 +725,20 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         </Box>
       )}
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: "1rem",
-          right: 32,
-          display: "flex",
-          marginRight: 4,
-          justifyContent: "flex-end",
-        }}
-      >
-        <CustomButton label="Next" onClick={handleNext} />
-      </Box>
+      {jwtToken && (
+        <Box
+          sx={{
+            position: "sticky",
+            bottom: "1rem",
+            right: 32,
+            display: "flex",
+            marginRight: 4,
+            justifyContent: "flex-end",
+          }}
+        >
+          <CustomButton label="Next" onClick={handleNext} />
+        </Box>
+      )}
 
       {isPdfViewerOpen && pdfBuffer && pdfBuffer.byteLength > 0 && (
         <Box

@@ -4,10 +4,36 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import EditIcon from "@mui/icons-material/Edit";
 import Sidebar from "../components/Sidebar";
 import SearchIcon from "@mui/icons-material/Search";
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useParams } from "react-router";
+import { useContext, useEffect } from "react";
+import { userContext } from "../context/ContextProvider";
+import { toast } from "react-toastify";
+import { getProjectById } from "../Utils/Api.utils";
 
 const Mainlayout = () => {
   const location = useLocation().pathname;
+
+  const { setProjectStatus } = useContext(userContext);
+
+  const { project_id } = useParams();
+
+  const handleFetchProjectDetails = async (project_id) => {
+    try {
+      const response = await getProjectById(project_id);
+      if (response) {
+        setProjectStatus(response?.completion_percentage);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch project details, Refresh page to try again");
+    }
+  };
+
+  useEffect(() => {
+    if (project_id) {
+      handleFetchProjectDetails(project_id);
+    }
+  }, [project_id]);
+
   return (
     <Box
       sx={{

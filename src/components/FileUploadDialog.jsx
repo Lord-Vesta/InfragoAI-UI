@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   DialogTitle,
   DialogContent,
@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import AlertTooltip from "./Tooltip";
+import { userContext } from "../context/ContextProvider";
 
 const FileUploadDialog = ({
   open,
@@ -27,9 +28,12 @@ const FileUploadDialog = ({
   extractionComplete,
   handleNext,
   setUploadedProjectId,
+  uploadedProjectId,
+  fetchExtractedData,
+  projectStatus,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
-
+  const { jwtToken } = useContext(userContext);
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) setFile(selectedFile);
@@ -95,115 +99,142 @@ const FileUploadDialog = ({
           >
             PDF Upload
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#6D6D6D", fontWeight: 400, fontSize: "14px" }}
-          >
-            Add your document here
-          </Typography>
+          {projectStatus <= 10 && (
+            <Typography
+              variant="body2"
+              sx={{ color: "#6D6D6D", fontWeight: 400, fontSize: "14px" }}
+            >
+              Add your document here
+            </Typography>
+          )}
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 0 }}>
-        {isExtracting ? (
-          <Alert
-            severity="info"
-            sx={{ width: "100%", py: 4, textAlign: "center", fontWeight: 500 }}
-          >
-            Extraction can take up to 1 minute. Please wait...
-          </Alert>
-        ) : extractionComplete ? (
-          <Alert
-            severity="success"
-            sx={{ width: "100%", py: 4, textAlign: "center", fontWeight: 500 }}
-          >
-            PDF extraction completed successfully!
-          </Alert>
-        ) : (
-          <Paper
-            variant="outlined"
-            sx={{
-              border: `2px dashed ${isDragging ? "#0FB97D" : "#2fd6a7"}`,
-              borderRadius: "8px",
-              p: "24px",
-              textAlign: "center",
-              transition: "0.2s",
-              backgroundColor: isDragging
-                ? "rgba(15,185,125,0.05)"
-                : "#fff",
-            }}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <CloudUploadIcon sx={{ fontSize: 40, color: "#2fd6a7" }} />
-            <Box
+      {projectStatus <= 10 && (
+        <DialogContent sx={{ p: 0 }}>
+          {isExtracting === "loading" && (
+            <Alert
+              severity="info"
               sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "12px",
+                width: "100%",
+                py: 4,
+                textAlign: "center",
+                fontWeight: 500,
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#0B0B0B",
-                  fontFamily: "Inter",
-                  fontWeight: 400,
-                  fontSize: "14px",
-                }}
-              >
-                {isDragging
-                  ? "Drop your file here..."
-                  : "Drag your file(s) to start uploading"}
-              </Typography>
-
+              Extraction can take up to 1 minute. Please wait...
+            </Alert>
+          )}
+          {isExtracting === "failed" && (
+            <Alert
+              severity="error"
+              sx={{
+                width: "100%",
+                py: 4,
+                textAlign: "center",
+                fontWeight: 500,
+              }}
+            >
+              PDF extraction failed. Please try again.
+            </Alert>
+          )}
+          {isExtracting === "success" && extractionComplete && (
+            <Alert
+              severity="success"
+              sx={{
+                width: "100%",
+                py: 4,
+                textAlign: "center",
+                fontWeight: 500,
+              }}
+            >
+              PDF extraction completed successfully!
+            </Alert>
+          )}
+          {isExtracting === "idle" && !extractionComplete && (
+            <Paper
+              variant="outlined"
+              sx={{
+                border: `2px dashed ${isDragging ? "#0FB97D" : "#2fd6a7"}`,
+                borderRadius: "8px",
+                p: "24px",
+                textAlign: "center",
+                transition: "0.2s",
+                backgroundColor: isDragging ? "rgba(15,185,125,0.05)" : "#fff",
+              }}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <CloudUploadIcon sx={{ fontSize: 40, color: "#2fd6a7" }} />
               <Box
                 sx={{
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  width: "100%",
-                  my: 1,
-                  justifyContent: "center",
+                  gap: "12px",
                 }}
               >
-                <Box sx={{ height: 2, bgcolor: "#CECECE", width: "80px" }} />
                 <Typography
                   variant="body2"
-                  sx={{ mx: 2, color: "#0B0B0B", fontSize: "14px" }}
-                >
-                  or
-                </Typography>
-                <Box sx={{ height: 2, bgcolor: "#CECECE", width: "80px" }} />
-              </Box>
-
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-                id="file-upload-input"
-              />
-              <label htmlFor="file-upload-input">
-                <Button
-                  variant="outlined"
-                  component="span"
                   sx={{
-                    borderRadius: "8px",
-                    color: "#0FB97D",
-                    borderColor: "#0FB97D",
-                    fontWeight: 600,
-                    fontSize: "12px",
+                    color: "#0B0B0B",
+                    fontFamily: "Inter",
+                    fontWeight: 400,
+                    fontSize: "14px",
                   }}
                 >
-                  Browse file
-                </Button>
-              </label>
-            </Box>
-          </Paper>
-        )}
-      </DialogContent>
+                  {isDragging
+                    ? "Drop your file here..."
+                    : "Drag your file(s) to start uploading"}
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    my: 1,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Box sx={{ height: 2, bgcolor: "#CECECE", width: "80px" }} />
+                  <Typography
+                    variant="body2"
+                    sx={{ mx: 2, color: "#0B0B0B", fontSize: "14px" }}
+                  >
+                    or
+                  </Typography>
+                  <Box sx={{ height: 2, bgcolor: "#CECECE", width: "80px" }} />
+                </Box>
+
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  id="file-upload-input"
+                />
+                <label htmlFor="file-upload-input">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    sx={{
+                      borderRadius: "8px",
+                      color: "#0FB97D",
+                      borderColor: "#0FB97D",
+                      fontWeight: 600,
+                      fontSize: "12px",
+                    }}
+                  >
+                    Browse file
+                  </Button>
+                </label>
+              </Box>
+            </Paper>
+          )}
+        </DialogContent>
+      )}
 
       {!isExtracting && !extractionComplete && (
         <Typography variant="caption" color="#6D6D6D">
@@ -225,7 +256,13 @@ const FileUploadDialog = ({
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <FolderZipIcon sx={{ fontSize: 40, color: "#2fd6a7" }} />
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
               <Typography variant="caption" color="#6D6D6D">
                 {file.name}
               </Typography>
@@ -236,18 +273,32 @@ const FileUploadDialog = ({
               </Typography>
             </Box>
           </Box>
-          <AlertTooltip title={isExtracting ? <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>Cannot delete while extracting</Typography> : ""} type="success">
-  <span>
-    <IconButton 
-      onClick={handleCancelUploadFile} 
-      size="small" 
-      disabled={isExtracting}
-      
-    >
-      <CloseIcon />
-    </IconButton>
-  </span>
-</AlertTooltip>
+          <AlertTooltip
+            title={
+              isExtracting === "loading" ? (
+                <Typography
+                  sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
+                >
+                  Cannot delete while extracting
+                </Typography>
+              ) : (
+                ""
+              )
+            }
+            type="success"
+          >
+            <span>
+              {projectStatus <= 10 && (
+                <IconButton
+                  onClick={handleCancelUploadFile}
+                  size="small"
+                  disabled={isExtracting === "loading"}
+                >
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </span>
+          </AlertTooltip>
         </Box>
       )}
 
@@ -263,19 +314,42 @@ const FileUploadDialog = ({
             alignItems: "center",
             justifyContent: "center",
             gap: 1,
+            disabled:
+              (!file && !extractionComplete) || isExtracting === "loading",
+            "&:hover": {
+              backgroundColor: "#0FB97D",
+            },
           }}
-          disabled={(!file && !extractionComplete) || loading || isExtracting}
-          onClick={extractionComplete ? handleNext : handlePdfUpload}
+          disabled={
+            (!file && !extractionComplete) || isExtracting === "loading"
+          }
+          onClick={
+            isExtracting === "failed"
+              ? () => fetchExtractedData(uploadedProjectId)
+              : isExtracting === "idle"
+              ? handlePdfUpload
+              : projectStatus === 0
+              ? handlePdfUpload
+              : projectStatus === 10
+              ? () => fetchExtractedData(uploadedProjectId)
+              : handleNext
+          }
         >
-          {loading || isExtracting ? (
+          {isExtracting === "loading" ? (
             <>
               <CircularProgress size={18} sx={{ color: "#fff" }} />
               Extracting...
             </>
-          ) : extractionComplete ? (
-            "Next"
-          ) : (
+          ) : isExtracting === "failed" ? (
+            "Retry Extraction"
+          ) : isExtracting === "idle" ? (
             "Upload & Extract"
+          ) : projectStatus === 0 ? (
+            "Upload & Extract"
+          ) : projectStatus === 10 ? (
+            "Extract"
+          ) : (
+            "Next"
           )}
         </Button>
       </DialogActions>

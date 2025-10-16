@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { useLocation } from "react-router";
 
 export const userContext = createContext();
 
@@ -7,6 +8,7 @@ const ContextProvider = ({ children }) => {
   const [sessionId, setSessionId] = useState(null);
   const [jwtToken, setJwtToken] = useState(accessToken || null);
   const [projectId, setProjectId] = useState(null);
+  const [projectStatus, setProjectStatus] = useState(null);
 
   useEffect(() => {
     if (accessToken) {
@@ -15,7 +17,15 @@ const ContextProvider = ({ children }) => {
   }, [accessToken]);
   return (
     <userContext.Provider
-      value={{ sessionId, setSessionId, jwtToken, projectId, setProjectId }}
+      value={{
+        sessionId,
+        setSessionId,
+        jwtToken,
+        projectId,
+        setProjectId,
+        projectStatus,
+        setProjectStatus,
+      }}
     >
       {children}
     </userContext.Provider>
