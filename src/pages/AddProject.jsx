@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
 } from "@mui/material";
+import CustomTextField from "../components/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect } from "react";
 
@@ -17,7 +18,7 @@ const AddProject = ({ handleClose, handleAddProject }) => {
 
   const handleSubmit = () => {
     if (!projectName.trim()) return;
-    handleAddProject(projectName); // ✅ calls parent function to create project
+    handleAddProject(projectName);
   };
   return (
     <Box
@@ -85,7 +86,7 @@ const AddProject = ({ handleClose, handleAddProject }) => {
 
           {/* Fields */}
           <Box display="flex" flexDirection="column" gap={2} mb={4}>
-            <TextField
+            {/* <TextField
               label="Lorem Ipsum"
               sx={{
                 "& .MuiOutlinedInput-root": {
@@ -95,6 +96,15 @@ const AddProject = ({ handleClose, handleAddProject }) => {
               onChange={(e) => setProjectName(e.target.value)}
               size="small"
               fullWidth
+              required
+            /> */}
+            <CustomTextField 
+            label="Project Name"
+            placeholder="Enter Project Name"
+            onChange={(e) => setProjectName(e.target.value)}
+             size="small"
+             width="100%"
+             disableOnBlur={false} 
               required
             />
           </Box>

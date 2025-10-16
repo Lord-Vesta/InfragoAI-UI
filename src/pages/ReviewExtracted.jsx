@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button, Icon } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
@@ -17,10 +17,13 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import { updateEditedFields,getExtractedInputs } from "../Utils/Api.utils";
+import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
+import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
+import DownloadIcon from '@mui/icons-material/Download';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -154,7 +157,7 @@ const fieldConfig = [
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Bid Capacity Formula",
+    label: "Bid Capacity",
     type: "text",
     validation: { required: true },
   },
@@ -185,18 +188,14 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [loading, setLoading] = useState(true);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
-  console.log("extratc", extractedData)
-  const { jwtToken, projectId } = useContext(userContext);
-
-  console.log("projec", projectId)
+  const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
-  console.log("sds", project_id)
 
   const navigate = useNavigate();
 
   const handleDownloadPdf = async () => {
     try {
-      const response = await downloadPdf(1);
+      const response = await downloadPdf(project_id);
       const arrayBuffer = await response.arrayBuffer();
       setPdfBuffer(arrayBuffer);
     } catch (error) {
@@ -206,101 +205,80 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
   const fieldRefs = useRef([]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        let dataArray = [];
 
+        if (!extractedData) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
 
-useEffect(() => {
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      let dataArray = [];
+          const response = await getExtractedInputs(project_id);
 
-      if (!extractedData) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        const response = await getExtractedInputs(project_id);
-
-        console.log("API response:", response);
-        dataArray = Array.isArray(response.data) ? response.data : [];
-      } else {
-        console.log("Using existing extractedData");
-        dataArray = extractedData.data;
-      }
-
-      const normalizedResponse = dataArray.map((item) => ({
-        ...item,
-        normalizedKey: item.field_key
-          .toLowerCase()
-          .replace(/[\s-/_()]+/g, ""),
-      }));
-
-      const apiData = fieldConfig.map((config) => {
-        if (config.type === "heading") return config;
-
-        const normalizedLabel = config.label
-          .toLowerCase()
-          .replace(/[\s-/_()]+/g, "");
-
-        const match = normalizedResponse.find(
-          (r) => r.normalizedKey === normalizedLabel
-        );
-
-        let value = match
-          ? match.edited_value ?? match.field_value
-          : config.type === "toggle"
-          ? "No"
-          : "";
-
-        if (
-          match &&
-          config.type === "date" &&
-          /^\d{2}\/\d{2}\/\d{4}$/.test(value)
-        ) {
-          const [day, month, year] = value.split("/");
-          value = `${year}-${month}-${day}`;
+          console.log("API response:", response);
+          dataArray = Array.isArray(response.data) ? response.data : [];
+        } else {
+          console.log("Using existing extractedData");
+          dataArray = extractedData.data;
         }
 
-        return {
-          ...config,
-          value,
-          confidenceScore: match ? parseFloat(match.confidence_score) : null,
-          pageNo: match ? match.source_page_number : null,
-          snippet: match ? match.snippet : "",
-          extraction_id: match ? match.extraction_id : null,
-        };
-      });
+        const normalizedResponse = dataArray.map((item) => ({
+          ...item,
+          normalizedKey: item.field_key
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, ""),
+        }));
 
-      setFields(apiData);
-      setEditableFields(new Array(apiData.length).fill(false));
-      setErrors(new Array(apiData.length).fill(""));
-    } catch (err) {
-      console.error("Error loading data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const apiData = fieldConfig.map((config) => {
+          if (config.type === "heading") return config;
 
-  loadData();
-}, [extractedData]);
+          const normalizedLabel = config.label
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, "");
 
-  
-  useEffect(() => {
-    console.log("Component mounted, downloading PDF...");
-    handleDownloadPdf();
-  }, []);
+          const match = normalizedResponse.find(
+            (r) => r.normalizedKey === normalizedLabel
+          );
 
-  useEffect(() => {
-    console.log("PDF buffer updated:", pdfBuffer);
-  }, [pdfBuffer]);
+          let value = match
+            ? match.edited_value ?? match.field_value
+            : config.type === "toggle"
+            ? "No"
+            : "";
 
-  useEffect(() => {
-    console.log("PDF modal opened", isPdfViewerOpen);
-    console.log("pdfBuffer", pdfBuffer);
-  }, [isPdfViewerOpen]);
+          if (
+            match &&
+            config.type === "date" &&
+            /^\d{2}\/\d{2}\/\d{4}$/.test(value)
+          ) {
+            const [day, month, year] = value.split("/");
+            value = `${year}-${month}-${day}`;
+          }
 
+          return {
+            ...config,
+            value,
+            confidenceScore: match ? parseFloat(match.confidence_score) : null,
+            pageNo: match ? match.source_page_number : null,
+            snippet: match ? match.snippet : "",
+            extraction_id: match ? match.extraction_id : null,
+          };
+        });
 
+        setFields(apiData);
+        handleDownloadPdf();
+        setEditableFields(new Array(apiData.length).fill(false));
+        setErrors(new Array(apiData.length).fill(""));
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-
-
+    loadData();
+  }, [extractedData]);
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;
@@ -338,26 +316,68 @@ useEffect(() => {
     setErrors((prev) => prev.map((err, i) => (i === index ? error : err)));
     return error;
   };
+const handleEdit = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, prevValue: field.value } 
+        : field
+    )
+  );
 
-  const handleEdit = (index) => {
-    setEditableFields((prev) => prev.map((editable, i) => (i === index ? true : editable)));
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? true : editable))
+  );
 
-    // Autofocus using ref
-    setTimeout(() => {
-      fieldRefs.current[index]?.focus();
-      // Scroll field into view if needed
-      fieldRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
-  };
+  setTimeout(() => {
+    const input = fieldRefs.current[index];
+    if (input) {
+      input.focus();
+      const length = input.value?.length || 0;
+      input.setSelectionRange(length, length);
+    }
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+};
 
-  // const handleChange = (index, newValue) => {
-  //   setFields((prev) =>
-  //     prev.map((field, i) =>
-  //       i === index ? { ...field, value: newValue } : field
-  //     )
+  // const handleEdit = (index) => {
+
+  //   setEditableFields((prev) =>
+  //     prev.map((editable, i) => (i === index ? true : editable))
   //   );
-  //   validateField(index, newValue);
+
+  //   setTimeout(() => {
+  //     const input = fieldRefs.current[index];
+
+  //     if (input) {
+  //       input.focus();
+  //       const length = input.value?.length || 0;
+  //       input.setSelectionRange(length, length);
+  //     }
+  //     input?.scrollIntoView({ behavior: "smooth", block: "center" });
+  //   }, 100);
   // };
+  const handleCancel = (index) => {
+  setFields((prev) =>
+    prev.map((field, i) =>
+      i === index
+        ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
+        : field
+    )
+  );
+
+  setEditableFields((prev) =>
+    prev.map((editable, i) => (i === index ? false : editable))
+  );
+
+  setErrors((prev) =>
+    prev.map((err, i) => (i === index ? "" : err))
+  );
+};
+
+
+
+
   const handleChange = (index, newValue) => {
     setFields((prev) =>
       prev.map((field, i) =>
@@ -367,7 +387,7 @@ useEffect(() => {
     validateField(index, newValue);
   };
   const handleBlur = (index) => {
-    console.log("came")
+    console.log("came");
     setEditableFields((prev) =>
       prev.map((editable, i) => (i === index ? false : editable))
     );
@@ -384,11 +404,13 @@ useEffect(() => {
     window.location.href = "/login";
   };
 
-
   const handleNext = async () => {
     // Collect only the fields that were edited
     const editedFields = fields
-      .filter((field) => field.value !== undefined && field.value !== "" && field.isEdited)
+      .filter(
+        (field) =>
+          field.value !== undefined && field.value !== "" && field.isEdited
+      )
       .map((field) => ({
         extraction_id: field.extraction_id, // use extraction_id instead of field_key
         edited_value: field.value,
@@ -443,36 +465,67 @@ useEffect(() => {
       >
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
-          <Box component="span" sx={{ display: "inline-block" }}>
-            <GetAppIcon
-              style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
-              onClick={() => {
-                const pdfData = fields
-                  .filter((f) => f.type !== "heading")
-                  .map((f) => ({
-                    field_key: f.label,
-                    field_value: f.value,
-                    confidence_score: f.confidenceScore ?? "",
-                    source_page_number: f.pageNo ?? "-",
-                  }));
 
-                GeneratePDF(pdfData, "extracted_data.pdf");
-              }}
-            />
-          </Box>
         </Typography>
-        <img
-          src="src/assets/PDF_file_icon.svg.png"
-          alt="pdf"
-          width={50}
-          height={50}
-          style={{ marginRight: "16px", cursor: "pointer" }}
-          onClick={() => {
-            if (!isPdfViewerOpen) {
-              setIsPdfViewerOpen(true);
-            }
-          }}
-        />
+        <Box display="flex" gap={2} mx={2}>
+
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              const pdfData = fields
+                .filter((f) => f.type !== "heading")
+                .map((f) => ({
+                  field_key: f.label,
+                  field_value: f.value,
+                  confidence_score: f.confidenceScore ?? "",
+                  source_page_number: f.pageNo ?? "-",
+                }));
+
+              GeneratePDF(pdfData, "extracted_data.pdf");
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                <DownloadIcon />
+              </IconButton>
+              <Typography>Download Bid Data</Typography>
+            </Box>
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              if (!isPdfViewerOpen) {
+                setIsPdfViewerOpen(true);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                < FileCopyIcon />
+              </IconButton>
+              <Typography>View pdf</Typography>
+            </Box>
+          </Button>
+        </Box>
+
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -488,7 +541,6 @@ useEffect(() => {
             </Typography>
           ) : (
             <>
-
               <Box display="flex" alignItems="center" mb={1}>
                 <Typography
                   variant="body1"
@@ -499,12 +551,11 @@ useEffect(() => {
                 </Typography>
 
                 <Box display="flex" gap={2} alignItems="center">
-                  {/* Confidence circle */}
                   <IconButton disableRipple>
                     <CircleIcon
                       style={{
                         color: (() => {
-                          const score = field.confidenceScore ?? 10; // default 0 if null
+                          const score = field.confidenceScore ?? 10;
                           if (score >= 0.8) return "green";
                           if (score >= 0.5) return "orange";
                           return "red";
@@ -536,19 +587,19 @@ useEffect(() => {
                   {(!field.value ||
                     field.value === "" ||
                     field.value === "Not found in document") && (
-                      <AlertTooltip
-                        title="No value found for particular label in document"
-                        type="error"
-                      >
-                        <ErrorOutlineIcon
-                          style={{
-                            color: "red",
-                            fontSize: 18,
-                            cursor: "pointer",
-                          }}
-                        />
-                      </AlertTooltip>
-                    )}
+                    <AlertTooltip
+                      title="No value found for particular label in document"
+                      type="error"
+                    >
+                      <ErrorOutlineIcon
+                        style={{
+                          color: "red",
+                          fontSize: 18,
+                          cursor: "pointer",
+                        }}
+                      />
+                    </AlertTooltip>
+                  )}
                 </Box>
               </Box>
 
@@ -557,12 +608,12 @@ useEffect(() => {
                   label={field.label}
                   value={field.value}
                   onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                // disabled={!editableFields[index]}
+                  // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <AlertTooltip
                   title={
-                    <Typography sx={{ fontSize: 12 }}>
+                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                       {field.snippet}
                     </Typography>
                   }
@@ -582,36 +633,53 @@ useEffect(() => {
                 >
                   <span>
                     {(() => {
-                      // Clean text by removing multiple spaces/line breaks
                       const cleanedText = field.value
                         ? field.value.replace(/\s+/g, " ")
                         : "";
                       const isLongText = cleanedText.length > 100;
 
                       return (
-                        <CustomTextField
-                          value={field.value}
-                          ref={(el) => (fieldRefs.current[index] = el)}
-                          placeholder={field.label}
-                          onChange={(e) => handleChange(index, e.target.value)}
-                          onBlur={() => handleBlur(index)}
-                          disabled={!editableFields[index]}
-                          width="45vw"
-                          multiline={isLongText}
-                          minRows={isLongText ? Math.ceil(cleanedText.length / 80) : 1}
-                        />
+
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <CustomTextField
+                            value={field.value}
+                            ref={(el) => (fieldRefs.current[index] = el)}
+                            placeholder={field.label}
+                            onChange={(e) => handleChange(index, e.target.value)}
+                            onBlur={() => handleBlur(index)}
+                            disableOnBlur={true}
+                            disabled={!editableFields[index]}
+                            width="45vw"
+                            multiline={isLongText}
+                            minRows={isLongText ? Math.ceil(field.value.length / 80) : 1}
+                          />
+
+                          {editableFields[index] && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                              onClick={() => handleCancel(index)}
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </Box>
+
                       );
                     })()}
                   </span>
                 </AlertTooltip>
               ) :
                 field.type === "select" ? (
-                  <Tooltip
+                  <AlertTooltip
                     title={
-                      <Typography sx={{ fontSize: 12 }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                         {field.snippet}
                       </Typography>
                     }
+
+                    type="success"
                     placement="top"
                     arrow
                     slotProps={{
@@ -635,14 +703,15 @@ useEffect(() => {
                         disabled={!editableFields[index]}
                       />
                     </span>
-                  </Tooltip>
+                  </AlertTooltip>
                 ) : field.type === "date" ? (
-                  <Tooltip
+                  <AlertTooltip
                     title={
-                      <Typography sx={{ fontSize: 12 }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                         {field.snippet}
                       </Typography>
                     }
+                    type="success"
                     placement="top"
                     arrow
                     slotProps={{
@@ -666,14 +735,15 @@ useEffect(() => {
                         width="40vw"
                       />
                     </span>
-                  </Tooltip>
+                  </AlertTooltip>
                 ) : field.type === "textarea" ? (
-                  <Tooltip
+                  <AlertTooltip
                     title={
-                      <Typography sx={{ fontSize: 12 }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
                         {field.snippet}
                       </Typography>
                     }
+                    type="success"
                     placement="top"
                     arrow
                     slotProps={{
@@ -698,7 +768,7 @@ useEffect(() => {
                         width="45vw"
                       />
                     </span>
-                  </Tooltip>
+                  </AlertTooltip>
                 ) : null}
 
               {errors[index] && (

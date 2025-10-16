@@ -6,8 +6,9 @@ import { userContext } from "../context/ContextProvider";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useLocation, useNavigate,useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { logoutUser } from "../Utils/Api.utils";
 
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
@@ -28,13 +29,13 @@ export default function Sidebar() {
     "Eligibility & BG Check",
   ];
 
- const stepRoutes = [
-  `/upload/${project_id}`,
-  `/ReviewExtracted/${project_id}`,
-  `/QualificationInputs/${project_id}`,
-  `/TechnicalConfirmation/${project_id}`,
-  `/BGsummary/${project_id}`,
-];
+  const stepRoutes = [
+    `/upload/${project_id}`,
+    `/ReviewExtracted/${project_id}`,
+    `/QualificationInputs/${project_id}`,
+    `/TechnicalConfirmation/${project_id}`,
+    `/BGsummary/${project_id}`,
+  ];
 
   const location = useLocation().pathname;
     useEffect(() => {
@@ -58,6 +59,27 @@ export default function Sidebar() {
       }
     });
   }, [location]);
+
+    const handleLogout = async () => {
+    try {
+      const response = await logoutUser({refresh_token : jwtToken})
+      console.log("Logout response:", response);
+
+      if (response.status === 200) {
+        toast.success("Logged out successfully");
+        localStorage.removeItem("accessToken");
+
+        navigate("/login");
+      } else {
+      const errorMessage = response.data?.message || "Logout failed.";
+      toast.error(errorMessage);
+    }
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* Left Sidebar */}
@@ -108,7 +130,7 @@ export default function Sidebar() {
               gap: 1,
               cursor: "pointer",
             }}
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/")}
           >
             <Box sx={{ width: 40, height: 40 }}>
               <img
@@ -134,21 +156,27 @@ export default function Sidebar() {
               justifyContent: "space-between",
             }}
           >
-            <Box
-              sx={{
-                background: "linear-gradient(90deg, #2fd6a7 50%, #eafaf6 95%)",
-                py: 1,
-                px: 4,
-                fontWeight: "700",
-                color: "#222",
-                textAlign: "start",
-                fontSize: "20px",
-                cursor: "pointer",
-              }}
-              onClick={() => navigate("/profile")}
-            >
-              Profile
-            </Box>
+            {jwtToken ? (
+              <Box
+                sx={{
+                  background:
+                    "linear-gradient(90deg, #2fd6a7 50%, #eafaf6 95%)",
+                  py: 1,
+                  px: 4,
+                  fontWeight: "700",
+                  color: "#222",
+                  textAlign: "start",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/profile")}
+              >
+                Profile
+              </Box>
+            ) : (
+              <Box></Box>
+            )}
+
             <Box
               sx={{
                 display: "flex",
@@ -158,16 +186,14 @@ export default function Sidebar() {
                 py: 4,
               }}
             >
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ flexGrow: 1, cursor: "pointer" }} onClick={handleLogout}>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  Lorem Ipsum
+                  Logout
                 </Typography>
-                <Typography variant="body2" sx={{ color: "gray" }}>
-                  Lorem Ipsum Lorem
-                </Typography>
+                
               </Box>
               <IconButton>
-                <LogoutIcon fontSize="small" />
+                <LogoutIcon fontSize="small"  />
               </IconButton>
             </Box>
           </Box>
@@ -287,7 +313,7 @@ export default function Sidebar() {
         }}
         onClick={handleExpanded}
       >
-        {isExpanded === false && location !== "/profile" ? (
+        {isExpanded === false && location !== "/" ? (
           <Box
             sx={{
               display: "flex",
@@ -317,6 +343,8 @@ export default function Sidebar() {
                         : "",
                     p: i === activeStep ? "10px" : "0px",
                     borderRadius: "15px",
+                    cursor: !jwtToken && i >= 2 ? "not-allowed" : "pointer",
+                    opacity: !jwtToken && i >= 2 ? 0.5 : 1,
                   }}
                   onClick={() => handleStepClick(i)}
                 >
