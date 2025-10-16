@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Box, IconButton, Typography, Button, Icon } from "@mui/material";
+import { Box, IconButton, Typography, Button, Icon, Alert } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CircleIcon from "@mui/icons-material/Circle";
 import CustomTextField from "../components/TextField";
@@ -188,7 +188,10 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [loading, setLoading] = useState(true);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
-  const { jwtToken } = useContext(userContext);
+  const [apiError, setApiError] = useState(false);
+  const { jwtToken, projectId } = useContext(userContext);
+
+  console.log("projec", projectId)
   const { project_id } = useParams();
 
   const navigate = useNavigate();
@@ -208,6 +211,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setApiError(false);
       try {
         let dataArray = [];
 
@@ -272,6 +276,19 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         setErrors(new Array(apiData.length).fill(""));
       } catch (err) {
         console.error("Error loading data:", err);
+        setApiError(true);
+
+        const emptyFields = fieldConfig.map((config) =>
+          config.type === "heading"
+            ? config
+            : {
+              ...config,
+              value: config.type === "toggle" ? "No" : "",
+            }
+        );
+        setFields(emptyFields);
+        setEditableFields(new Array(emptyFields.length).fill(false));
+        setErrors(new Array(emptyFields.length).fill(""));
       } finally {
         setLoading(false);
       }
@@ -290,8 +307,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
       error = "This field is required";
     } else if (rules.number && isNaN(value)) {
       error = "Must be a number";
-    } else if (rules.pattern && !rules.pattern.test(value)) {
-      error = "Invalid format";
     } else if (rules.maxLength && value.length > rules.maxLength) {
       error = `Maximum ${rules.maxLength} characters allowed`;
     } else if (rules.min && Number(value) < rules.min) {
@@ -316,29 +331,29 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
     setErrors((prev) => prev.map((err, i) => (i === index ? error : err)));
     return error;
   };
-const handleEdit = (index) => {
-  setFields((prev) =>
-    prev.map((field, i) =>
-      i === index
-        ? { ...field, prevValue: field.value } 
-        : field
-    )
-  );
+  const handleEdit = (index) => {
+    setFields((prev) =>
+      prev.map((field, i) =>
+        i === index
+          ? { ...field, prevValue: field.value }
+          : field
+      )
+    );
 
-  setEditableFields((prev) =>
-    prev.map((editable, i) => (i === index ? true : editable))
-  );
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? true : editable))
+    );
 
-  setTimeout(() => {
-    const input = fieldRefs.current[index];
-    if (input) {
-      input.focus();
-      const length = input.value?.length || 0;
-      input.setSelectionRange(length, length);
-    }
-    input?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 100);
-};
+    setTimeout(() => {
+      const input = fieldRefs.current[index];
+      if (input) {
+        input.focus();
+        const length = input.value?.length || 0;
+        input.setSelectionRange(length, length);
+      }
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
 
   // const handleEdit = (index) => {
 
@@ -358,22 +373,22 @@ const handleEdit = (index) => {
   //   }, 100);
   // };
   const handleCancel = (index) => {
-  setFields((prev) =>
-    prev.map((field, i) =>
-      i === index
-        ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
-        : field
-    )
-  );
+    setFields((prev) =>
+      prev.map((field, i) =>
+        i === index
+          ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
+          : field
+      )
+    );
 
-  setEditableFields((prev) =>
-    prev.map((editable, i) => (i === index ? false : editable))
-  );
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? false : editable))
+    );
 
-  setErrors((prev) =>
-    prev.map((err, i) => (i === index ? "" : err))
-  );
-};
+    setErrors((prev) =>
+      prev.map((err, i) => (i === index ? "" : err))
+    );
+  };
 
 
 
@@ -405,7 +420,21 @@ const handleEdit = (index) => {
   };
 
   const handleNext = async () => {
-    // Collect only the fields that were edited
+    // Run validation on all fields before proceeding
+    const newErrors = fields.map((field, index) =>
+      field.type !== "heading" ? validateField(index, field.value) : ""
+    );
+
+    setErrors(newErrors);
+
+    // Check if any field has an error
+    const hasError = newErrors.some((err) => err && err.length > 0);
+    if (hasError) {
+      toast.error("Please correct the highlighted errors before proceeding.");
+      return;
+    }
+
+    // Collect only the edited fields
     const editedFields = fields
       .filter(
         (field) =>
@@ -427,11 +456,38 @@ const handleEdit = (index) => {
         navigate(`/QualificationInputs/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
+        toast.error("Failed to save edits. Please try again.");
       }
     } else {
       navigate("/login");
     }
   };
+
+  // const handleNext = async () => {
+  //   // Collect only the fields that were edited
+  //   const editedFields = fields
+  //     .filter((field) => field.value !== undefined && field.value !== "" && field.isEdited)
+  //     .map((field) => ({
+  //       extraction_id: field.extraction_id, // use extraction_id instead of field_key
+  //       edited_value: field.value,
+  //     }));
+
+  //   const payload = { fields: editedFields };
+
+  //   console.log("Payload to send:", payload);
+
+  //   if (jwtToken) {
+  //     try {
+  //       const response = await updateEditedFields(payload, project_id);
+  //       console.log("API Response:", response);
+  //       navigate(`/QualificationInputs/${project_id}`);
+  //     } catch (error) {
+  //       console.error("API Error:", error);
+  //     }
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // };
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
   return loading ? (
@@ -455,6 +511,11 @@ const handleEdit = (index) => {
       gap={2}
       overflow="auto"
     >
+      {apiError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Failed to extract data. Please refresh the page to try again.
+        </Alert>
+      )}
       <Box
         display="flex"
         alignItems="center"
@@ -607,8 +668,8 @@ const handleEdit = (index) => {
                 <Toggle
                   label={field.label}
                   value={field.value}
-                  onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                  // disabled={!editableFields[index]}
+                  onChange={(val) => handleChange(index, val)}
+                  disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <AlertTooltip
@@ -772,9 +833,12 @@ const handleEdit = (index) => {
                 ) : null}
 
               {errors[index] && (
-                <Typography color="error" fontSize={12} mt={0.5}>
+                <Alert
+                  severity="error"
+                  sx={{ mt: 1, width: "45vw", p: 1, fontSize: 12 }}
+                >
                   {errors[index]}
-                </Typography>
+                </Alert>
               )}
             </>
           )}

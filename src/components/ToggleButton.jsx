@@ -2,12 +2,12 @@ import React from "react";
 import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import colors from "../assets/colors";
 
-const Toggle = ({ label, value, onChange }) => {
+const Toggle = ({ label, value, onChange,disabled }) => {
   const normalizedValue = value?.toLowerCase() || "no";
 
-  const handleChange = (event, newValue) => {
+   const handleChange = (event, newValue) => {
     if (newValue !== null) {
-      onChange(newValue === "yes" ? "Yes" : "No");
+      onChange(newValue);
     }
   };
 
@@ -24,6 +24,7 @@ const Toggle = ({ label, value, onChange }) => {
         exclusive
         onChange={handleChange}
         size="small"
+        disabled={disabled}
         sx={{
           borderRadius: 1,
           width: 180,
