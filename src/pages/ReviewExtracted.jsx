@@ -20,6 +20,7 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
+import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
@@ -187,15 +188,14 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   const [loading, setLoading] = useState(true);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
-  const { jwtToken, projectId } = useContext(userContext);
-
+  const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
 
   const navigate = useNavigate();
 
   const handleDownloadPdf = async () => {
     try {
-      const response = await downloadPdf(1);
+      const response = await downloadPdf(project_id);
       const arrayBuffer = await response.arrayBuffer();
       setPdfBuffer(arrayBuffer);
     } catch (error) {
@@ -267,6 +267,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         });
 
         setFields(apiData);
+        handleDownloadPdf();
         setEditableFields(new Array(apiData.length).fill(false));
         setErrors(new Array(apiData.length).fill(""));
       } catch (err) {
@@ -278,20 +279,6 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
 
     loadData();
   }, [extractedData]);
-
-  useEffect(() => {
-    console.log("Component mounted, downloading PDF...");
-    handleDownloadPdf();
-  }, []);
-
-  useEffect(() => {
-    console.log("PDF buffer updated:", pdfBuffer);
-  }, [pdfBuffer]);
-
-  useEffect(() => {
-    console.log("PDF modal opened", isPdfViewerOpen);
-    console.log("pdfBuffer", pdfBuffer);
-  }, [isPdfViewerOpen]);
 
   const validateField = (index, value) => {
     const rules = fieldConfig[index]?.validation;

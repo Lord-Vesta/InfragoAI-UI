@@ -18,7 +18,7 @@ const AddProject = ({ handleClose, handleAddProject }) => {
 
   const handleSubmit = () => {
     if (!projectName.trim()) return;
-    handleAddProject(projectName); // ✅ calls parent function to create project
+    handleAddProject(projectName);
   };
   return (
     <Box

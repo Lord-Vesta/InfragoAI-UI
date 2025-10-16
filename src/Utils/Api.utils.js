@@ -13,6 +13,7 @@ const {
   GET_EXTRACTED_DATA,
   GET_EXTRACTED_INPUTS,
   EDIT_EXTRACTED_DATA,
+  GET_PROJECT_BY_ID,
   LOGOUT,
 } = ApiConfig;
 
@@ -34,9 +35,12 @@ export const verifyOtp = async (data) => {
   }
 };
 
-export const qualificationInputs = async (data,project_id) => {
+export const qualificationInputs = async (data, project_id) => {
   try {
-    const response = await axiosclient.post(QUALIFICATION_INPUTS(project_id), data);
+    const response = await axiosclient.post(
+      QUALIFICATION_INPUTS(project_id),
+      data
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -61,20 +65,31 @@ export const getQualificationInputs = async (projectId) => {
 //   }
 // }
 export const getExtractedData = async (projectId) => {
-  const response = await axiosclient.get(GET_EXTRACTED_DATA(projectId));
-  return response.data;
-};
-
-export const updateEditedFields=async(data,projectId)=>{
-  const response=await axiosclient.patch(EDIT_EXTRACTED_DATA(projectId),data);
-  return response.data;
-};
-
-export const getExtractedInputs=async(projectId)=>{
-  try{
-    const response=await axiosclient.get(GET_EXTRACTED_INPUTS(projectId));
+  try {
+    const response = await axiosclient.get(GET_EXTRACTED_DATA(projectId));
     return response.data;
-  }catch(err){
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateEditedFields = async (data, projectId) => {
+  try {
+    const response = await axiosclient.patch(
+      EDIT_EXTRACTED_DATA(projectId),
+      data
+    );
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getExtractedInputs = async (projectId) => {
+  try {
+    const response = await axiosclient.get(GET_EXTRACTED_INPUTS(projectId));
+    return response.data;
+  } catch (err) {
     throw err;
   }
 };
@@ -96,7 +111,7 @@ export const uploadPdfAnonymous = async (data) => {
 export const uploadPdfAuthenticated = async (data, project_id) => {
   try {
     const response = await axiosclient.post(
-      PROJECTS + project_id  + "/upload-pdf/",
+      PROJECTS + project_id + "/upload-pdf/",
       data,
       {
         headers: {
@@ -137,9 +152,18 @@ export const downloadPdf = async (projectId) => {
     const response = await axiosclient.get(
       ApiConfig.PDF_DOWNLOAD + projectId + "/download-pdf/",
       {
-        responseType: "blob", // Important for file download
+        responseType: "blob",
       }
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getProjectById = async (projectId) => {
+  try {
+    const response = await axiosclient.get(GET_PROJECT_BY_ID(projectId));
     return response.data;
   } catch (error) {
     throw error;

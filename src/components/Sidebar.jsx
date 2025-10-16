@@ -125,7 +125,7 @@ export default function Sidebar() {
               gap: 1,
               cursor: "pointer",
             }}
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/")}
           >
             <Box sx={{ width: 40, height: 40 }}>
               <img
@@ -151,21 +151,27 @@ export default function Sidebar() {
               justifyContent: "space-between",
             }}
           >
-            <Box
-              sx={{
-                background: "linear-gradient(90deg, #2fd6a7 50%, #eafaf6 95%)",
-                py: 1,
-                px: 4,
-                fontWeight: "700",
-                color: "#222",
-                textAlign: "start",
-                fontSize: "20px",
-                cursor: "pointer",
-              }}
-              onClick={() => navigate("/profile")}
-            >
-              Profile
-            </Box>
+            {jwtToken ? (
+              <Box
+                sx={{
+                  background:
+                    "linear-gradient(90deg, #2fd6a7 50%, #eafaf6 95%)",
+                  py: 1,
+                  px: 4,
+                  fontWeight: "700",
+                  color: "#222",
+                  textAlign: "start",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/profile")}
+              >
+                Profile
+              </Box>
+            ) : (
+              <Box></Box>
+            )}
+
             <Box
               sx={{
                 display: "flex",
@@ -310,7 +316,7 @@ export default function Sidebar() {
         }}
         onClick={handleExpanded}
       >
-        {isExpanded === false && location !== "/profile" ? (
+        {isExpanded === false && location !== "/" ? (
           <Box
             sx={{
               display: "flex",
@@ -340,6 +346,8 @@ export default function Sidebar() {
                         : "",
                     p: i === activeStep ? "10px" : "0px",
                     borderRadius: "15px",
+                    cursor: !jwtToken && i >= 2 ? "not-allowed" : "pointer",
+                    opacity: !jwtToken && i >= 2 ? 0.5 : 1,
                   }}
                   onClick={() => handleStepClick(i)}
                 >

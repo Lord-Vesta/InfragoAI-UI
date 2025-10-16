@@ -1,15 +1,17 @@
-
-import React, { useContext, useState } from "react";
-import { Box } from "@mui/material";
+import React, { useContext, useEffect, useState } from "react";
+import { Box, Button } from "@mui/material";
 import FileUploadDialog from "../components/FileUploadDialog";
 import {
   uploadPdfAnonymous,
   uploadPdfAuthenticated,
   getExtractedData,
+  downloadPdf,
+  getProjectById,
 } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
+import colors from "../assets/colors";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
@@ -76,6 +78,29 @@ const UploadPage = () => {
       setLoading(false);
     }
   };
+
+  const handleFetchProjectData = async (projId) => {
+    try {
+      const response = await getProjectById(projId);
+      if (response) {
+        if (response.pdf_file_name && response.pdf_file_size) {
+          setFile({
+            name: response.pdf_file_name,
+            size: response.pdf_file_size,
+          });
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to fetch project data");
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (project_id) {
+      handleFetchProjectData(project_id);
+    }
+  }, [project_id]);
 
   return (
     <Box
