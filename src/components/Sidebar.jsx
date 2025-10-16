@@ -6,7 +6,7 @@ import { userContext } from "../context/ContextProvider";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useLocation, useNavigate,useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import { logoutUser } from "../Utils/Api.utils";
 
@@ -29,13 +29,13 @@ export default function Sidebar() {
     "Eligibility & BG Check",
   ];
 
- const stepRoutes = [
-  `/upload/${project_id}`,
-  `/ReviewExtracted/${project_id}`,
-  `/QualificationInputs/${project_id}`,
-  `/TechnicalConfirmation/${project_id}`,
-  `/BGsummary/${project_id}`,
-];
+  const stepRoutes = [
+    `/upload/${project_id}`,
+    `/ReviewExtracted/${project_id}`,
+    `/QualificationInputs/${project_id}`,
+    `/TechnicalConfirmation/${project_id}`,
+    `/BGsummary/${project_id}`,
+  ];
 
   const location = useLocation().pathname;
   const handleStepClick = (i) => {
@@ -55,9 +55,9 @@ export default function Sidebar() {
     });
   }, [location]);
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      const response = await logoutUser({refresh_token : jwtToken})
+      const response = await logoutUser({ refresh_token: jwtToken });
       console.log("Logout response:", response);
 
       if (response.status === 200) {
@@ -66,9 +66,9 @@ export default function Sidebar() {
 
         navigate("/login");
       } else {
-      const errorMessage = response.data?.message || "Logout failed.";
-      toast.error(errorMessage);
-    }
+        const errorMessage = response.data?.message || "Logout failed.";
+        toast.error(errorMessage);
+      }
     } catch (error) {
       toast.error("Logout failed. Please try again.");
       console.error("Logout error:", error);
@@ -172,17 +172,25 @@ export default function Sidebar() {
                 alignItems: "center",
                 gap: 1,
                 px: 2,
-                py: 4,
+                py: 2,
+                backgroundColor: "#e3e0e0ff",
+                cursor: "pointer",
+                transition: "background-color 0.3s",
+                "&:hover": {
+                  backgroundColor: "#d5d2d2",
+                },
               }}
             >
-              <Box sx={{ flexGrow: 1, cursor: "pointer" }} onClick={handleLogout}>
+              <Box
+                sx={{ flexGrow: 1, cursor: "pointer" }}
+                onClick={handleLogout}
+              >
                 <Typography variant="subtitle1" fontWeight="bold">
                   Logout
                 </Typography>
-                
               </Box>
               <IconButton>
-                <LogoutIcon fontSize="small"  />
+                <LogoutIcon fontSize="small" />
               </IconButton>
             </Box>
           </Box>
