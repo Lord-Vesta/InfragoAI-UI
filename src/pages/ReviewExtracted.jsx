@@ -11,10 +11,7 @@ import CustomButton from "../components/Button";
 import Toggle from "../components/toggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useLocation, useNavigate, useParams } from "react-router";
-import {
-  downloadPdf,
-  updateProjectStatus,
-} from "../Utils/Api.utils";
+import { downloadPdf, updateProjectStatus } from "../Utils/Api.utils";
 import { toTitleCase } from "../Utils/stringUtils";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
@@ -398,7 +395,7 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
   };
 
   const handleLoginRedirect = () => {
-    window.location.href = "/login";
+    navigate("/");
   };
 
   const handleNext = async () => {
@@ -621,28 +618,23 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                       : "";
                     const isLongText = cleanedText.length > 100;
 
-                      return (
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <CustomTextField
-                            value={field.value}
-                            ref={(el) => (fieldRefs.current[index] = el)}
-                            placeholder={field.label}
-                            onChange={(e) =>
-                              handleChange(index, e.target.value)
-                            }
-                            onBlur={() => handleBlur(index)}
-                            disableOnBlur={true}
-                            disabled={!editableFields[index]}
-                            width="45vw"
-                            multiline={isLongText}
-                            minRows={
-                              isLongText
-                                ? Math.ceil(field.value.length / 80)
-                                : 1
-                            }
-                            tooltip={field.snippet}
-                          /> 
-                        
+                    return (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CustomTextField
+                          value={field.value}
+                          ref={(el) => (fieldRefs.current[index] = el)}
+                          placeholder={field.label}
+                          onChange={(e) => handleChange(index, e.target.value)}
+                          onBlur={() => handleBlur(index)}
+                          disableOnBlur={true}
+                          disabled={!editableFields[index]}
+                          width="45vw"
+                          multiline={isLongText}
+                          minRows={
+                            isLongText ? Math.ceil(field.value.length / 80) : 1
+                          }
+                          tooltip={field.snippet}
+                        />
 
                         {editableFields[index] && (
                           <Button
@@ -655,52 +647,47 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                           </Button>
                         )}
                       </Box>
-                     
                     );
                   })()}
                 </span>
               ) : field.type === "select" ? (
-              
-                  <span>
-                    <CustomSelect
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      placeholder={field.label}
-                      onBlur={() => handleBlur(index)}
-                      options={field.validation?.options || []}
-                      disabled={!editableFields[index]}
-                      tooltipText={field.snippet}
-                    />
-                  </span>
+                <span>
+                  <CustomSelect
+                    value={field.value}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    placeholder={field.label}
+                    onBlur={() => handleBlur(index)}
+                    options={field.validation?.options || []}
+                    disabled={!editableFields[index]}
+                    tooltipText={field.snippet}
+                  />
+                </span>
               ) : field.type === "date" ? (
-               
-                  <span>
-                    <CustomDatePicker
-                      value={field.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      onBlur={() => handleBlur(index)}
-                      placeholder={`Select ${field.label}`}
-                      disabled={!editableFields[index]}
-                      width="40vw"
-                      tooltipText={field.snippet}
-                    />
-                  </span>
-                
+                <span>
+                  <CustomDatePicker
+                    value={field.value}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onBlur={() => handleBlur(index)}
+                    placeholder={`Select ${field.label}`}
+                    disabled={!editableFields[index]}
+                    width="40vw"
+                    tooltipText={field.snippet}
+                  />
+                </span>
               ) : field.type === "textarea" ? (
-                
-                  <span>
-                    <CustomTextField
-                      value={field.value}
-                      placeholder={field.label}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      disabled={!editableFields[index]}
-                      multiline
-                      minRows={3}
-                      width="45vw"
-                      ref={(el) => (fieldRefs.current[index] = el)}
-                      tooltip={field.snippet}
-                    />
-                  </span>
+                <span>
+                  <CustomTextField
+                    value={field.value}
+                    placeholder={field.label}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    disabled={!editableFields[index]}
+                    multiline
+                    minRows={3}
+                    width="45vw"
+                    ref={(el) => (fieldRefs.current[index] = el)}
+                    tooltip={field.snippet}
+                  />
+                </span>
               ) : null}
 
               {errors[index] && (
@@ -738,18 +725,20 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         </Box>
       )}
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: "1rem",
-          right: 32,
-          display: "flex",
-          marginRight: 4,
-          justifyContent: "flex-end",
-        }}
-      >
-        <CustomButton label="Next" onClick={handleNext} />
-      </Box>
+      {jwtToken && (
+        <Box
+          sx={{
+            position: "sticky",
+            bottom: "1rem",
+            right: 32,
+            display: "flex",
+            marginRight: 4,
+            justifyContent: "flex-end",
+          }}
+        >
+          <CustomButton label="Next" onClick={handleNext} />
+        </Box>
+      )}
 
       {isPdfViewerOpen && pdfBuffer && pdfBuffer.byteLength > 0 && (
         <Box

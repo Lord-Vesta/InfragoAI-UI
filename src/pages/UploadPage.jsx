@@ -33,6 +33,7 @@ const UploadPage = () => {
       if (response) {
         setIsExtracting("success");
         toast.success("Extracted data fetched successfully");
+
         const projectResponse = await updateProjectStatus(
           {
             completion_percentage: 20,

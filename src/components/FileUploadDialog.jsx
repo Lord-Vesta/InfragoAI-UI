@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   DialogTitle,
   DialogContent,
@@ -15,6 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import AlertTooltip from "./Tooltip";
+import { userContext } from "../context/ContextProvider";
 
 const FileUploadDialog = ({
   open,
@@ -32,6 +33,7 @@ const FileUploadDialog = ({
   projectStatus,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const { jwtToken } = useContext(userContext);
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) setFile(selectedFile);
@@ -324,6 +326,8 @@ const FileUploadDialog = ({
           onClick={
             isExtracting === "failed"
               ? () => fetchExtractedData(uploadedProjectId)
+              : isExtracting === "idle"
+              ? handlePdfUpload
               : projectStatus === 0
               ? handlePdfUpload
               : projectStatus === 10
@@ -338,6 +342,8 @@ const FileUploadDialog = ({
             </>
           ) : isExtracting === "failed" ? (
             "Retry Extraction"
+          ) : isExtracting === "idle" ? (
+            "Upload & Extract"
           ) : projectStatus === 0 ? (
             "Upload & Extract"
           ) : projectStatus === 10 ? (

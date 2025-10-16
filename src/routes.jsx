@@ -44,6 +44,7 @@ export const loginRoute = createBrowserRouter([
       { path: "/upload", element: <UploadPage /> },
       { path: "/ReviewExtracted/:project_id", element: <ReviewExtracted /> },
       { path: "/upload/:project_id", element: <UploadPage /> },
+      { path: "/login", element: <Login /> },
     ],
   },
 ]);

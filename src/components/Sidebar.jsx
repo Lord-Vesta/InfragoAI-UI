@@ -56,14 +56,13 @@ export default function Sidebar() {
   }, [location]);
 
   const handleLogout = async () => {
-  const handleLogout = async () => {
     try {
       const response = await logoutUser({ refresh_token: jwtToken });
       if (response.status === 200) {
         toast.success("Logged out successfully");
         localStorage.removeItem("accessToken");
-
-        navigate("/login");
+        navigate("/");
+        window.location.reload();
       } else {
         const errorMessage = response.data?.message || "Logout failed.";
         toast.error(errorMessage);
@@ -170,34 +169,36 @@ export default function Sidebar() {
             ) : (
               <Box></Box>
             )}
-
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                px: 2,
-                py: 2,
-                backgroundColor: "#e3e0e0ff",
-                cursor: "pointer",
-                transition: "background-color 0.3s",
-                "&:hover": {
-                  backgroundColor: "#d5d2d2",
-                },
-              }}
-            >
+            {jwtToken ? (
               <Box
-                sx={{ flexGrow: 1, cursor: "pointer" }}
-                onClick={handleLogout}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  px: 2,
+                  py: 2,
+                  backgroundColor: "#e3e0e0ff",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                  "&:hover": {
+                    backgroundColor: "#d5d2d2",
+                  },
+                }}
               >
-                <Typography variant="subtitle1" fontWeight="bold">
-                  Logout
-                </Typography>
-              </Box>
-              <IconButton>
+                <Box
+                  sx={{ flexGrow: 1, cursor: "pointer" }}
+                  onClick={handleLogout}
+                >
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Logout
+                  </Typography>
+                </Box>
+
                 <LogoutIcon fontSize="small" />
-              </IconButton>
-            </Box>
+              </Box>
+            ) : (
+              <Box></Box>
+            )}
           </Box>
         ) : (
           <Box
