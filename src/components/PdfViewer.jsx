@@ -7,7 +7,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 import "../../node_modules/react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "../../node_modules/react-pdf/dist/esm/Page/TextLayer.css";
 
-const PdfViewer = ({ fileUrl, initialPage = 1}) => {
+const PdfViewer = ({ fileUrl, initialPage = 1 }) => {
   const [numPages, setNumPages] = useState(null);
   const pageRefs = useRef([]);
 
@@ -16,9 +16,13 @@ const PdfViewer = ({ fileUrl, initialPage = 1}) => {
   };
 
   useEffect(() => {
-    if (numPages && pageRefs.current[initialPage - 1]) {
+    if (
+      numPages &&
+      initialPage >= 1 &&
+      initialPage <= numPages &&
+      pageRefs.current[initialPage - 1]
+    ) {
       pageRefs.current[initialPage - 1].scrollIntoView({
-        behavior: "smooth",
         block: "start",
       });
     }
@@ -46,7 +50,7 @@ const PdfViewer = ({ fileUrl, initialPage = 1}) => {
         {Array.from(new Array(numPages), (_, index) => (
           <div
             key={index}
-            ref={(el) => (pageRefs.current[index] = el)} // assign ref to each page wrapper
+            ref={(el) => (pageRefs.current[index] = el)}
             style={{ marginBottom: "16px" }}
           >
             <Page pageNumber={index + 1} width={800} renderMode="canvas" />

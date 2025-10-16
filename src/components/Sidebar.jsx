@@ -15,7 +15,7 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
   const { project_id } = useParams();
-  const { jwtToken } = useContext(userContext);
+  const { jwtToken, projectStatus } = useContext(userContext);
 
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -31,10 +31,10 @@ export default function Sidebar() {
 
   const stepRoutes = [
     `/upload/${project_id}`,
-    `/ReviewExtracted/${project_id}`,
-    `/QualificationInputs/${project_id}`,
-    `/TechnicalConfirmation/${project_id}`,
-    `/BGsummary/${project_id}`,
+    `/reviewextracted/${project_id}`,
+    `/qualificationinputs/${project_id}`,
+    `/technicalconfirmation/${project_id}`,
+    `/bgsummary/${project_id}`,
   ];
 
   const location = useLocation().pathname;
@@ -49,26 +49,24 @@ export default function Sidebar() {
 
   useEffect(() => {
     stepRoutes.forEach((route, index) => {
-      if (location === route) {
+      if (location.toLowerCase() === route) {
         setActiveStep(index);
       }
     });
   }, [location]);
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      const response = await logoutUser({refresh_token : jwtToken})
-      console.log("Logout response:", response);
-
+      const response = await logoutUser({ refresh_token: jwtToken });
       if (response.status === 200) {
         toast.success("Logged out successfully");
         localStorage.removeItem("accessToken");
 
         navigate("/login");
       } else {
-      const errorMessage = response.data?.message || "Logout failed.";
-      toast.error(errorMessage);
-    }
+        const errorMessage = response.data?.message || "Logout failed.";
+        toast.error(errorMessage);
+      }
     } catch (error) {
       toast.error("Logout failed. Please try again.");
       console.error("Logout error:", error);
@@ -101,7 +99,7 @@ export default function Sidebar() {
             ml: "22px",
           }}
         >
-          {isExpanded === true ? (
+          {isExpanded === true && location !== "/" ? (
             <IconButton
               onClick={() => setIsExpanded(!isExpanded)}
               sx={{
@@ -142,7 +140,7 @@ export default function Sidebar() {
 
         {/* Menu Item */}
 
-        {isExpanded === false ? (
+        {isExpanded === false || location === "/" ? (
           <Box
             sx={{
               flexGrow: 1,
@@ -164,7 +162,7 @@ export default function Sidebar() {
                   fontSize: "20px",
                   cursor: "pointer",
                 }}
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/")}
               >
                 Profile
               </Box>
@@ -181,14 +179,16 @@ export default function Sidebar() {
                 py: 4,
               }}
             >
-              <Box sx={{ flexGrow: 1, cursor: "pointer" }} onClick={handleLogout}>
+              <Box
+                sx={{ flexGrow: 1, cursor: "pointer" }}
+                onClick={handleLogout}
+              >
                 <Typography variant="subtitle1" fontWeight="bold">
                   Logout
                 </Typography>
-                
               </Box>
               <IconButton>
-                <LogoutIcon fontSize="small"  />
+                <LogoutIcon fontSize="small" />
               </IconButton>
             </Box>
           </Box>
@@ -211,84 +211,107 @@ export default function Sidebar() {
                 width: "100%",
               }}
             >
-              {steps.map((label, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "start",
-                    justifyContent: "start",
-                    width: "100%",
-                  }}
-                >
+              {steps.map((label, i) => {
+                let maxAllowedStep = 0;
+                if (projectStatus >= 20 && projectStatus < 40)
+                  maxAllowedStep = 1;
+                else if (projectStatus >= 40 && projectStatus < 60)
+                  maxAllowedStep = 2;
+                else if (projectStatus >= 60 && projectStatus < 80)
+                  maxAllowedStep = 3;
+                else if (projectStatus >= 80) maxAllowedStep = 4;
+
+                // disable all steps beyond maxAllowedStep
+                const isStepDisabled =
+                  i > maxAllowedStep || (!jwtToken && i >= 2);
+                return (
                   <Box
+                    key={i}
                     sx={{
                       display: "flex",
-                      alignItems: "center",
-                      background:
-                        i === activeStep
-                          ? "linear-gradient(180deg, #78ffd0ff , #eafaf6)"
-                          : "transparent",
-
-                      borderRadius: "16px",
+                      flexDirection: "column",
+                      alignItems: "start",
+                      justifyContent: "start",
                       width: "100%",
-                      py: i === activeStep ? "10px" : "0",
-                      ml: "10px",
-                      gap: "20px",
-                      cursor: !jwtToken && i >= 2 ? "not-allowed" : "pointer",
-                      opacity: !jwtToken && i >= 2 ? 0.5 : 1,
+                      cursor:
+                        (!jwtToken && i >= 2) || (jwtToken && isStepDisabled)
+                          ? "not-allowed"
+                          : "pointer",
+                      opacity:
+                        (!jwtToken && i >= 2) || (jwtToken && isStepDisabled)
+                          ? 0.5
+                          : 1,
                     }}
-                    onClick={() => handleStepClick(i)}
+                    onClick={() => {
+                      if ((!jwtToken && i >= 2) || (jwtToken && isStepDisabled))
+                        return;
+                      handleStepClick(i);
+                    }}
                   >
                     <Box
                       sx={{
-                        width: 35,
-                        height: 35,
-                        borderRadius: "50%",
-                        bgcolor: i === activeStep ? "#0FB97D" : "#2F3B37",
-                        color: "white",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        margin: 0,
-                        padding: 0,
-                        ml: 4,
+                        background:
+                          i === activeStep
+                            ? "linear-gradient(180deg, #78ffd0ff , #eafaf6)"
+                            : "transparent",
+
+                        borderRadius: "16px",
+                        width: "100%",
+                        py: i === activeStep ? "10px" : "0",
+                        ml: "10px",
+                        gap: "20px",
                       }}
-                      onClick={() => setActiveStep(i)}
                     >
-                      <CloudUploadOutlinedIcon
-                        fontSize="16"
-                        sx={{ color: i < activeStep ? "#0FB97D" : "#fff" }}
-                      />
+                      <Box
+                        sx={{
+                          width: 35,
+                          height: 35,
+                          borderRadius: "50%",
+                          bgcolor: i === activeStep ? "#0FB97D" : "#2F3B37",
+                          color: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          margin: 0,
+                          padding: 0,
+                          ml: 4,
+                        }}
+                      >
+                        <CloudUploadOutlinedIcon
+                          fontSize="16"
+                          sx={{ color: i < activeStep ? "#0FB97D" : "#fff" }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          left: 80,
+                          color: i < activeStep ? "#0FB97D" : "#2F3B37",
+                        }}
+                      >
+                        {label}
+                      </Typography>
                     </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        left: 80,
-                        color: i < activeStep ? "#0FB97D" : "#2F3B37",
-                      }}
-                    >
-                      {label}
-                    </Typography>
+                    {i < steps.length - 1 && (
+                      <hr
+                        style={{
+                          height: "50px",
+                          margin: "0 59px",
+                          boxShadow: "none",
+                          color: "gray",
+                          borderRight: "none",
+                          borderLeft: `2px ${
+                            i < activeStep ? "solid" : "dashed"
+                          } gray`,
+                        }}
+                      />
+                    )}
                   </Box>
-                  {i < steps.length - 1 && (
-                    <hr
-                      style={{
-                        height: "50px",
-                        margin: "0 59px",
-                        boxShadow: "none",
-                        color: "gray",
-                        borderRight: "none",
-                        borderLeft: `2px ${
-                          i < activeStep ? "solid" : "dashed"
-                        } gray`,
-                      }}
-                    />
-                  )}
-                </Box>
-              ))}
+                );
+              })}
             </Box>
           </Box>
         )}
@@ -318,62 +341,85 @@ export default function Sidebar() {
               ml: 4,
             }}
           >
-            {steps.map((label, i) => (
-              <Box
-                key={i}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+            {steps.map((label, i) => {
+              let maxAllowedStep = 0;
+              if (projectStatus >= 20 && projectStatus < 40) maxAllowedStep = 1;
+              else if (projectStatus >= 40 && projectStatus < 60)
+                maxAllowedStep = 2;
+              else if (projectStatus >= 60 && projectStatus < 80)
+                maxAllowedStep = 3;
+              else if (projectStatus >= 80) maxAllowedStep = 4;
+
+              // disable all steps beyond maxAllowedStep
+              const isStepDisabled =
+                i > maxAllowedStep || (!jwtToken && i >= 2);
+              return (
                 <Box
+                  key={i}
                   sx={{
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
-                    background:
-                      i === activeStep
-                        ? "linear-gradient(180deg, #0FB97D 0%, #d8fff1ff 60%)"
-                        : "",
-                    p: i === activeStep ? "10px" : "0px",
-                    borderRadius: "15px",
-                    cursor: !jwtToken && i >= 2 ? "not-allowed" : "pointer",
-                    opacity: !jwtToken && i >= 2 ? 0.5 : 1,
+                    justifyContent: "center",
+                    cursor:
+                      (!jwtToken && i >= 2) || (jwtToken && isStepDisabled)
+                        ? "not-allowed"
+                        : "pointer",
+                    opacity:
+                      (!jwtToken && i >= 2) || (jwtToken && isStepDisabled)
+                        ? 0.5
+                        : 1,
                   }}
-                  onClick={() => handleStepClick(i)}
+                  onClick={() => {
+                    if ((!jwtToken && i >= 2) || (jwtToken && isStepDisabled))
+                      return;
+                    handleStepClick(i);
+                  }}
                 >
                   <Box
                     sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: i === activeStep ? "#0FB97D" : "black",
-                      color: i < activeStep ? "#0FB97D" : "#fff ",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
+                      background:
+                        i === activeStep
+                          ? "linear-gradient(180deg, #0FB97D 0%, #d8fff1ff 60%)"
+                          : "",
+                      p: i === activeStep ? "10px" : "0px",
+                      borderRadius: "15px",
                     }}
-                    onClick={() => setActiveStep(i)}
                   >
-                    <CloudUploadOutlinedIcon fontSize="16" color="#0FB97D" />
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        background: i === activeStep ? "#0FB97D" : "black",
+                        color: i < activeStep ? "#0FB97D" : "#fff ",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setActiveStep(i)}
+                    >
+                      <CloudUploadOutlinedIcon fontSize="16" color="#0FB97D" />
+                    </Box>
                   </Box>
-                </Box>
 
-                {i < steps.length - 1 && (
-                  <Box
-                    sx={{
-                      width: 2,
-                      height: 60,
-                      borderLeft: `2px ${
-                        i < activeStep ? "solid" : "dashed"
-                      } gray`,
-                    }}
-                  />
-                )}
-              </Box>
-            ))}
+                  {i < steps.length - 1 && (
+                    <Box
+                      sx={{
+                        width: 2,
+                        height: 60,
+                        borderLeft: `2px ${
+                          i < activeStep ? "solid" : "dashed"
+                        } gray`,
+                      }}
+                    />
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         ) : (
           <Box sx={{ textAlign: "center" }}></Box>

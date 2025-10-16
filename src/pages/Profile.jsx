@@ -70,7 +70,7 @@ const Profile = () => {
   };
 
   const statusColors = {
-    working: { bg: "#1E3A8A", color: "#fff" },
+    "in progress": { bg: "#1E3A8A", color: "#fff" },
     completed: { bg: "#0FB97D", color: "#fff" },
     pending: { bg: "#9E9E9E", color: "#fff" },
   };
@@ -103,7 +103,7 @@ const Profile = () => {
           }}
         >
           <Typography
-            variant="h5"
+            variant="h6"
             fontWeight="bold"
             sx={{ color: "#fff", px: 7, pt: 3, pb: 1 }}
           >
@@ -111,21 +111,29 @@ const Profile = () => {
           </Typography>
           <Typography
             variant="body2"
-            sx={{ color: "#fff", px: 7, width: "75%", fontWeight: 400 }}
+            sx={{
+              color: "#fff",
+              px: 7,
+              width: "75%",
+              fontSize: 15,
+              fontWeight: 400,
+            }}
           >
-           Upload your bid document and Infrago AI will highlight key requirements, show your eligibility, and help you prepare your bid confidently.
+            Upload your bid document and Infrago AI will highlight key
+            requirements, show your eligibility, and help you prepare your bid
+            confidently.
           </Typography>
-        
+
           <Button
             variant="contained"
             sx={{
               textTransform: "none",
               bgcolor: "#fff",
               color: "#0FB97D",
-              fontSize: "17px",
+              fontSize: "14px",
               fontWeight: "bold",
               borderRadius: "15px",
-              px: 9,
+              px: 3,
               py: 0.8,
               mt: 3,
               ml: 7,
@@ -148,10 +156,10 @@ const Profile = () => {
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
             backgroundPosition: "center 15%",
-            maskImage: "linear-gradient(to right, transparent 0%, black 20%)", // fade-in mask
+            maskImage: "linear-gradient(to right, transparent 0%, black 20%)",
             WebkitMaskImage:
               "linear-gradient(to right, transparent 0%, black 20%)",
-            filter: "blur(0px)", // 👈 controls how blurry the left edge looks
+            filter: "blur(0px)",
             zIndex: 1,
             borderRadius: 2,
           }}
@@ -221,10 +229,10 @@ const Profile = () => {
               <TableRow
                 sx={{ "& th": { borderBottom: "none", color: "#929292" } }}
               >
-                <TableCell>Companies</TableCell>
+                <TableCell>Project Name</TableCell>
                 {/* <TableCell>Lorem</TableCell> */}
                 <TableCell>Status</TableCell>
-                <TableCell>Completion</TableCell>
+                <TableCell>Completion Status</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -240,11 +248,20 @@ const Profile = () => {
                       cursor: "pointer",
                     },
                   }}
-                  onClick={() =>
-                    navigate(`/upload/${p.project_id}`, {
+                  onClick={() => {
+                    let route = "upload";
+                    if (p.completion_percentage < 20) route = "upload";
+                    else if (p.completion_percentage < 40)
+                      route = "reviewExtracted";
+                    else if (p.completion_percentage < 60)
+                      route = "QualificationInputs";
+                    else if (p.completion_percentage < 80)
+                      route = "TechnicalConfirmation";
+                    else if (p.completion_percentage >= 80) route = "BGsummary";
+                    navigate(`/${route}/${p.project_id}`, {
                       state: { project: p },
-                    })
-                  }
+                    });
+                  }}
                 >
                   {/* Company + Avatar */}
                   <TableCell>
@@ -264,10 +281,10 @@ const Profile = () => {
                   {/* Status */}
                   <TableCell>
                     <Chip
-                      label={p.status}
+                      label={p.project_status}
                       sx={{
-                        bgcolor: statusColors[p.status].bg,
-                        color: statusColors[p.status].color,
+                        bgcolor: statusColors[p.project_status].bg,
+                        color: statusColors[p.project_status].color,
                         fontWeight: "bold",
                         fontSize: 12,
                       }}
@@ -294,9 +311,9 @@ const Profile = () => {
                           bgcolor: "#E0E0E0",
                           "& .MuiLinearProgress-bar": {
                             bgcolor:
-                              p.status === "Working"
+                              p.project_status === "Working"
                                 ? "#1E3A8A"
-                                : p.status === "Completed"
+                                : p.project_status === "Completed"
                                 ? "#0FB97D"
                                 : "#9E9E9E",
                           },

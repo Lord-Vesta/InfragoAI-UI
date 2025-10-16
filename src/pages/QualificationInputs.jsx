@@ -5,17 +5,18 @@ import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
-import { qualificationInputs } from "../Utils/Api.utils";
+import { qualificationInputs, updateProjectStatus } from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
     { name: "", scope: "", year: "", value: "" },
   ]);
+  const location = useLocation().pathname;
 
   const [numericValues, setNumericValues] = useState({
     Turnover_3_years: "",
@@ -37,8 +38,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   useEffect(() => {
     if (initialData) {
       setNumericValues({
-        Turnover_3_years: initialData?.data?.turnover_past_3_years?.edited_value || "",
-        Turnover_5_years: initialData?.data?.turnover_past_5_years?.edited_value || "",
+        Turnover_3_years:
+          initialData?.data?.turnover_past_3_years?.edited_value || "",
+        Turnover_5_years:
+          initialData?.data?.turnover_past_5_years?.edited_value || "",
         netWorth: initialData?.data?.net_worth?.edited_value || "",
         workingCapital: initialData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
         workInHand: initialData?.data?.work_in_hand?.edited_value || "",
@@ -108,9 +111,21 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
 
       const response = await qualificationInputs(formData, project_id);
       if (response) {
-        navigate(`/TechnicalConfirmation/${project_id}`);
+        await updateProjectStatus(
+          {
+            completion_percentage: location
+              .toLowerCase()
+              .includes("qualificationinputs")
+              ? 60
+              : 80,
+            project_status: "in progress",
+          },
+          response.project_id
+        );
+        location.toLowerCase().includes("qualificationinputs")
+          ? navigate(`/TechnicalConfirmation/${project_id}`)
+          : navigate(`/BGsummary/${project_id}`);
       }
-
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
