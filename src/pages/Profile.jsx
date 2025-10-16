@@ -70,7 +70,7 @@ const Profile = () => {
   };
 
   const statusColors = {
-    working: { bg: "#1E3A8A", color: "#fff" },
+    "in progress": { bg: "#1E3A8A", color: "#fff" },
     completed: { bg: "#0FB97D", color: "#fff" },
     pending: { bg: "#9E9E9E", color: "#fff" },
   };
@@ -164,7 +164,6 @@ const Profile = () => {
           pb: 3,
           backgroundColor: "#FBFBFB",
           borderRadius: 2,
-          mb: 5,
           display: "flex",
           flexDirection: "column",
           overflowY: "hidden",
@@ -221,7 +220,7 @@ const Profile = () => {
               <TableRow
                 sx={{ "& th": { borderBottom: "none", color: "#929292" } }}
               >
-                <TableCell>Companies</TableCell>
+                <TableCell>Project Name</TableCell>
                 {/* <TableCell>Lorem</TableCell> */}
                 <TableCell>Status</TableCell>
                 <TableCell>Completion</TableCell>
@@ -264,10 +263,10 @@ const Profile = () => {
                   {/* Status */}
                   <TableCell>
                     <Chip
-                      label={p.status}
+                      label={p.project_status}
                       sx={{
-                        bgcolor: statusColors[p.status].bg,
-                        color: statusColors[p.status].color,
+                        bgcolor: statusColors[p.project_status].bg,
+                        color: statusColors[p.project_status].color,
                         fontWeight: "bold",
                         fontSize: 12,
                       }}

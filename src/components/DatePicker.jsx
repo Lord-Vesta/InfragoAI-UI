@@ -1,10 +1,12 @@
 import React from "react";
 import { useState } from "react";
 import { TextField } from "@mui/material";
+import AlertTooltip from "./Tooltip";
 
-const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur}) => {
+const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur,tooltipText}) => {
     const [isEditable, setIsEditable] = useState(!disabled);
   return (
+    <AlertTooltip title={tooltipText || ""} placement="top" arrow>
     <TextField
       type="date"
       value={value || ""}
@@ -35,6 +37,7 @@ const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur}) => {
         shrink: false, 
       }}
     />
+    </AlertTooltip>
   );
 };
 

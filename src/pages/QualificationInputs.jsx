@@ -11,6 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
 import { useParams, useNavigate } from "react-router";
+import CloseIcon from "@mui/icons-material/Close";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -37,8 +38,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   useEffect(() => {
     if (initialData) {
       setNumericValues({
-        Turnover_3_years: initialData?.data?.turnover_past_3_years?.edited_value || "",
-        Turnover_5_years: initialData?.data?.turnover_past_5_years?.edited_value || "",
+        Turnover_3_years:
+          initialData?.data?.turnover_past_3_years?.edited_value || "",
+        Turnover_5_years:
+          initialData?.data?.turnover_past_5_years?.edited_value || "",
         netWorth: initialData?.data?.net_worth?.edited_value || "",
         workingCapital: initialData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
         workInHand: initialData?.data?.work_in_hand?.edited_value || "",
@@ -110,7 +113,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (response) {
         navigate(`/TechnicalConfirmation/${project_id}`);
       }
-
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
@@ -260,8 +262,24 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               border: "1px solid #E0E0E0",
               bgcolor: "#fff",
               width: "80%",
+              position: "relative",
             }}
           >
+            <IconButton
+              size="small"
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+              }}
+              onClick={() => {
+                // Remove the project from the array
+                const updated = projects.filter((_, i) => i !== index);
+                setProjects(updated);
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
             <Typography fontWeight="700" fontSize={18} mb={2}>
               Project details {index + 1}
             </Typography>

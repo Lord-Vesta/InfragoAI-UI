@@ -12,15 +12,19 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import shortFallRed from "../assets/shortFallRed.png"
+import shortFallWhite from "../assets/shortFallWhite.png"
+import Ellipse_Green from "../assets/Ellipse_Green.png"
 
 const QualificationBox = ({ title, status, isShortfall }) => (
   <Paper
     elevation={0}
     sx={{
-      p: 3,
+      p: 2,
       textAlign: "center",
-      border: `2px solid ${isShortfall ? "#F44336" : "#4CAF50"}`,
-      borderRadius: "8px",
+      border: `1px solid ${isShortfall ? "#F44336" : "#4CAF50"}`,
+      backgroundColor: isShortfall ? "#FF4F5205" : "#008D0005",
+      borderRadius: "15px",
       height: "100%",
       display: "flex",
       flexDirection: "column",
@@ -29,12 +33,12 @@ const QualificationBox = ({ title, status, isShortfall }) => (
   >
     <Box sx={{ mb: 1.5 }}>
       {isShortfall ? (
-        <WarningIcon sx={{ color: "#F44336", fontSize: 40 }} />
+        <img src={shortFallRed} style={{width:"70px", height: "50px"}} />
       ) : (
-        <CheckCircleOutlineIcon sx={{ color: "#4CAF50", fontSize: 40 }} />
+        <img src={Ellipse_Green} style={{width:"50px", height: "50px"}} />
       )}
     </Box>
-    <Typography variant="body1" fontWeight="bold" sx={{ color: "#666" }}>
+    <Typography variant="body1" fontWeight="bold" sx={{ color: "#000000" }}>
       {title}
     </Typography>
     <Typography
@@ -57,7 +61,7 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
     ],
   };
 
-  if (isSuccess) {
+  if (!isSuccess) {
     return (
       <Container
         maxWidth="md"
@@ -194,7 +198,7 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
                   mr: 2,
                 }}
               >
-                <WarningIcon sx={{ color: "#FFFFFF", fontSize: 52 }} />
+                <img src={shortFallWhite} style={{width:"70px", height: "52px"}} />
               </Box>
               <Typography
                 variant="h5"
@@ -220,9 +224,25 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
           </Box>
 
           <Box sx={{ p: 3, pb: 5 }}>
-            <Grid container spacing={4} justifyContent="center" sx={{ mb: 4 }}>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="center"
+              sx={{
+                mb: 4,
+                display: "flex",
+                flexWrap: "wrap",
+                overflowX: "auto",
+              }}
+            >
               {mockData.qualifications.map((q, index) => (
-                <Grid item xs={12} sm={6} key={index}>
+                <Grid
+                  item
+                  key={index}
+                  sx={{
+                    flex: "0 0 300px",
+                  }}
+                >
                   <QualificationBox
                     title={q.name}
                     status={q.status}
@@ -236,7 +256,7 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
               variant="h6"
               align="center"
               fontWeight="bold"
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, color: "#585858" }}
             >
               Download Summary Report
             </Typography>
@@ -280,56 +300,53 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
               </Box>
             </Paper>
           </Box>
-
-         
         </Paper>
-         <Box
-            sx={{
-              backgroundColor: "#E9FFF7",
-              p: 3,
-              border: "1px solid #0FB97D",
-              borderRadius: "8px",
-              mt: 3,
-            }}
+        <Box
+          sx={{
+            backgroundColor: "#E9FFF7",
+            p: 3,
+            border: "1px solid #0FB97D",
+            borderRadius: "8px",
+            mt: 3,
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            color="#000000"
+            sx={{ mb: 1 }}
+          >
+            Infravo can help bridge the gap
+          </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
           >
             <Typography
-              variant="h6"
-              fontWeight="bold"
-              color="#388E3C"
-              sx={{ mb: 1 }}
+              variant="body2"
+              color="#000000"
+              sx={{ maxWidth: "70%" }}
             >
-              Infravo can help bridge the gap
+              Whether you need support in enhancing your technical qualification
+              or securing additional financial backing, Infravgo’s Facilitation
+              Network can connect you to the right partners - **quickly,
+              confidentially, and with full guidance till approval.**
             </Typography>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#0FB97D",
+                "&:hover": { backgroundColor: "#0FB97D" },
+                borderRadius: "4px",
+                textTransform: "none",
+                px: 4,
+              }}
             >
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ maxWidth: "70%" }}
-              >
-                Whether you need support in enhancing your technical
-                qualification or securing additional financial backing,
-                Infravgo’s Facilitation Network can connect you to the right
-                partners - **quickly, confidentially, and with full guidance
-                till approval.**
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#0FB97D",
-                  "&:hover": { backgroundColor: "#0FB97D" },
-                  borderRadius: "4px",
-                  textTransform: "none",
-                  px:4
-                }}
-              >
-                Request Facilitation
-              </Button>
-            </Box>
+              Request Facilitation
+            </Button>
           </Box>
+        </Box>
       </Container>
     );
   }

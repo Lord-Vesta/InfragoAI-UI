@@ -22,8 +22,8 @@ import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
-import DownloadIcon from '@mui/icons-material/Download';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
+import DownloadIcon from "@mui/icons-material/Download";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -316,29 +316,27 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
     setErrors((prev) => prev.map((err, i) => (i === index ? error : err)));
     return error;
   };
-const handleEdit = (index) => {
-  setFields((prev) =>
-    prev.map((field, i) =>
-      i === index
-        ? { ...field, prevValue: field.value } 
-        : field
-    )
-  );
+  const handleEdit = (index) => {
+    setFields((prev) =>
+      prev.map((field, i) =>
+        i === index ? { ...field, prevValue: field.value } : field
+      )
+    );
 
-  setEditableFields((prev) =>
-    prev.map((editable, i) => (i === index ? true : editable))
-  );
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? true : editable))
+    );
 
-  setTimeout(() => {
-    const input = fieldRefs.current[index];
-    if (input) {
-      input.focus();
-      const length = input.value?.length || 0;
-      input.setSelectionRange(length, length);
-    }
-    input?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 100);
-};
+    setTimeout(() => {
+      const input = fieldRefs.current[index];
+      if (input) {
+        input.focus();
+        const length = input.value?.length || 0;
+        input.setSelectionRange(length, length);
+      }
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
 
   // const handleEdit = (index) => {
 
@@ -358,25 +356,25 @@ const handleEdit = (index) => {
   //   }, 100);
   // };
   const handleCancel = (index) => {
-  setFields((prev) =>
-    prev.map((field, i) =>
-      i === index
-        ? { ...field, value: field.prevValue, isEdited: false, prevValue: undefined }
-        : field
-    )
-  );
+    setFields((prev) =>
+      prev.map((field, i) =>
+        i === index
+          ? {
+              ...field,
+              value: field.prevValue,
+              isEdited: false,
+              prevValue: undefined,
+            }
+          : field
+      )
+    );
 
-  setEditableFields((prev) =>
-    prev.map((editable, i) => (i === index ? false : editable))
-  );
+    setEditableFields((prev) =>
+      prev.map((editable, i) => (i === index ? false : editable))
+    );
 
-  setErrors((prev) =>
-    prev.map((err, i) => (i === index ? "" : err))
-  );
-};
-
-
-
+    setErrors((prev) => prev.map((err, i) => (i === index ? "" : err)));
+  };
 
   const handleChange = (index, newValue) => {
     setFields((prev) =>
@@ -465,10 +463,8 @@ const handleEdit = (index) => {
       >
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
-
         </Typography>
         <Box display="flex" gap={2} mx={2}>
-
           <Button
             variant="outlined"
             sx={{
@@ -494,9 +490,9 @@ const handleEdit = (index) => {
             }}
           >
             <Box sx={{ display: "flex", gap: "8px" }}>
-              <IconButton sx={{ p: 0, color: colors.green }}>
+              <Box sx={{ p: 0, color: colors.green }}>
                 <DownloadIcon />
-              </IconButton>
+              </Box>
               <Typography>Download Bid Data</Typography>
             </Box>
           </Button>
@@ -519,13 +515,12 @@ const handleEdit = (index) => {
           >
             <Box sx={{ display: "flex", gap: "8px" }}>
               <IconButton sx={{ p: 0, color: colors.green }}>
-                < FileCopyIcon />
+                <FileCopyIcon />
               </IconButton>
               <Typography>View pdf</Typography>
             </Box>
           </Button>
         </Box>
-
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -611,165 +606,96 @@ const handleEdit = (index) => {
                   // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
-                <AlertTooltip
-                  title={
-                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
-                        },
-                      },
-                    },
-                  }}
-                >
-                  <span>
-                    {(() => {
-                      const cleanedText = field.value
-                        ? field.value.replace(/\s+/g, " ")
-                        : "";
-                      const isLongText = cleanedText.length > 100;
+                <span>
+                  {(() => {
+                    const cleanedText = field.value
+                      ? field.value.replace(/\s+/g, " ")
+                      : "";
+                    const isLongText = cleanedText.length > 100;
 
-                      return (
-
-                        <Box display="flex" alignItems="center" gap={1}>
+                    return (
+                      
+                      <Box display="flex" alignItems="center" gap={1}>
+                       
                           <CustomTextField
                             value={field.value}
                             ref={(el) => (fieldRefs.current[index] = el)}
                             placeholder={field.label}
-                            onChange={(e) => handleChange(index, e.target.value)}
+                            onChange={(e) =>
+                              handleChange(index, e.target.value)
+                            }
                             onBlur={() => handleBlur(index)}
                             disableOnBlur={true}
                             disabled={!editableFields[index]}
                             width="45vw"
                             multiline={isLongText}
-                            minRows={isLongText ? Math.ceil(field.value.length / 80) : 1}
-                          />
+                            minRows={
+                              isLongText
+                                ? Math.ceil(field.value.length / 80)
+                                : 1
+                            }
+                            tooltip={field.snippet}
+                          /> 
+                        
 
-                          {editableFields[index] && (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="secondary"
-                              onClick={() => handleCancel(index)}
-                            >
-                              Cancel
-                            </Button>
-                          )}
-                        </Box>
-
-                      );
-                    })()}
+                        {editableFields[index] && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleCancel(index)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </Box>
+                     
+                    );
+                  })()}
+                </span>
+              ) : field.type === "select" ? (
+              
+                  <span>
+                    <CustomSelect
+                      value={field.value}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      placeholder={field.label}
+                      onBlur={() => handleBlur(index)}
+                      options={field.validation?.options || []}
+                      disabled={!editableFields[index]}
+                      tooltipText={field.snippet}
+                    />
                   </span>
-                </AlertTooltip>
-              ) :
-                field.type === "select" ? (
-                  <AlertTooltip
-                    title={
-                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-
-                    type="success"
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
-                        },
-                      },
-                    }}
-                  >
-                    <span>
-                      <CustomSelect
-                        value={field.value}
-                        onChange={(e) => handleChange(index, e.target.value)}
-                        placeholder={field.label}
-                        onBlur={() => handleBlur(index)}
-                        options={field.validation?.options || []}
-                        disabled={!editableFields[index]}
-                      />
-                    </span>
-                  </AlertTooltip>
-                ) : field.type === "date" ? (
-                  <AlertTooltip
-                    title={
-                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-                    type="success"
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
-                        },
-                      },
-                    }}
-                  >
-                    <span>
-                      <CustomDatePicker
-                        value={field.value}
-                        onChange={(e) => handleChange(index, e.target.value)}
-                        onBlur={() => handleBlur(index)}
-                        placeholder={`Select ${field.label}`}
-                        disabled={!editableFields[index]}
-                        width="40vw"
-                      />
-                    </span>
-                  </AlertTooltip>
-                ) : field.type === "textarea" ? (
-                  <AlertTooltip
-                    title={
-                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
-                        {field.snippet}
-                      </Typography>
-                    }
-                    type="success"
-                    placement="top"
-                    arrow
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiTooltip-tooltip": {
-                            maxWidth: "700px",
-                            whiteSpace: "normal",
-                          },
-                        },
-                      },
-                    }}
-                  >
-                    <span>
-                      <CustomTextField
-                        value={field.value}
-                        placeholder={field.label}
-                        onChange={(e) => handleChange(index, e.target.value)}
-                        disabled={!editableFields[index]}
-                        multiline
-                        minRows={3}
-                        width="45vw"
-                      />
-                    </span>
-                  </AlertTooltip>
-                ) : null}
+              ) : field.type === "date" ? (
+               
+                  <span>
+                    <CustomDatePicker
+                      value={field.value}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      onBlur={() => handleBlur(index)}
+                      placeholder={`Select ${field.label}`}
+                      disabled={!editableFields[index]}
+                      width="40vw"
+                      tooltipText={field.snippet}
+                    />
+                  </span>
+                
+              ) : field.type === "textarea" ? (
+                
+                  <span>
+                    <CustomTextField
+                      value={field.value}
+                      placeholder={field.label}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      disabled={!editableFields[index]}
+                      multiline
+                      minRows={3}
+                      width="45vw"
+                      ref={(el) => (fieldRefs.current[index] = el)}
+                      tooltip={field.snippet}
+                    />
+                  </span>
+              ) : null}
 
               {errors[index] && (
                 <Typography color="error" fontSize={12} mt={0.5}>
