@@ -1,6 +1,8 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { TextField, Typography, Box, IconButton } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AlertTooltip from "./Tooltip";
+
 
 const CustomTextField = forwardRef(({
   value,
@@ -17,6 +19,7 @@ const CustomTextField = forwardRef(({
   helperText,
   onBlur,
   disableOnBlur = false, 
+  tooltip, // <--- new prop
 }, ref) => {
   const [isEditable, setIsEditable] = useState(!disabled);
 
@@ -54,44 +57,69 @@ const CustomTextField = forwardRef(({
         </Box>
       )}
 
-      <TextField
-        fullWidth
-        value={value}
-        onChange={onChange}
-        onBlur={(e) => {
-          if (disableOnBlur) setIsEditable(false);
-          if (onBlur) onBlur(e);
-        }}
-        placeholder={placeholder}
-        disabled={!isEditable}
-        multiline={multiline}
-        minRows={minRows}
-        maxRows={maxRows}
-        error={error}
-        helperText={helperText}
-        variant="outlined"
-        size="small"
-        inputRef={ref} 
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            backgroundColor: "#ffffff",
-            "& fieldset": {
-              borderColor: "#e2e8f0",
+      {tooltip ? (
+        <AlertTooltip title={tooltip} type="success" placement="top" arrow>
+          <TextField
+            fullWidth
+            value={value}
+            onChange={onChange}
+            onBlur={(e) => {
+              if (disableOnBlur) setIsEditable(false);
+              if (onBlur) onBlur(e);
+            }}
+            placeholder={placeholder}
+            disabled={!isEditable}
+            multiline={multiline}
+            minRows={minRows}
+            maxRows={maxRows}
+            error={error}
+            helperText={helperText}
+            variant="outlined"
+            size="small"
+            inputRef={ref} 
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+                backgroundColor: "#ffffff",
+                "& fieldset": { borderColor: "#e2e8f0" },
+                "&:hover fieldset": { borderColor: "#e2e8f0" },
+                "&.Mui-focused fieldset": { borderColor: "grey !important", borderWidth: "1px !important" },
+              },
+              "& .MuiInputBase-input": { color: !isEditable ? "rgba(0,0,0,0.5)" : "black" },
+            }}
+          />
+        </AlertTooltip>
+      ) : (
+        <TextField
+          fullWidth
+          value={value}
+          onChange={onChange}
+          onBlur={(e) => {
+            if (disableOnBlur) setIsEditable(false);
+            if (onBlur) onBlur(e);
+          }}
+          placeholder={placeholder}
+          disabled={!isEditable}
+          multiline={multiline}
+          minRows={minRows}
+          maxRows={maxRows}
+          error={error}
+          helperText={helperText}
+          variant="outlined"
+          size="small"
+          inputRef={ref} 
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "#ffffff",
+              "& fieldset": { borderColor: "#e2e8f0" },
+              "&:hover fieldset": { borderColor: "#e2e8f0" },
+              "&.Mui-focused fieldset": { borderColor: "grey !important", borderWidth: "1px !important" },
             },
-            "&:hover fieldset": {
-              borderColor: "#e2e8f0",
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: "grey !important",
-              borderWidth: "1px !important",
-            },
-          },
-          "& .MuiInputBase-input": {
-            color: !isEditable ? "rgba(0, 0, 0, 0.50)" : "black",
-          },
-        }}
-      />
+            "& .MuiInputBase-input": { color: !isEditable ? "rgba(0,0,0,0.5)" : "black" },
+          }}
+        />
+      )}
     </div>
   );
 });

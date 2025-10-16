@@ -56,6 +56,7 @@ export default function Sidebar() {
   }, [location]);
 
   const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
       const response = await logoutUser({ refresh_token: jwtToken });
       if (response.status === 200) {
@@ -176,7 +177,13 @@ export default function Sidebar() {
                 alignItems: "center",
                 gap: 1,
                 px: 2,
-                py: 4,
+                py: 2,
+                backgroundColor: "#e3e0e0ff",
+                cursor: "pointer",
+                transition: "background-color 0.3s",
+                "&:hover": {
+                  backgroundColor: "#d5d2d2",
+                },
               }}
             >
               <Box

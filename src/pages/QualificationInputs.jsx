@@ -11,6 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
 import { useParams, useNavigate, useLocation } from "react-router";
+import CloseIcon from "@mui/icons-material/Close";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -275,8 +276,24 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               border: "1px solid #E0E0E0",
               bgcolor: "#fff",
               width: "80%",
+              position: "relative",
             }}
           >
+            <IconButton
+              size="small"
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+              }}
+              onClick={() => {
+                // Remove the project from the array
+                const updated = projects.filter((_, i) => i !== index);
+                setProjects(updated);
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
             <Typography fontWeight="700" fontSize={18} mb={2}>
               Project details {index + 1}
             </Typography>

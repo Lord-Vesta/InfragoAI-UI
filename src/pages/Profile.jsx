@@ -172,7 +172,6 @@ const Profile = () => {
           pb: 3,
           backgroundColor: "#FBFBFB",
           borderRadius: 2,
-          mb: 5,
           display: "flex",
           flexDirection: "column",
           overflowY: "hidden",

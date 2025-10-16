@@ -498,9 +498,9 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
             }}
           >
             <Box sx={{ display: "flex", gap: "8px" }}>
-              <IconButton sx={{ p: 0, color: colors.green }}>
+              <Box sx={{ p: 0, color: colors.green }}>
                 <DownloadIcon />
-              </IconButton>
+              </Box>
               <Typography>Download Bid Data</Typography>
             </Box>
           </Button>
@@ -614,34 +614,12 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                   // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
-                <AlertTooltip
-                  title={
-                    <Typography
-                      sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
-                    >
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
-                        },
-                      },
-                    },
-                  }}
-                >
-                  <span>
-                    {(() => {
-                      const cleanedText = field.value
-                        ? field.value.replace(/\s+/g, " ")
-                        : "";
-                      const isLongText = cleanedText.length > 100;
+                <span>
+                  {(() => {
+                    const cleanedText = field.value
+                      ? field.value.replace(/\s+/g, " ")
+                      : "";
+                    const isLongText = cleanedText.length > 100;
 
                       return (
                         <Box display="flex" alignItems="center" gap={1}>
@@ -662,46 +640,27 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                                 ? Math.ceil(field.value.length / 80)
                                 : 1
                             }
-                          />
+                            tooltip={field.snippet}
+                          /> 
+                        
 
-                          {editableFields[index] && (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="secondary"
-                              onClick={() => handleCancel(index)}
-                            >
-                              Cancel
-                            </Button>
-                          )}
-                        </Box>
-                      );
-                    })()}
-                  </span>
-                </AlertTooltip>
+                        {editableFields[index] && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleCancel(index)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </Box>
+                     
+                    );
+                  })()}
+                </span>
               ) : field.type === "select" ? (
-                <AlertTooltip
-                  title={
-                    <Typography
-                      sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
-                    >
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
-                        },
-                      },
-                    },
-                  }}
-                >
+              
                   <span>
                     <CustomSelect
                       value={field.value}
@@ -710,32 +669,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                       onBlur={() => handleBlur(index)}
                       options={field.validation?.options || []}
                       disabled={!editableFields[index]}
+                      tooltipText={field.snippet}
                     />
                   </span>
-                </AlertTooltip>
               ) : field.type === "date" ? (
-                <AlertTooltip
-                  title={
-                    <Typography
-                      sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
-                    >
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
-                        },
-                      },
-                    },
-                  }}
-                >
+               
                   <span>
                     <CustomDatePicker
                       value={field.value}
@@ -744,32 +682,12 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                       placeholder={`Select ${field.label}`}
                       disabled={!editableFields[index]}
                       width="40vw"
+                      tooltipText={field.snippet}
                     />
                   </span>
-                </AlertTooltip>
+                
               ) : field.type === "textarea" ? (
-                <AlertTooltip
-                  title={
-                    <Typography
-                      sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
-                    >
-                      {field.snippet}
-                    </Typography>
-                  }
-                  type="success"
-                  placement="top"
-                  arrow
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        "& .MuiTooltip-tooltip": {
-                          maxWidth: "700px",
-                          whiteSpace: "normal",
-                        },
-                      },
-                    },
-                  }}
-                >
+                
                   <span>
                     <CustomTextField
                       value={field.value}
@@ -779,9 +697,10 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                       multiline
                       minRows={3}
                       width="45vw"
+                      ref={(el) => (fieldRefs.current[index] = el)}
+                      tooltip={field.snippet}
                     />
                   </span>
-                </AlertTooltip>
               ) : null}
 
               {errors[index] && (
