@@ -489,11 +489,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
               GeneratePDF(pdfData, "extracted_data.pdf");
             }}
           >
-            <Box sx={{ display: "flex", gap: "8px" }}>
-              <Box sx={{ p: 0, color: colors.green }}>
+            <Box sx={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+              <Box sx={{ p: 0, color: colors.green, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <DownloadIcon />
               </Box>
-              <Typography>Download Bid Data</Typography>
+              <Typography >Download Bid Data</Typography>
             </Box>
           </Button>
           <Button

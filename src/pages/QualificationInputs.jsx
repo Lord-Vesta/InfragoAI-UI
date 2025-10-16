@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Icon, Paper, Typography } from "@mui/material";
+import { Box, Icon, Paper, Typography, Button } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
@@ -12,6 +12,7 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF";
 import { useParams, useNavigate } from "react-router";
 import CloseIcon from "@mui/icons-material/Close";
+import DownloadIcon from "@mui/icons-material/Download";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -154,12 +155,43 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       position="relative"
       overflow="auto"
     >
-      <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
+      <Box sx={{display: "flex", alignItems: "center", gap: 2, justifyContent: "space-between"}}>
+        <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
         {initialData ? "Review " : "Provide "}
         Qualification Inputs{" "}
+        
+      </Typography>
         {initialData ? (
           <Box component="span" sx={{ display: "inline-block" }}>
-            <GetAppIcon
+           <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
+                borderColor: colors.green,
+              },
+            }}
+            onClick={() => {
+              GenerateQualificationPDF(
+                  numericValues,
+                  litigationStatus,
+                  litigationDetails,
+                  projects
+                )
+
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+              <Box sx={{ p: 0, color: colors.green, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <DownloadIcon />
+              </Box>
+              <Typography >Download Bid Data</Typography>
+            </Box>
+          </Button>
+            {/* <GetAppIcon
               style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
               onClick={() =>
                 GenerateQualificationPDF(
@@ -169,10 +201,11 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                   projects
                 )
               }
-            />
+            /> */}
           </Box>
         ) : null}
-      </Typography>
+      </Box>
+      
 
       <Box>
         <Typography fontWeight="400" mb={1}>
