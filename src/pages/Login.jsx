@@ -318,7 +318,6 @@ const Login = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                console.log("Enter key pressed, triggering OTP request");
                 handleGetOtp();
               }
             }}
