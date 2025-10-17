@@ -19,4 +19,6 @@ export const ApiConfig = {
   GET_PROJECT_BY_ID: (projectId) => `/api/projects/${projectId}/detail`,
   UPLOAD_PROJECT_STATUS: (projectId) =>
     `/api/projects/${projectId}/update-completion-percentage/`,
+  TENDER_EVALUATE: (projectId) =>
+    `/api/projects/projects/${projectId}/tender-evaluate/`,
 };

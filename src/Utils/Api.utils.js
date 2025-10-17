@@ -16,6 +16,7 @@ const {
   GET_PROJECT_BY_ID,
   LOGOUT,
   UPLOAD_PROJECT_STATUS,
+  TENDER_EVALUATE
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -191,3 +192,13 @@ export const updateProjectStatus = async (data, projectId) => {
     throw error;
   }
 };
+
+export const tenderEvaluateStatus = async (projectId) =>{
+  try{
+  
+    const response = await axiosclient.post(TENDER_EVALUATE(projectId))
+    return response.data
+  }catch (err){
+    throw err
+  }
+}
