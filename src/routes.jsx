@@ -4,9 +4,9 @@ import ReviewExtracted from "./pages/ReviewExtracted";
 import Login from "./pages/Login";
 import QualificationInputs from "./pages/QualificationInputs";
 import Profile from "./pages/Profile";
-import Mainlayout from "./Layout/MainLayout";
 import TechnicalConfirmation from "./pages/TechnicalConfirmation";
 import BGsummary from "./pages/BGsummary";
+import Mainlayout from "./Layout/Layout";
 
 export const router = createBrowserRouter([
   {
