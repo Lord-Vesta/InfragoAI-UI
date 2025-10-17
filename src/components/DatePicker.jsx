@@ -1,13 +1,21 @@
 import React from "react";
+import { useState } from "react";
 import { TextField } from "@mui/material";
+import AlertTooltip from "./Tooltip";
 
-const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
+const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur,tooltipText}) => {
+    const [isEditable, setIsEditable] = useState(!disabled);
   return (
+    <AlertTooltip title={tooltipText || ""} placement="top" arrow>
     <TextField
       type="date"
       value={value || ""}
       onChange={onChange}
-      disabled={disabled}
+       onBlur={(e) => {
+    setIsEditable(false); 
+    if (onBlur) onBlur(e); 
+  }}
+       disabled={disabled}
       fullWidth
       size="small"
       variant="outlined"
@@ -18,6 +26,8 @@ const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
         display: "flex",
         "& .MuiOutlinedInput-root": {
           borderRadius: "12px",
+          background:"#ffffff"
+          
         },
         "& .MuiInputBase-input": {
           padding: "8px 12px",
@@ -27,6 +37,7 @@ const CustomDatePicker = ({ value, onChange, placeholder,disabled }) => {
         shrink: false, 
       }}
     />
+    </AlertTooltip>
   );
 };
 

@@ -12,6 +12,7 @@ const Button = ({
 }) => {
   return (
     <MuiButton
+      type="button"
       variant="contained"
       onClick={onClick}
       disabled={disabled}
@@ -25,9 +26,7 @@ const Button = ({
         boxShadow: 3,
         textTransform: "none",
         "&:hover": {
-          backgroundColor: bgColor
-            ? bgColor
-            : "#059669",
+          backgroundColor: bgColor ? bgColor : "#059669",
         },
       }}
     >

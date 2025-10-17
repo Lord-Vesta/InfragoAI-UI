@@ -9,9 +9,17 @@ import {
   Dialog,
   DialogContent,
 } from "@mui/material";
+import CustomTextField from "../components/TextField";
 import EditIcon from "@mui/icons-material/Edit";
+import { useState, useEffect } from "react";
 
-const AddProject = ({ handleClose }) => {
+const AddProject = ({ handleClose, handleAddProject }) => {
+  const [projectName, setProjectName] = useState("");
+
+  const handleSubmit = () => {
+    if (!projectName.trim()) return;
+    handleAddProject(projectName);
+  };
   return (
     <Box
       sx={{
@@ -25,7 +33,7 @@ const AddProject = ({ handleClose }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 1300,
+        zIndex: 13,
       }}
       onClick={handleClose}
     >
@@ -41,73 +49,26 @@ const AddProject = ({ handleClose }) => {
           p: 3,
         }}
       >
+        <Typography
+        variant="h6"
+        fontWeight="bold"
+        textAlign="center"
+      >
+        Add New Project
+      </Typography>
         <DialogContent
-          sx={{ textAlign: "center", position: "relative", pt: 6 }}
+          sx={{ textAlign: "center", position: "relative", pt: 4 }}
         >
-          <Avatar
-            src="https://randomuser.me/api/portraits/women/44.jpg"
-            sx={{
-              width: 56,
-              height: 56,
-              top: -28,
-              left: "50%",
-              transform: "translateX(-50%)",
-              border: "3px solid white",
-              boxShadow: 2,
-            }}
-          />
-
-          {/* Title */}
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            mb={3}
-          >
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{ color: "#000000" }}
-            >
-              Project Name
-            </Typography>
-            <IconButton size="small" sx={{ ml: 1, color: "#000000" }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box>
-
-          {/* Fields */}
+          
           <Box display="flex" flexDirection="column" gap={2} mb={4}>
-            <TextField
-              label="Lorem Ipsum"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
-              size="small"
-              fullWidth
+            <CustomTextField 
+            label="Project Name"
+            placeholder="Enter Project Name"
+            onChange={(e) => setProjectName(e.target.value)}
+             size="small"
+             width="100%"
+             disableOnBlur={false} 
               required
-            />
-            <TextField
-              label="Lorem Ipsum"
-              size="small"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
-            />
-            <TextField
-              label="Lorem Ipsum"
-              size="small"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
             />
           </Box>
 
@@ -139,6 +100,7 @@ const AddProject = ({ handleClose }) => {
                 bgcolor: "#0FB97D",
                 "&:hover": { bgcolor: "#0ca76f" },
               }}
+              onClick={handleSubmit}
             >
               NEXT
             </Button>

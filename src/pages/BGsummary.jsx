@@ -1,214 +1,416 @@
 import React, { useEffect, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Typography,
-  IconButton,
-  Button,
   Box,
+  Typography,
+  Button,
+  Paper,
+  Grid,
+  Divider,
+  Container,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import WarningIcon from "@mui/icons-material/Warning";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DownloadIcon from "@mui/icons-material/Download";
-import colors from "../assets/colors";
-import CustomButton from "../components/Button";
-import CustomTextField from "../components/TextField";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import shortFallRed from "../assets/shortFallRed.png";
+import shortFallWhite from "../assets/shortFallWhite.png";
+import Ellipse_Green from "../assets/Ellipse_Green.png";
+import { toast } from "react-toastify";
+import { updateProjectStatus, tenderEvaluateStatus } from "../Utils/Api.utils";
+import { useParams } from "react-router";
 
-const BGsummary = () => {
-  const [qualificationResult, setQualificationResult] = useState(null);
-  const [bgEligibilityResult, setBgEligibilityResult] = useState(null);
-  const [openShortfall, setOpenShortfall] = useState(false);
-  const [openDownload, setOpenDownload] = useState(false);
+const QualificationBox = ({ title, status, isShortfall }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2,
+      textAlign: "center",
+      border: `1px solid ${isShortfall ? "#F44336" : "#4CAF50"}`,
+      backgroundColor: isShortfall ? "#FF4F5205" : "#008D0005",
+      borderRadius: "15px",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+    }}
+  >
+    <Box sx={{ mb: 1.5 }}>
+      {isShortfall ? (
+        <img src={shortFallRed} style={{ width: "70px", height: "50px" }} />
+      ) : (
+        <img src={Ellipse_Green} style={{ width: "50px", height: "50px" }} />
+      )}
+    </Box>
+    <Typography variant="body1" fontWeight="bold" sx={{ color: "#000000" }}>
+      {title}
+    </Typography>
+    <Typography
+      variant="h5"
+      fontWeight="bold"
+      sx={{ color: isShortfall ? "#F44336" : "#4CAF50", mt: 0.5 }}
+    >
+      {status}
+    </Typography>
+  </Paper>
+);
 
-  const fields = [
-    { label: "Bid Capacity", placeholder: "Lorem ipsum" },
-    { label: "Required PBG (1 Cr)", placeholder: "Lorem ipsum" },
-    { label: "Additional PBG (if under-quoted)", placeholder: "Lorem ipsum" },
-    { label: "Total BG Required", placeholder: "Lorem ipsum" },
-    { label: "BG Gap", placeholder: "Lorem ipsum" },
-    { label: "Variance from Estimate %", placeholder: "Lorem ipsum" },
-  ];
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const apiResponse = {
-        qualification: "PASS",
-        bgEligibility: "FAIL",
-      };
-
-      setQualificationResult(apiResponse.qualification);
-      setBgEligibilityResult(apiResponse.bgEligibility);
-    };
-
-    fetchData();
-  }, []);
-
-  const getButtonColor = (result) => {
-    if (result === "PASS") return colors.green;
-    if (result === "FAIL") return colors.red;
-    return colors.grey;
+const QualificationResult = ({ apiResponseData }) => {
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(true);
+  const mockData = apiResponseData || {
+    fileName: "Project Name.xlxs",
+    fileSize: "3 kb",
+    qualifications: [
+      { name: "Bank Guarantee Qualification", status: "Fully Met", met: true },
+      { name: "JV Qualification", status: "Shortfall", met: false },
+    ],
   };
 
-  return (
-    <Box
-      width="100%"
-      display="flex"
-      height={"78vh"}
-      overflow={"auto"}
-      flexDirection="column"
-      gap={3}
-      position="relative"
-    >
-      <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-        Eligibility & BG Summary
-      </Typography>
+  const { project_id } = useParams();
 
-      {fields.map((field, index) => (
-        <CustomTextField
-          key={index}
-          label={field.label}
-          placeholder={field.label}
-        />
-      ))}
+  const handleUpdateProjectStatus = async () => {
+    try {
+      await updateProjectStatus(
+        {
+          completion_percentage: 100,
+          project_status: "completed",
+        },
+        project_id
+      );
+    } catch (error) {
+      toast.error("Error updating project status");
+    }
+  };
 
-      <Box display={"flex"} gap={2} justifyContent={"space-between"}>
-        {/* Results */}
-        <Box display={"flex"} flexDirection={"column"} gap={2} mb={1}>
-          {/* Qualification */}
-          <Box display="flex" flexDirection="column" alignItems="start" gap="4px">
-            <Typography fontWeight="500" fontSize={16} color={colors.black_text}>
-              Qualification Result
-            </Typography>
-            <CustomButton
-              label={qualificationResult || "Loading..."}
-              disabled={!qualificationResult}
-              width="150px"
-              height="30px"
-              bgColor={getButtonColor(qualificationResult)}
-              sx={{ color: "#fff", borderRadius: "8px" }}
-            />
-          </Box>
+  const tenderEvaluate = async () => {
+    try {
+      setLoading(true);
+      const response = await tenderEvaluateStatus(project_id);
+      console.log("Tender Evaluate Response:", response);
+      setStatus(response?.qualification_result);
+      handleUpdateProjectStatus();
+    } catch (error) {
+      toast.error("Error evaluating tender status");
+    } finally {
+      setLoading(false); // <-- End loading
+    }
+  };
 
-          {/* BG Eligibility */}
-          <Box display="flex" flexDirection="column" alignItems="start" gap="4px">
-            <Typography fontWeight="500" fontSize={16} color={colors.black_text}>
-              BG Eligibility Result
-            </Typography>
-            <CustomButton
-              label={bgEligibilityResult || "Loading..."}
-              disabled={!bgEligibilityResult}
-              width="150px"
-              height="30px"
-              bgColor={getButtonColor(bgEligibilityResult)}
-              sx={{ color: "#fff", borderRadius: "8px" }}
-              onClick={() => {
-                if (bgEligibilityResult === "FAIL") {
-                  setOpenShortfall(true);
-                }
-              }}
-            />
-          </Box>
-        </Box>
+  useEffect(() => {
+    tenderEvaluate();
+  }, []);
 
-        {/* Download Summary Report */}
-        <Box display="flex" justifyContent="flex-end" alignItems="end" mt={3} mx={2} mb={1}>
-          <CustomButton
-            label="Downloadable summary report"
-            width="250px"
-            height="35px"
-            onClick={() => setOpenDownload(true)}
-            sx={{
-              backgroundColor: colors.green,
-              color: "#fff",
-              borderRadius: "10px",
-            }}
-          />
-        </Box>
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography fontSize={18} fontWeight="bold">
+          Loading qualification results...
+        </Typography>
       </Box>
+    );
+  }
 
-      {/* Shortfall Modal */}
-      <Dialog open={openShortfall} onClose={() => setOpenShortfall(false)}>
-        <DialogTitle sx={{ display: "flex", justifyContent: "flex-end", pb: 0 }}>
-          <IconButton onClick={() => setOpenShortfall(false)} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ textAlign: "center", p: 4, maxWidth: 400 }}>
-          <Typography fontSize={50} mb={1}>
-            😟
-          </Typography>
-          <Typography variant="h6" fontWeight="600" color={colors.green} gutterBottom>
-            Shortfall Detected
-          </Typography>
-          <Typography color="text.secondary" mb={3}>
-            BG shortfall identified. <br />
-            Review your financials and connect with our partnered Bank
-            Guarantee providers directly in-platform.
-          </Typography>
-          <Button
-            variant="contained"
+  return (
+    <>
+      {" "}
+      {status === "Fail" ? (
+        <Container maxWidth="md" sx={{ my: 4 }}>
+          <Paper
+            elevation={1}
             sx={{
-              backgroundColor: colors.green,
-              borderRadius: "10px",
-              px: 4,
-              textTransform: "none",
-              "&:hover": { backgroundColor: "#059669" },
+              p: 0,
+              borderRadius: "8px",
+              border: "1px solid #FF4F52",
+              boxShadow: "none",
             }}
-            onClick={() => setOpenShortfall(false)}
           >
-            Request Facilitation
-          </Button>
-        </DialogContent>
-      </Dialog>
+            <Box
+              sx={{
+                borderBottom: "1px solid #FF4F52",
+                borderRadius: "8px 8px 0 0",
+              }}
+            >
+              <Box display="flex" alignItems="center">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{
+                    p: 2,
+                    backgroundColor: "#FF4F52",
+                    borderRadius: "6px 6px 0 0",
+                    height: "100%",
+                    mr: 2,
+                  }}
+                >
+                  <img
+                    src={shortFallWhite}
+                    style={{ width: "70px", height: "52px" }}
+                  />
+                </Box>
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  color="#FF4F52"
+                  sx={{ pt: 0.5, pb: 0.5 }}
+                >
+                  Shortfall Detected
+                  <Typography
+                    variant="h6"
+                    fontWeight="700"
+                    color="#000000"
+                    fontSize={15}
+                  >
+                    Qualification Result
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Our analysis shows a shortfall in one or more qualification
+                    areas.
+                  </Typography>
+                </Typography>
+              </Box>
+            </Box>
 
-      {/* Download Files Modal */}
-      <Dialog open={openDownload} onClose={() => setOpenDownload(false)} maxWidth="sm" fullWidth>
-        <DialogTitle
-          sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            <Box sx={{ p: 3, pb: 5 }}>
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                sx={{
+                  mb: 4,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  overflowX: "auto",
+                }}
+              >
+                {mockData.qualifications.map((q, index) => (
+                  <Grid
+                    item
+                    key={index}
+                    sx={{
+                      flex: "0 0 300px",
+                    }}
+                  >
+                    <QualificationBox
+                      title={q.name}
+                      status={q.status}
+                      isShortfall={!q.met}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* <Typography
+              variant="h6"
+              align="center"
+              fontWeight="bold"
+              sx={{ mb: 2, color: "#585858" }}
+            >
+              Download Summary Report
+            </Typography> */}
+
+              {/* <Paper
+              // variant="outlined"
+              sx={{
+                p: 1.5,
+                maxWidth: "80%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderRadius: "8px",
+                mx: "auto",
+                boxShadow: "0px 3px 6px 0px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <Box display="flex" alignItems="center">
+                <img
+                  src="/src/assets/PDF_file_icon.svg.png"
+                  alt="pdf"
+                  width={50}
+                  height={50}
+                  style={{ marginRight: "16px", cursor: "pointer" }}
+                />
+                <Typography variant="body1" fontWeight="medium">
+                  {mockData.fileName}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mr: 1 }}
+                  >
+                    Size → {mockData.fileSize}
+                  </Typography>
+                </Typography>
+              </Box>
+              <Box display="flex" alignItems="center">
+                <DownloadIcon
+                  sx={{ color: "text.secondary", cursor: "pointer" }}
+                />
+              </Box>
+            </Paper> */}
+            </Box>
+          </Paper>
+          <Box
+            sx={{
+              backgroundColor: "#E9FFF7",
+              p: 3,
+              border: "1px solid #0FB97D",
+              borderRadius: "8px",
+              mt: 3,
+            }}
+          >
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              color="#000000"
+              sx={{ mb: 1 }}
+            >
+              Infravo can help bridge the gap
+            </Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography
+                variant="body2"
+                color="#000000"
+                sx={{ maxWidth: "70%" }}
+              >
+                Whether you need support in enhancing your technical
+                qualification or securing additional financial backing,
+                Infravgo’s Facilitation Network can connect you to the right
+                partners - **quickly, confidentially, and with full guidance
+                till approval.**
+              </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#0FB97D",
+                  "&:hover": { backgroundColor: "#0FB97D" },
+                  borderRadius: "4px",
+                  textTransform: "none",
+                  px: 4,
+                }}
+              >
+                Request Facilitation
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      ) : (
+        <Container
+          maxWidth="md"
+          sx={{
+            my: 4,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "90%",
+          }}
         >
-          <Typography fontWeight="600" fontSize={18} color={colors.green}>
-            Downloadable Summary Report
-          </Typography>
-          <IconButton onClick={() => setOpenDownload(false)} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {/* File Row */}
-          <Box display="flex" alignItems="center" justifyContent="space-between" p={2}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <img src="src\assets\excel.png" alt="excel" width={35} height={35} />
-              <Box>
-                <Typography>Project Name.xlsx</Typography>
-                <Typography fontSize={12} color="text.secondary">
-                  Size → 3 kb
+          <Paper
+            elevation={1}
+            sx={{
+              border: "1px solid #4CAF50",
+              borderRadius: "8px",
+              width: "90%",
+              pb: 4,
+              boxShadow: "none",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", p: 0, m: 0 }}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                  p: 2,
+                  backgroundColor: "#008D00",
+                  borderRadius: "6px 6px 0 0",
+                  height: "100%",
+                }}
+              >
+                <CheckCircleIcon sx={{ color: "#FFFFFF", fontSize: 45 }} />
+              </Box>
+              <Box sx={{ pl: 2 }}>
+                <Typography variant="h5" fontWeight="bold" color="#008D00">
+                  Congratulations!
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#000000", fontWeight: 700, fontSize: 15 }}
+                >
+                  Qualification Result
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#000000", fontSize: 14, fontWeight: 400 }}
+                >
+                  You met all the technical and financial eligibility criteria
+                  for this bid.
                 </Typography>
               </Box>
             </Box>
-            <IconButton>
-              <DownloadIcon />
-            </IconButton>
-          </Box>
-<hr></hr>
-          {/* File Row */}
-          <Box display="flex" alignItems="center" justifyContent="space-between" p={2}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <img src="src\assets\PDF_file_icon.svg.png" alt="pdf" width={35} height={35} />
-              <Box>
-                <Typography>Project Name.pdf</Typography>
-                <Typography fontSize={12} color="text.secondary">
-                  Size → 3 kb
+            <Divider sx={{ mb: 3 }} />
+
+            {/* <Typography
+            variant="h6"
+            align="center"
+            fontWeight="bold"
+            sx={{ mb: 2, color: "#585858" }}
+          >
+            Download Summary Report
+          </Typography> */}
+
+            {/* <Paper
+            sx={{
+              p: 1.5,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "70%",
+              borderRadius: "8px",
+              mx: "auto",
+              boxShadow: "0px 3px 6px 0px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <Box display="flex" alignItems="center">
+              <img
+                src="/src/assets/PDF_file_icon.svg.png"
+                alt="pdf"
+                width={50}
+                height={50}
+                style={{ marginRight: "16px", cursor: "pointer" }}
+              />
+              <Box variant="body1" fontWeight="medium">
+                {mockData.fileName}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mr: 1 }}
+                >
+                  Size → {mockData.fileSize}
                 </Typography>
               </Box>
             </Box>
-            <IconButton>
-              <DownloadIcon />
-            </IconButton>
-          </Box>
-        </DialogContent>
-      </Dialog>
-    </Box>
+            <Box display="flex" alignItems="center">
+              <DownloadIcon
+                sx={{ color: "text.secondary", cursor: "pointer" }}
+              />
+            </Box>
+          </Paper> */}
+          </Paper>
+        </Container>
+      )}
+    </>
   );
 };
 
-export default BGsummary;
+export default QualificationResult;

@@ -1,5 +1,24 @@
-export const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+export const API_URL = import.meta.env.VITE_BACKEND_URL;
 export const ApiConfig = {
-    SEND_OTP: `/api/users/send-otp/`,
-    VERIFY_OTP: `${API_URL}/api/users/verify-otp/`,
-}
+  PROJECTS: `/api/projects/`,
+  SEND_OTP: `/api/users/send-otp/`,
+  VERIFY_OTP: `${API_URL}/api/users/verify-otp/`,
+  UPLOAD_PDF_ANONYMOUS: `/api/projects/upload-pdf/`,
+  PROJECTLIST: `/api/projects/userprojects/`,
+  CREATEPROJECT: `/api/projects/create/`,
+  QUALIFICATION_INPUTS: (projectId) =>
+    `/api/projects/${projectId}/data/submit/`,
+  GET_QUALIFICATION_INPUTS: (projectId) => `/api/projects/${projectId}/data/`,
+  GET_EXTRACTED_DATA: (projectId) => `/api/projects/${projectId}/extract/`,
+  PDF_DOWNLOAD: `/api/projects/`,
+  EDIT_EXTRACTED_DATA: (projectId) =>
+    `/api/projects/${projectId}/update-edited-fields/`,
+  GET_EXTRACTED_INPUTS: (projectId) =>
+    `/api/projects/${projectId}/extracted-data/`,
+  LOGOUT: `/api/users/logout/`,
+  GET_PROJECT_BY_ID: (projectId) => `/api/projects/${projectId}/detail`,
+  UPLOAD_PROJECT_STATUS: (projectId) =>
+    `/api/projects/${projectId}/update-completion-percentage/`,
+  TENDER_EVALUATE: (projectId) =>
+    `/api/projects/projects/${projectId}/tender-evaluate/`,
+};

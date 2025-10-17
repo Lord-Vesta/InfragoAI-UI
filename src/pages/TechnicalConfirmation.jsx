@@ -1,12 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import ReviewExtracted from "./ReviewExtracted";
 import QualificationInputs from "./QualificationInputs";
+import { getQualificationInputs, getExtractedInputs } from "../Utils/Api.utils";
+import { useParams } from "react-router";
 
 const TechnicalConfirmation = () => {
   const [activeTab, setActiveTab] = useState("extracted");
+  const [qualificationData, setQualificationData] = useState(null);
+  const [extractedData, setExtractedData] = useState(null);
+  const { project_id } = useParams();
+  const [loading, setLoading] = useState(false);
+
+  // Function to fetch extracted data
+  const fetchExtractedData = async () => {
+    setLoading(true);
+    try {
+      const res = await getExtractedInputs(project_id);
+      setExtractedData(res);
+    } catch (err) {
+      console.error("Error fetching extracted inputs:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to fetch qualification data
+  const fetchQualificationData = async () => {
+    setLoading(true);
+    try {
+      const res = await getQualificationInputs(project_id);
+      setQualificationData(res);
+    } catch (err) {
+      console.error("Error fetching qualification inputs:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load: fetch extracted data automatically
+  useEffect(() => {
+    fetchExtractedData();
+  }, []);
+
+  // Button click handlers
+  const handleExtractedClick = () => {
+    setActiveTab("extracted");
+    fetchExtractedData();
+  };
+
+  const handleUserInputClick = () => {
+    setActiveTab("userInput");
+    fetchQualificationData();
+  };
 
   return (
     <Box
@@ -20,6 +68,7 @@ const TechnicalConfirmation = () => {
         Confirm Technical & Financial Details
       </Typography>
 
+      {/* Buttons */}
       <Box sx={{ display: "flex", gap: 2 }}>
         <Box
           sx={{
@@ -30,10 +79,7 @@ const TechnicalConfirmation = () => {
             },
           }}
         >
-          <CustomButton
-            label={"Extracted Data"}
-            onClick={() => setActiveTab("extracted")}
-          />
+          <CustomButton label="Extracted Data" onClick={handleExtractedClick} />
         </Box>
 
         <Box
@@ -46,15 +92,20 @@ const TechnicalConfirmation = () => {
           }}
         >
           <CustomButton
-            label={"User Input Data"}
-            onClick={() => setActiveTab("userInput")}
+            label="User Input Data"
+            onClick={handleUserInputClick}
           />
         </Box>
       </Box>
 
       <Box mt={2}>
-         {activeTab === "extracted" && <ReviewExtracted height="60vh" />}
-  {activeTab === "userInput" && <QualificationInputs height="60vh" />}
+        {loading && <Typography>Loading...</Typography>}
+        {!loading && activeTab === "extracted" && (
+          <ReviewExtracted height="70vh" extractedData={extractedData} />
+        )}
+        {!loading && activeTab === "userInput" && (
+          <QualificationInputs height="70vh" initialData={qualificationData} />
+        )}
       </Box>
     </Box>
   );

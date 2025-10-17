@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,9 +9,8 @@ import {
   TextField,
   Paper,
   Grid,
-  Link,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import background1 from "../assets/bg1.png";
 import background2 from "../assets/bg2.png";
 import logo1 from "../assets/logo1.png";
@@ -22,20 +21,32 @@ import KeyIcon from "@mui/icons-material/Key";
 import { toast } from "react-toastify";
 import { sendOtp, verifyOtp } from "../Utils/Api.utils";
 import { useNavigate } from "react-router";
+import { userContext } from "../context/ContextProvider";
 
 const Login = () => {
   const theme = createTheme({
-    typography: {
-      fontFamily: "Montserrat, sans-serif",
-    },
-    button: {
-      fontFamily: "Montserrat, sans-serif",
-    },
+    typography: { fontFamily: "Montserrat, sans-serif" },
+    button: { fontFamily: "Montserrat, sans-serif" },
   });
 
   const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const inputRefs = useRef([]);
+  const { sessionId, setSessionId, projectId } = useContext(userContext);
 
   const navigate = useNavigate();
+  const handleChange = (e, index) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    if (!value) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
 
   const handleGetOtp = async () => {
     try {
@@ -46,23 +57,55 @@ const Login = () => {
         const response = await sendOtp({ phone_number: mobile });
         if (response) {
           toast.success("OTP sent successfully");
-          alert(`Your OTP is ${response.message}`); 
+          alert(`Your OTP is ${response.message}`);
         }
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error?.message || "Failed to send OTP");
     }
   };
 
   const handleVerifyOtp = async () => {
     try {
-      const data = { phone_number: mobile, otp_code: "123456" };
+      const data = { phone_number: mobile, otp_code: "1234" };
+      if (sessionId) {
+        data.session_id = sessionId;
+      }
       const response = await verifyOtp(data);
+
       if (response) {
-        navigate("/profile");
+        const { access } = response;
+        localStorage.setItem("accessToken", access);
+        if (sessionId) {
+          setSessionId(null);
+          navigate("/ReviewExtracted/" + projectId);
+        } else {
+          navigate("/");
+        }
+        window.location.reload();
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+
+      const newOtp = [...otp];
+      if (otp[index]) {
+        newOtp[index] = "";
+        setOtp(newOtp);
+      } else if (index > 0) {
+        inputRefs.current[index - 1].focus();
+        newOtp[index - 1] = "";
+        setOtp(newOtp);
+      }
+    }
+
+    if (e.key === "Enter") {
+      handleVerifyOtp(otp.join(""));
     }
   };
 
@@ -93,7 +136,7 @@ const Login = () => {
           position="static"
           sx={{ bgcolor: "transparent", boxShadow: "none", pt: 3 }}
         >
-          <Toolbar sx={{ justifyContent: "space-evenly" }}>
+          <Toolbar sx={{ justifyContent: "space-between", marginX: "3rem" }}>
             {/* Logo */}
 
             <Typography
@@ -108,11 +151,11 @@ const Login = () => {
               }}
             >
               <img src={logo1} alt="logo" style={{ width: 30, height: 30 }} />{" "}
-              Infravo AI
+              Infrago AI
             </Typography>
 
             {/* Nav Links */}
-            <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+            {/* <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
               <Button
                 theme={theme}
                 color="inherit"
@@ -168,7 +211,7 @@ const Login = () => {
                 />{" "}
                 Sign In
               </Button>
-            </Box>
+            </Box> */}
             <Button
               variant="contained"
               theme={theme}
@@ -180,8 +223,9 @@ const Login = () => {
                 borderRadius: "20px",
                 px: 6,
               }}
+              onClick={() => navigate("/upload")}
             >
-              Upload File
+              Start Bid Assessment
             </Button>
           </Toolbar>
         </AppBar>
@@ -271,6 +315,12 @@ const Login = () => {
             onChange={(e) => {
               setMobile(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleGetOtp();
+              }
+            }}
           />
 
           <Button
@@ -301,6 +351,10 @@ const Login = () => {
               .map((_, idx) => (
                 <Grid item key={idx}>
                   <TextField
+                    inputRef={(el) => (inputRefs.current[idx] = el)}
+                    value={otp[idx]}
+                    onChange={(e) => handleChange(e, idx)}
+                    onKeyDown={(e) => handleKeyDown(e, idx)}
                     variant="outlined"
                     size="small"
                     inputProps={{
@@ -324,7 +378,6 @@ const Login = () => {
               ))}
           </Grid>
 
-          {/* Sign Up */}
           <Button
             theme={theme}
             fullWidth
