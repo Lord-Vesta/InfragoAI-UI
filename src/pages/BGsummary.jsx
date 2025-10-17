@@ -59,6 +59,7 @@ const QualificationBox = ({ title, status, isShortfall }) => (
 
 const QualificationResult = ({ apiResponseData }) => {
   const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(true); 
   const mockData = apiResponseData || {
     fileName: "Project Name.xlxs",
     fileSize: "3 kb",
@@ -86,18 +87,38 @@ const QualificationResult = ({ apiResponseData }) => {
 
   const tenderEvaluate = async () => {
     try {
+      setLoading(true);
      const response = await tenderEvaluateStatus(project_id);
       console.log("Tender Evaluate Response:", response);
       setStatus(response?.qualification_result);
       handleUpdateProjectStatus()
     } catch (error) {
       toast.error("Error evaluating tender status");
+    }finally {
+      setLoading(false); // <-- End loading
     }
   };
 
   useEffect(() => {
     tenderEvaluate()
   }, []);
+
+   if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography fontSize={18} fontWeight="bold">
+          Loading qualification results...
+        </Typography>
+      </Box>
+    );
+  }
 
   return ( <> {status === "Fail" ? ( 
        <Container maxWidth="md" sx={{ my: 4 }}>
