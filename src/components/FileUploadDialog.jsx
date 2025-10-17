@@ -324,14 +324,20 @@ const FileUploadDialog = ({
             (!file && !extractionComplete) || isExtracting === "loading"
           }
           onClick={
-            isExtracting === "failed"
+            jwtToken
+              ? isExtracting === "failed"
+                ? () => fetchExtractedData(uploadedProjectId)
+                : isExtracting === "idle" && projectStatus === 0
+                ? handlePdfUpload
+                : projectStatus === 0
+                ? handlePdfUpload
+                : projectStatus === 10
+                ? () => fetchExtractedData(uploadedProjectId)
+                : handleNext
+              : isExtracting === "failed"
               ? () => fetchExtractedData(uploadedProjectId)
               : isExtracting === "idle"
               ? handlePdfUpload
-              : projectStatus === 0
-              ? handlePdfUpload
-              : projectStatus === 10
-              ? () => fetchExtractedData(uploadedProjectId)
               : handleNext
           }
         >
@@ -340,14 +346,22 @@ const FileUploadDialog = ({
               <CircularProgress size={18} sx={{ color: "#fff" }} />
               Extracting...
             </>
+          ) : jwtToken ? (
+            isExtracting === "failed" ? (
+              "Retry Extraction"
+            ) : isExtracting === "idle" && projectStatus === 0 ? (
+              "Upload & Extract"
+            ) : projectStatus === 0 ? (
+              "Upload & Extract"
+            ) : projectStatus === 10 ? (
+              "Extract"
+            ) : (
+              "Next"
+            )
           ) : isExtracting === "failed" ? (
             "Retry Extraction"
           ) : isExtracting === "idle" ? (
             "Upload & Extract"
-          ) : projectStatus === 0 ? (
-            "Upload & Extract"
-          ) : projectStatus === 10 ? (
-            "Extract"
           ) : (
             "Next"
           )}

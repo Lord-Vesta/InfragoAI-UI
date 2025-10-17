@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Typography,
@@ -12,9 +12,12 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import shortFallRed from "../assets/shortFallRed.png"
-import shortFallWhite from "../assets/shortFallWhite.png"
-import Ellipse_Green from "../assets/Ellipse_Green.png"
+import shortFallRed from "../assets/shortFallRed.png";
+import shortFallWhite from "../assets/shortFallWhite.png";
+import Ellipse_Green from "../assets/Ellipse_Green.png";
+import { toast } from "react-toastify";
+import { updateProjectStatus } from "../Utils/Api.utils";
+import { useParams } from "react-router";
 
 const QualificationBox = ({ title, status, isShortfall }) => (
   <Paper
@@ -33,9 +36,9 @@ const QualificationBox = ({ title, status, isShortfall }) => (
   >
     <Box sx={{ mb: 1.5 }}>
       {isShortfall ? (
-        <img src={shortFallRed} style={{width:"70px", height: "50px"}} />
+        <img src={shortFallRed} style={{ width: "70px", height: "50px" }} />
       ) : (
-        <img src={Ellipse_Green} style={{width:"50px", height: "50px"}} />
+        <img src={Ellipse_Green} style={{ width: "50px", height: "50px" }} />
       )}
     </Box>
     <Typography variant="body1" fontWeight="bold" sx={{ color: "#000000" }}>
@@ -60,6 +63,26 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
       { name: "JV Qualification", status: "Shortfall", met: false },
     ],
   };
+
+  const { project_id } = useParams();
+
+  const handleUpdateProjectStatus = async () => {
+    try {
+      await updateProjectStatus(
+        {
+          completion_percentage: 100,
+          project_status: "completed",
+        },
+        project_id
+      );
+    } catch (error) {
+      toast.error("Error updating project status");
+    }
+  };
+
+  useEffect(() => {
+    handleUpdateProjectStatus();
+  }, []);
 
   if (!isSuccess) {
     return (
@@ -147,7 +170,7 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
                 height={50}
                 style={{ marginRight: "16px", cursor: "pointer" }}
               />
-              <Typography variant="body1" fontWeight="medium">
+              <Box variant="body1" fontWeight="medium">
                 {mockData.fileName}
                 <Typography
                   variant="body2"
@@ -156,7 +179,7 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
                 >
                   Size → {mockData.fileSize}
                 </Typography>
-              </Typography>
+              </Box>
             </Box>
             <Box display="flex" alignItems="center">
               <DownloadIcon
@@ -198,7 +221,10 @@ const QualificationResult = ({ isSuccess, apiResponseData }) => {
                   mr: 2,
                 }}
               >
-                <img src={shortFallWhite} style={{width:"70px", height: "52px"}} />
+                <img
+                  src={shortFallWhite}
+                  style={{ width: "70px", height: "52px" }}
+                />
               </Box>
               <Typography
                 variant="h5"

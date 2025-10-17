@@ -469,63 +469,65 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
         </Typography>
-        <Box display="flex" gap={2} mx={2}>
-          <Button
-            variant="outlined"
-            sx={{
-              color: colors.green,
-              borderColor: colors.green,
-              borderRadius: "4px",
-              textTransform: "capitalize",
-              "&:hover": {
+        {jwtToken && (
+          <Box display="flex" gap={2} mx={2}>
+            <Button
+              variant="outlined"
+              sx={{
+                color: colors.green,
                 borderColor: colors.green,
-              },
-            }}
-            onClick={() => {
-              const pdfData = fields
-                .filter((f) => f.type !== "heading")
-                .map((f) => ({
-                  field_key: f.label,
-                  field_value: f.value,
-                  confidence_score: f.confidenceScore ?? "",
-                  source_page_number: f.pageNo ?? "-",
-                }));
+                borderRadius: "4px",
+                textTransform: "capitalize",
+                "&:hover": {
+                  borderColor: colors.green,
+                },
+              }}
+              onClick={() => {
+                const pdfData = fields
+                  .filter((f) => f.type !== "heading")
+                  .map((f) => ({
+                    field_key: f.label,
+                    field_value: f.value,
+                    confidence_score: f.confidenceScore ?? "",
+                    source_page_number: f.pageNo ?? "-",
+                  }));
 
-              GeneratePDF(pdfData, "extracted_data.pdf");
-            }}
-          >
-            <Box sx={{ display: "flex", gap: "8px" }}>
-              <Box sx={{ p: 0, color: colors.green }}>
-                <DownloadIcon />
+                GeneratePDF(pdfData, "extracted_data.pdf");
+              }}
+            >
+              <Box sx={{ display: "flex", gap: "8px" }}>
+                <Box sx={{ p: 0, color: colors.green }}>
+                  <DownloadIcon />
+                </Box>
+                <Typography>Download Bid Data</Typography>
               </Box>
-              <Typography>Download Bid Data</Typography>
-            </Box>
-          </Button>
-          <Button
-            variant="outlined"
-            sx={{
-              color: colors.green,
-              borderColor: colors.green,
-              borderRadius: "4px",
-              textTransform: "capitalize",
-              "&:hover": {
+            </Button>
+            <Button
+              variant="outlined"
+              sx={{
+                color: colors.green,
                 borderColor: colors.green,
-              },
-            }}
-            onClick={() => {
-              if (!isPdfViewerOpen) {
-                setIsPdfViewerOpen(true);
-              }
-            }}
-          >
-            <Box sx={{ display: "flex", gap: "8px" }}>
-              <IconButton sx={{ p: 0, color: colors.green }}>
-                <FileCopyIcon />
-              </IconButton>
-              <Typography>View pdf</Typography>
-            </Box>
-          </Button>
-        </Box>
+                borderRadius: "4px",
+                textTransform: "capitalize",
+                "&:hover": {
+                  borderColor: colors.green,
+                },
+              }}
+              onClick={() => {
+                if (!isPdfViewerOpen) {
+                  setIsPdfViewerOpen(true);
+                }
+              }}
+            >
+              <Box sx={{ display: "flex", gap: "8px" }}>
+                <IconButton sx={{ p: 0, color: colors.green }}>
+                  <FileCopyIcon />
+                </IconButton>
+                <Typography>View pdf</Typography>
+              </Box>
+            </Button>
+          </Box>
+        )}
       </Box>
 
       {displayedFields.map((field, index) => (
