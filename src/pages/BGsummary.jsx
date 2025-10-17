@@ -86,7 +86,7 @@ const QualificationResult = ({ apiResponseData }) => {
     try {
       setLoading(true);
       const response = await tenderEvaluateStatus(project_id);
-      console.log("Tender Evaluate Response:", response);
+
       setStatus(response?.qualification_result);
       handleUpdateProjectStatus();
     } catch (error) {

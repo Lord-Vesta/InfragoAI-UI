@@ -57,11 +57,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
 
   useEffect(() => {
     if (mergedData) {
-      console.log(
-        "mergedData?.data?.turnover_past_3_years?.edited_value",
-        mergedData?.data?.turnover_past_3_years?.edited_value
-      );
-      console.log(mergedData, "mergedData");
+
       setNumericValues({
         Turnover_3_years:
           mergedData?.data?.turnover_past_3_years?.edited_value || "",
@@ -117,10 +113,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     handleFetchQualificationInputs();
   }, [project_id]);
 
-  console.log(
-    qualificationApiData?.data,
-    "qualificationApiData?.data?.length > 0 "
-  );
 
   const isInitialData = Boolean(
     mergedData && Object.keys(mergedData).length > 0
