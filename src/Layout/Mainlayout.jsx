@@ -32,7 +32,7 @@ const Mainlayout = () => {
     if (project_id) {
       handleFetchProjectDetails(project_id);
     }
-  }, [project_id]);
+  }, [project_id, location]);
 
   return (
     <Box
