@@ -469,27 +469,28 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
         </Typography>
-        <Box display="flex" gap={2} mx={2}>
-          <Button
-            variant="outlined"
-            sx={{
-              color: colors.green,
-              borderColor: colors.green,
-              borderRadius: "4px",
-              textTransform: "capitalize",
-              "&:hover": {
+        {jwtToken && (
+          <Box display="flex" gap={2} mx={2}>
+            <Button
+              variant="outlined"
+              sx={{
+                color: colors.green,
                 borderColor: colors.green,
-              },
-            }}
-            onClick={() => {
-              const pdfData = fields
-                .filter((f) => f.type !== "heading")
-                .map((f) => ({
-                  field_key: f.label,
-                  field_value: f.value,
-                  confidence_score: f.confidenceScore ?? "",
-                  source_page_number: f.pageNo ?? "-",
-                }));
+                borderRadius: "4px",
+                textTransform: "capitalize",
+                "&:hover": {
+                  borderColor: colors.green,
+                },
+              }}
+              onClick={() => {
+                const pdfData = fields
+                  .filter((f) => f.type !== "heading")
+                  .map((f) => ({
+                    field_key: f.label,
+                    field_value: f.value,
+                    confidence_score: f.confidenceScore ?? "",
+                    source_page_number: f.pageNo ?? "-",
+                  }));
 
               GeneratePDF(pdfData, "extracted_data.pdf");
             }}

@@ -8,6 +8,31 @@ import { Outlet, useLocation } from "react-router";
 
 const Mainlayout = () => {
   const location = useLocation().pathname;
+<<<<<<< HEAD
+=======
+
+  const { setProjectStatus } = useContext(userContext);
+
+  const { project_id } = useParams();
+
+  const handleFetchProjectDetails = async (project_id) => {
+    try {
+      const response = await getProjectById(project_id);
+      if (response) {
+        setProjectStatus(response?.completion_percentage);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch project details, Refresh page to try again");
+    }
+  };
+
+  useEffect(() => {
+    if (project_id) {
+      handleFetchProjectDetails(project_id);
+    }
+  }, [project_id, location]);
+
+>>>>>>> 4a918622af6360d5a7fade881687d7ed5a6b2ef0
   return (
     <Box
       sx={{

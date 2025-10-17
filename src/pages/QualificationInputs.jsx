@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Icon, Paper, Typography, Button } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
 import CustomTextField from "../components/TextField";
 import CustomSelect from "../components/Select";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
-import { qualificationInputs, updateProjectStatus } from "../Utils/Api.utils";
+import {
+  getQualificationInputs,
+  qualificationInputs,
+  updateProjectStatus,
+} from "../Utils/Api.utils";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 import GetAppIcon from "@mui/icons-material/GetApp";
@@ -13,6 +17,9 @@ import { GenerateQualificationPDF } from "../components/GenerateQualificationPDF
 import { useParams, useNavigate, useLocation } from "react-router";
 import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { toast } from "react-toastify";
+import { userContext } from "../context/ContextProvider";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
@@ -35,38 +42,54 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const [qualificationApiData, setQualificationApiData] = useState(null);
+  const [showUpload, setShowUpload] = useState(
+    !initialData?.registration_file && !qualificationApiData?.registration_file
+  );
   const { project_id } = useParams();
   const navigate = useNavigate();
+  const { projectStatus } = useContext(userContext);
+  const mergedData =
+    qualificationApiData?.data &&
+    Object.keys(qualificationApiData.data).length > 0
+      ? qualificationApiData
+      : initialData;
+
   useEffect(() => {
-    if (initialData) {
+    if (mergedData) {
+      console.log(
+        "mergedData?.data?.turnover_past_3_years?.edited_value",
+        mergedData?.data?.turnover_past_3_years?.edited_value
+      );
+      console.log(mergedData, "mergedData");
       setNumericValues({
         Turnover_3_years:
-          initialData?.data?.turnover_past_3_years?.edited_value || "",
+          mergedData?.data?.turnover_past_3_years?.edited_value || "",
         Turnover_5_years:
-          initialData?.data?.turnover_past_5_years?.edited_value || "",
-        netWorth: initialData?.data?.net_worth?.edited_value || "",
-        workingCapital: initialData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
-        workInHand: initialData?.data?.work_in_hand?.edited_value || "",
-        bgLimit: initialData?.data?.bg_limit_sanctioned?.edited_value || "",
-        bgUtilized: initialData?.data?.bg_utilized?.edited_value || "",
-        bgAvailable: initialData?.data?.bg_available?.edited_value || "",
-        quotedPrice: initialData?.data?.quoted_price?.edited_value || "",
+          mergedData?.data?.turnover_past_5_years?.edited_value || "",
+        netWorth: mergedData?.data?.net_worth?.edited_value || "",
+        workingCapital: mergedData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
+        workInHand: mergedData?.data?.work_in_hand?.edited_value || "",
+        bgLimit: mergedData?.data?.bg_limit_sanctioned?.edited_value || "",
+        bgUtilized: mergedData?.data?.bg_utilized?.edited_value || "",
+        bgAvailable: mergedData?.data?.bg_available?.edited_value || "",
+        quotedPrice: mergedData?.data?.quoted_price?.edited_value || "",
       });
 
       setLitigationStatus(
-        initialData?.data?.litigation_blacklist_status?.edited_value === "True"
+        mergedData?.data?.litigation_blacklist_status?.edited_value === "True"
           ? "Yes"
           : "No"
       );
       setLitigationDetails(
-        initialData?.data?.litigation_blacklist_details?.edited_value || ""
+        mergedData?.data?.litigation_blacklist_details?.edited_value || ""
       );
 
       if (
-        initialData?.similar_projects &&
-        Array.isArray(initialData.similar_projects)
+        mergedData?.similar_projects &&
+        Array.isArray(mergedData.similar_projects)
       ) {
-        const formattedProjects = initialData?.similar_projects.map((proj) => ({
+        const formattedProjects = mergedData?.similar_projects.map((proj) => ({
           id: proj.similar_project_id,
           name: proj.is_edited ? proj.edited_name : proj.name,
           scope: proj.is_edited ? proj.edited_scope : proj.scope,
@@ -75,10 +98,32 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         }));
         setProjects(formattedProjects);
       }
+      setShowUpload(!mergedData?.registration_file);
     }
-  }, [initialData]);
+  }, [mergedData]);
+
+  const handleFetchQualificationInputs = async () => {
+    try {
+      const response = await getQualificationInputs(project_id);
+      if (response) {
+        setQualificationApiData(response);
+      }
+    } catch (error) {
+      toast.error("Error fetching qualification inputs");
+    }
+  };
+
+  useEffect(() => {
+    handleFetchQualificationInputs();
+  }, [project_id]);
+
+  console.log(
+    qualificationApiData?.data,
+    "qualificationApiData?.data?.length > 0 "
+  );
+
   const isInitialData = Boolean(
-    initialData && Object.keys(initialData).length > 0
+    mergedData && Object.keys(mergedData).length > 0
   );
 
   const handleAddProject = () => {
@@ -86,47 +131,58 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
   const handleNext = async () => {
     try {
-      const payload = {
-        turnover_past_3_years: numericValues.turnover3,
-        turnover_past_5_years: numericValues.turnover5,
-        net_worth: numericValues.netWorth,
-        working_capital: numericValues.workingCapital,
-        work_in_hand: numericValues.workInHand,
-        bg_limit_sanctioned: numericValues.bgLimit,
-        bg_utilized: numericValues.bgUtilized,
-        bg_available: numericValues.bgAvailable,
-        quoted_price: numericValues.quotedPrice,
-        litigation_blacklist_status:
-          litigationStatus === "Yes" ? "True" : "False",
-        litigation_blacklist_details: litigationDetails,
-        similar_projects: JSON.stringify(projects),
-      };
+      if (projectStatus < 60) {
+        const payload = {
+          turnover_past_3_years: numericValues.Turnover_3_years,
+          turnover_past_5_years: numericValues.Turnover_5_years,
+          net_worth: numericValues.netWorth,
+          working_capital: numericValues.workingCapital,
+          work_in_hand: numericValues.workInHand,
+          bg_limit_sanctioned: numericValues.bgLimit,
+          bg_utilized: numericValues.bgUtilized,
+          bg_available: numericValues.bgAvailable,
+          quoted_price: numericValues.quotedPrice,
+          litigation_blacklist_status:
+            litigationStatus === "Yes" ? "True" : "False",
+          litigation_blacklist_details: litigationDetails,
+          similar_projects: JSON.stringify(projects),
+        };
 
-      const formData = new FormData();
-      Object.keys(payload).forEach((key) => {
-        formData.append(key, payload[key]);
-      });
+        const formData = new FormData();
+        Object.keys(payload).forEach((key) => {
+          formData.append(key, payload[key]);
+        });
 
-      if (certificateFile) {
-        formData.append("registration_certification", certificateFile);
-      }
+        if (certificateFile) {
+          formData.append("registration_certification", certificateFile);
+        }
 
-      const response = await qualificationInputs(formData, project_id);
-      if (response) {
-        await updateProjectStatus(
-          {
-            completion_percentage: location
-              .toLowerCase()
-              .includes("qualificationinputs")
-              ? 60
-              : 80,
-            project_status: "in progress",
-          },
-          response.project_id
-        );
-        location.toLowerCase().includes("qualificationinputs")
-          ? navigate(`/TechnicalConfirmation/${project_id}`)
-          : navigate(`/BGsummary/${project_id}`);
+        const response = await qualificationInputs(formData, project_id);
+        if (response) {
+          await updateProjectStatus(
+            {
+              completion_percentage: location
+                .toLowerCase()
+                .includes("qualificationinputs")
+                ? 60
+                : 80,
+              project_status: "in progress",
+            },
+            response.project_id
+          );
+
+          if (location.toLowerCase().includes("qualificationinputs")) {
+            navigate(`/TechnicalConfirmation/${project_id}`);
+          } else {
+            navigate(`/BGsummary/${project_id}`);
+          }
+        }
+      } else {
+        if (location.toLowerCase().includes("qualificationinputs")) {
+          navigate(`/TechnicalConfirmation/${project_id}`);
+        } else {
+          navigate(`/BGsummary/${project_id}`);
+        }
       }
     } catch (err) {
       if (err.response) {
@@ -159,6 +215,12 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
 
+  const handleDeleteFile = () => {
+    setCertificateFile(null);
+    setShowUpload(true);
+    toast.success("File deleted successfully");
+  };
+
   return (
     <Box
       width="100%"
@@ -171,11 +233,9 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     >
       <Box sx={{display: "flex", alignItems: "center", gap: 2, justifyContent: "space-between"}}>
         <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
-        {initialData ? "Review " : "Provide "}
+        {mergedData ? "Review " : "Provide "}
         Qualification Inputs{" "}
-        
-      </Typography>
-        {initialData ? (
+        {mergedData ? (
           <Box component="span" sx={{ display: "inline-block" }}>
            <Button
             variant="outlined"
@@ -249,8 +309,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               <CustomTextField
                 placeholder="Enter value"
                 width="300px"
-                value={numericValues.turnover3}
-                onChange={(e) => handleChange("turnover3", e.target.value)}
+                value={numericValues.Turnover_3_years}
+                onChange={(e) =>
+                  handleChange("Turnover_3_years", e.target.value)
+                }
                 error={!!errors.turnover3}
                 helperText={errors.turnover3}
                 disabled={isInitialData}
@@ -282,8 +344,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               <CustomTextField
                 placeholder="Enter value"
                 width="300px"
-                value={numericValues.turnover5}
-                onChange={(e) => handleChange("turnover5", e.target.value)}
+                value={numericValues.Turnover_5_years}
+                onChange={(e) =>
+                  handleChange("Turnover_5_years", e.target.value)
+                }
                 error={!!errors.turnover5}
                 helperText={errors.turnover5}
                 disabled={isInitialData}
@@ -479,7 +543,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           Registration/Certificates
         </Typography>
 
-        {initialData?.registration_file ? (
+        {mergedData?.registration_file && !showUpload ? (
           <Box
             bgcolor="#fff"
             border="1px solid #e0e0e0"
@@ -492,19 +556,28 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             gap={1}
             mb={2}
           >
-            <Typography fontWeight={600}>
-              Uploaded File: {initialData.registration_file.file_name}
-            </Typography>
+            <Box display="flex" alignItems="center" gap={2} width="100%">
+              <Typography fontWeight={600}>
+                Uploaded File: {mergedData.registration_file.file_name}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={handleDeleteFile}
+                sx={{ color: "#d32f2f" }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
             <Typography fontSize={12} color="gray">
-              {(initialData.registration_file.file_size / 1024 / 1024).toFixed(
+              {(mergedData.registration_file.file_size / 1024 / 1024).toFixed(
                 2
               )}{" "}
               MB
             </Typography>
 
-            {initialData.registration_file.file_type === "pdf" ? (
+            {mergedData.registration_file.file_type === "pdf" ? (
               <iframe
-                src={initialData.registration_file.download_url}
+                src={mergedData.registration_file.download_url}
                 title="Uploaded PDF"
                 width="100%"
                 height="400px"
@@ -512,7 +585,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               />
             ) : (
               <img
-                src={initialData.registration_file.download_url}
+                src={mergedData.registration_file.download_url}
                 alt="Uploaded file"
                 style={{
                   width: "200px",
@@ -531,10 +604,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 cursor: "pointer",
               }}
               onClick={() =>
-                window.open(
-                  initialData.registration_file.download_url,
-                  "_blank"
-                )
+                window.open(mergedData.registration_file.download_url, "_blank")
               }
             >
               Download / View Full File
