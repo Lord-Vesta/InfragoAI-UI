@@ -24,8 +24,10 @@ export const GenerateQualificationPDF = (
     head: [["Field", "Value"]],
     body: numericRows.map((row) => [row.key, row.value]),
     theme: "grid",
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [25, 118, 210] }, // Blue header
+    styles: { fontSize: 10, lineColor: 0, },
+    headStyles: { fillColor: [255, 255, 255],textColor: 0, valign: "middle",  lineColor: [0, 0, 0], 
+      lineWidth: 0.2, 
+    }
   });
 
   // ✅ Section 2: Litigation
@@ -34,8 +36,8 @@ export const GenerateQualificationPDF = (
     head: [["Litigation Status", "Litigation Details"]],
     body: [[litigationStatus, litigationDetails || "-"]],
     theme: "grid",
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [76, 175, 80] }, // Green header
+    styles: { fontSize: 10, lineColor: 0, },
+    headStyles: { fillColor: [255, 255, 255] }, 
   });
 
   // ✅ Section 3: Projects
@@ -53,8 +55,8 @@ export const GenerateQualificationPDF = (
       head: [["#", "Project Name", "Scope", "Year", "Value"]],
       body: projectRows,
       theme: "grid",
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [255, 152, 0] }, // Orange header
+      styles: { fontSize: 10, lineColor: 0, },
+      headStyles: { fillColor: [255, 255, 255] }, 
     });
   }
 

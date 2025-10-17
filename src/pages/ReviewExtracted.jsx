@@ -492,11 +492,11 @@ const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
                     source_page_number: f.pageNo ?? "-",
                   }));
 
-                GeneratePDF(pdfData, "extracted_data.pdf");
+                GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
               }}
             >
-              <Box sx={{ display: "flex", gap: "8px" }}>
-                <Box sx={{ p: 0, color: colors.green }}>
+              <Box sx={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                <Box sx={{ p: 0, color: colors.green, display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", mt:"2px" }}>
                   <DownloadIcon />
                 </Box>
                 <Typography>Download Bid Data</Typography>

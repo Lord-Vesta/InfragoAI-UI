@@ -2,7 +2,7 @@ import React from 'react'
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-const GeneratePDF = (data, pdfFileName = "extracted_data.pdf") => {
+const GeneratePDF = (data, pdfFileName = "Tender Analysis Summary.pdf") => {
   const doc = new jsPDF();
 
   // Add Title
@@ -11,18 +11,17 @@ const GeneratePDF = (data, pdfFileName = "extracted_data.pdf") => {
 
   // Prepare table columns
   const columns = [
-    { header: "Field Key", dataKey: "field_key" },
-    { header: "Field Value", dataKey: "field_value" },
-    { header: "Confidence", dataKey: "confidence_score" },
-    { header: "Page No", dataKey: "source_page_number" },
+    { header: "Sr. No.", dataKey: "sr_no" },
+    { header: "Parameter", dataKey: "field_key" },
+    { header: "Details from Tender Document", dataKey: "field_value" },
+  
   ];
 
   // Prepare table rows
-  const rows = data.map((item) => ({
+  const rows = data.map((item, i) => ({
+    sr_no: i + 1,
     field_key: item.field_key,
     field_value: item.field_value,
-    confidence_score: item.confidence_score,
-    source_page_number: item.source_page_number ?? "-",
   }));
 
   // Generate table
@@ -31,11 +30,16 @@ const GeneratePDF = (data, pdfFileName = "extracted_data.pdf") => {
     body: rows,
     // startY: 10,
     // margin: { right: 10 },
-    styles: { fontSize: 10, cellWidth: "wrap" },
-    headStyles: { fillColor: [41, 128, 185] },
+    styles: { fontSize: 10, cellWidth: "wrap", lineWidth: 0.3, lineColor: 0 },
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: "bold" },
     columnStyles: {
-      field_value: { cellWidth: 60 },
+       sr_no: { cellWidth: 10 },
+      field_key: { cellWidth: 50 }, // narrower column
+      field_value: { cellWidth: 130 }, // wider column
     },
+    startY: 30,
+    theme: "grid",
+    tableWidth: "auto",
   });
 
   // Save PDF
