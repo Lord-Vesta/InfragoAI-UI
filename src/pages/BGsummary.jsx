@@ -20,9 +20,6 @@ import { updateProjectStatus, tenderEvaluateStatus } from "../Utils/Api.utils";
 import { useParams } from "react-router";
 
 const QualificationBox = ({ title, status, isShortfall }) => (
-
-
-
   <Paper
     elevation={0}
     sx={{
@@ -58,8 +55,8 @@ const QualificationBox = ({ title, status, isShortfall }) => (
 );
 
 const QualificationResult = ({ apiResponseData }) => {
-  const [status, setStatus] = useState('')
-  const [loading, setLoading] = useState(true); 
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(true);
   const mockData = apiResponseData || {
     fileName: "Project Name.xlxs",
     fileSize: "3 kb",
@@ -88,22 +85,22 @@ const QualificationResult = ({ apiResponseData }) => {
   const tenderEvaluate = async () => {
     try {
       setLoading(true);
-     const response = await tenderEvaluateStatus(project_id);
+      const response = await tenderEvaluateStatus(project_id);
       console.log("Tender Evaluate Response:", response);
       setStatus(response?.qualification_result);
-      handleUpdateProjectStatus()
+      handleUpdateProjectStatus();
     } catch (error) {
       toast.error("Error evaluating tender status");
-    }finally {
+    } finally {
       setLoading(false); // <-- End loading
     }
   };
 
   useEffect(() => {
-    tenderEvaluate()
+    tenderEvaluate();
   }, []);
 
-   if (loading) {
+  if (loading) {
     return (
       <Box
         sx={{
@@ -120,103 +117,106 @@ const QualificationResult = ({ apiResponseData }) => {
     );
   }
 
-  return ( <> {status === "Fail" ? ( 
-       <Container maxWidth="md" sx={{ my: 4 }}>
-        <Paper
-          elevation={1}
-          sx={{
-            p: 0,
-            borderRadius: "8px",
-            border: "1px solid #FF4F52",
-            boxShadow: "none",
-          }}
-        >
-          <Box
+  return (
+    <>
+      {" "}
+      {status === "Fail" ? (
+        <Container maxWidth="md" sx={{ my: 4 }}>
+          <Paper
+            elevation={1}
             sx={{
-              borderBottom: "1px solid #FF4F52",
-              borderRadius: "8px 8px 0 0",
+              p: 0,
+              borderRadius: "8px",
+              border: "1px solid #FF4F52",
+              boxShadow: "none",
             }}
           >
-            <Box display="flex" alignItems="center">
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                sx={{
-                  p: 2,
-                  backgroundColor: "#FF4F52",
-                  borderRadius: "6px 6px 0 0",
-                  height: "100%",
-                  mr: 2,
-                }}
-              >
-                <img
-                  src={shortFallWhite}
-                  style={{ width: "70px", height: "52px" }}
-                />
-              </Box>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                color="#FF4F52"
-                sx={{ pt: 0.5, pb: 0.5 }}
-              >
-                Shortfall Detected
-                <Typography
-                  variant="h6"
-                  fontWeight="700"
-                  color="#000000"
-                  fontSize={15}
-                >
-                  Qualification Result
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Our analysis shows a shortfall in one or more qualification
-                  areas.
-                </Typography>
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ p: 3, pb: 5 }}>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
+            <Box
               sx={{
-                mb: 4,
-                display: "flex",
-                flexWrap: "wrap",
-                overflowX: "auto",
+                borderBottom: "1px solid #FF4F52",
+                borderRadius: "8px 8px 0 0",
               }}
             >
-              {mockData.qualifications.map((q, index) => (
-                <Grid
-                  item
-                  key={index}
+              <Box display="flex" alignItems="center">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
                   sx={{
-                    flex: "0 0 300px",
+                    p: 2,
+                    backgroundColor: "#FF4F52",
+                    borderRadius: "6px 6px 0 0",
+                    height: "100%",
+                    mr: 2,
                   }}
                 >
-                  <QualificationBox
-                    title={q.name}
-                    status={q.status}
-                    isShortfall={!q.met}
+                  <img
+                    src={shortFallWhite}
+                    style={{ width: "70px", height: "52px" }}
                   />
-                </Grid>
-              ))}
-            </Grid>
+                </Box>
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  color="#FF4F52"
+                  sx={{ pt: 0.5, pb: 0.5 }}
+                >
+                  Shortfall Detected
+                  <Typography
+                    variant="h6"
+                    fontWeight="700"
+                    color="#000000"
+                    fontSize={15}
+                  >
+                    Qualification Result
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Our analysis shows a shortfall in one or more qualification
+                    areas.
+                  </Typography>
+                </Typography>
+              </Box>
+            </Box>
 
-            <Typography
+            <Box sx={{ p: 3, pb: 5 }}>
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                sx={{
+                  mb: 4,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  overflowX: "auto",
+                }}
+              >
+                {mockData.qualifications.map((q, index) => (
+                  <Grid
+                    item
+                    key={index}
+                    sx={{
+                      flex: "0 0 300px",
+                    }}
+                  >
+                    <QualificationBox
+                      title={q.name}
+                      status={q.status}
+                      isShortfall={!q.met}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* <Typography
               variant="h6"
               align="center"
               fontWeight="bold"
               sx={{ mb: 2, color: "#585858" }}
             >
               Download Summary Report
-            </Typography>
+            </Typography> */}
 
-            <Paper
+              {/* <Paper
               // variant="outlined"
               sx={{
                 p: 1.5,
@@ -253,125 +253,123 @@ const QualificationResult = ({ apiResponseData }) => {
                   sx={{ color: "text.secondary", cursor: "pointer" }}
                 />
               </Box>
-            </Paper>
-          </Box>
-        </Paper>
-        <Box
-          sx={{
-            backgroundColor: "#E9FFF7",
-            p: 3,
-            border: "1px solid #0FB97D",
-            borderRadius: "8px",
-            mt: 3,
-          }}
-        >
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            color="#000000"
-            sx={{ mb: 1 }}
-          >
-            Infravo can help bridge the gap
-          </Typography>
+            </Paper> */}
+            </Box>
+          </Paper>
           <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+            sx={{
+              backgroundColor: "#E9FFF7",
+              p: 3,
+              border: "1px solid #0FB97D",
+              borderRadius: "8px",
+              mt: 3,
+            }}
           >
             <Typography
-              variant="body2"
+              variant="h6"
+              fontWeight="bold"
               color="#000000"
-              sx={{ maxWidth: "70%" }}
+              sx={{ mb: 1 }}
             >
-              Whether you need support in enhancing your technical qualification
-              or securing additional financial backing, Infravgo’s Facilitation
-              Network can connect you to the right partners - **quickly,
-              confidentially, and with full guidance till approval.**
+              Infravo can help bridge the gap
             </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#0FB97D",
-                "&:hover": { backgroundColor: "#0FB97D" },
-                borderRadius: "4px",
-                textTransform: "none",
-                px: 4,
-              }}
-            >
-              Request Facilitation
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-      ) : (
-        
-
-
- <Container
-        maxWidth="md"
-        sx={{
-          my: 4,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "90%",
-        }}
-      >
-        <Paper
-          elevation={1}
-          sx={{
-            border: "1px solid #4CAF50",
-            borderRadius: "8px",
-            width: "90%",
-            pb: 4,
-            boxShadow: "none",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", p: 0, m: 0 }}>
             <Box
               display="flex"
+              justifyContent="space-between"
               alignItems="center"
-              justifyContent="center"
-              sx={{
-                p: 2,
-                backgroundColor: "#008D00",
-                borderRadius: "6px 6px 0 0",
-                height: "100%",
-              }}
             >
-              <CheckCircleIcon sx={{ color: "#FFFFFF", fontSize: 45 }} />
-            </Box>
-            <Box sx={{ pl: 2 }}>
-              <Typography variant="h5" fontWeight="bold" color="#008D00">
-                Congratulations!
-              </Typography>
               <Typography
                 variant="body2"
-                sx={{ color: "#000000", fontWeight: 700, fontSize: 15 }}
+                color="#000000"
+                sx={{ maxWidth: "70%" }}
               >
-                Qualification Result
+                Whether you need support in enhancing your technical
+                qualification or securing additional financial backing,
+                Infravgo’s Facilitation Network can connect you to the right
+                partners - **quickly, confidentially, and with full guidance
+                till approval.**
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "#000000", fontSize: 14, fontWeight: 400 }}
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#0FB97D",
+                  "&:hover": { backgroundColor: "#0FB97D" },
+                  borderRadius: "4px",
+                  textTransform: "none",
+                  px: 4,
+                }}
               >
-                You met all the technical and financial eligibility criteria for
-                this bid.
-              </Typography>
+                Request Facilitation
+              </Button>
             </Box>
           </Box>
-          <Divider sx={{ mb: 3 }} />
+        </Container>
+      ) : (
+        <Container
+          maxWidth="md"
+          sx={{
+            my: 4,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "90%",
+          }}
+        >
+          <Paper
+            elevation={1}
+            sx={{
+              border: "1px solid #4CAF50",
+              borderRadius: "8px",
+              width: "90%",
+              pb: 4,
+              boxShadow: "none",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", p: 0, m: 0 }}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                  p: 2,
+                  backgroundColor: "#008D00",
+                  borderRadius: "6px 6px 0 0",
+                  height: "100%",
+                }}
+              >
+                <CheckCircleIcon sx={{ color: "#FFFFFF", fontSize: 45 }} />
+              </Box>
+              <Box sx={{ pl: 2 }}>
+                <Typography variant="h5" fontWeight="bold" color="#008D00">
+                  Congratulations!
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#000000", fontWeight: 700, fontSize: 15 }}
+                >
+                  Qualification Result
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#000000", fontSize: 14, fontWeight: 400 }}
+                >
+                  You met all the technical and financial eligibility criteria
+                  for this bid.
+                </Typography>
+              </Box>
+            </Box>
+            <Divider sx={{ mb: 3 }} />
 
-          <Typography
+            {/* <Typography
             variant="h6"
             align="center"
             fontWeight="bold"
             sx={{ mb: 2, color: "#585858" }}
           >
             Download Summary Report
-          </Typography>
+          </Typography> */}
 
-          <Paper
+            {/* <Paper
             sx={{
               p: 1.5,
               display: "flex",
@@ -407,13 +405,12 @@ const QualificationResult = ({ apiResponseData }) => {
                 sx={{ color: "text.secondary", cursor: "pointer" }}
               />
             </Box>
+          </Paper> */}
           </Paper>
-        </Paper>
-      </Container>
+        </Container>
       )}
-</> );
-
-   
+    </>
+  );
 };
 
 export default QualificationResult;
