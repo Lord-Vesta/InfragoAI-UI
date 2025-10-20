@@ -136,7 +136,7 @@ const Login = () => {
           position="static"
           sx={{ bgcolor: "transparent", boxShadow: "none", pt: 3 }}
         >
-          <Toolbar sx={{ justifyContent: "space-evenly" }}>
+          <Toolbar sx={{ justifyContent: "space-between", marginX: "3rem" }}>
             {/* Logo */}
 
             <Typography
@@ -155,7 +155,7 @@ const Login = () => {
             </Typography>
 
             {/* Nav Links */}
-            <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+            {/* <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
               <Button
                 theme={theme}
                 color="inherit"
@@ -211,7 +211,7 @@ const Login = () => {
                 />{" "}
                 Sign In
               </Button>
-            </Box>
+            </Box> */}
             <Button
               variant="contained"
               theme={theme}
@@ -225,7 +225,7 @@ const Login = () => {
               }}
               onClick={() => navigate("/upload")}
             >
-              Upload File
+              Start Bid Assessment
             </Button>
           </Toolbar>
         </AppBar>
@@ -318,7 +318,6 @@ const Login = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                console.log("Enter key pressed, triggering OTP request");
                 handleGetOtp();
               }
             }}

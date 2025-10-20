@@ -49,55 +49,18 @@ const AddProject = ({ handleClose, handleAddProject }) => {
           p: 3,
         }}
       >
+        <Typography
+        variant="h6"
+        fontWeight="bold"
+        textAlign="center"
+      >
+        Add New Project
+      </Typography>
         <DialogContent
-          sx={{ textAlign: "center", position: "relative", pt: 6 }}
+          sx={{ textAlign: "center", position: "relative", pt: 4 }}
         >
-          {/* <Avatar
-            src="https://randomuser.me/api/portraits/women/44.jpg"
-            sx={{
-              width: 56,
-              height: 56,
-              top: -28,
-              left: "50%",
-              transform: "translateX(-50%)",
-              border: "3px solid white",
-              boxShadow: 2,
-            }}
-          /> */}
-
-          {/* Title */}
-          {/* <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            mb={3}
-          >
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{ color: "#000000" }}
-            >
-              Project Name
-            </Typography>
-            <IconButton size="small" sx={{ ml: 1, color: "#000000" }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box> */}
-
-          {/* Fields */}
+          
           <Box display="flex" flexDirection="column" gap={2} mb={4}>
-            {/* <TextField
-              label="Lorem Ipsum"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 0.8,
-                },
-              }}
-              onChange={(e) => setProjectName(e.target.value)}
-              size="small"
-              fullWidth
-              required
-            /> */}
             <CustomTextField 
             label="Project Name"
             placeholder="Enter Project Name"

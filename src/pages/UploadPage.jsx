@@ -7,6 +7,7 @@ import {
   getExtractedData,
   downloadPdf,
   getProjectById,
+  updateProjectStatus,
 } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
@@ -18,24 +19,37 @@ const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [uploadedProjectId, setUploadedProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isExtracting, setIsExtracting] = useState(false);
+  const [isExtracting, setIsExtracting] = useState("idle");
+  const [projectStatus, setProjectStatus] = useState(null);
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
   const { project_id } = useParams();
 
   const fetchExtractedData = async (projId) => {
+    setIsExtracting("loading");
     try {
-      setIsExtracting(true);
-      const response = await getExtractedData(projId);
+      const response = await getExtractedData(projId || project_id);
       if (response) {
+        setIsExtracting("success");
         toast.success("Extracted data fetched successfully");
+
+        const projectResponse = await updateProjectStatus(
+          {
+            completion_percentage: 20,
+            project_status: "in progress",
+          },
+          projId || project_id
+        );
+        setProjectStatus(projectResponse?.completion_percentage);
+      } else {
+        setIsExtracting("failed");
+        toast.error("Failed to fetch extracted data");
       }
     } catch (error) {
+      setIsExtracting("failed");
       toast.error("Failed to fetch extracted data");
       console.error(error);
-    } finally {
-      setIsExtracting(false);
     }
   };
 
@@ -67,6 +81,14 @@ const UploadPage = () => {
           setProjectId(response.project_id);
           setUploadedProjectId(response.project_id);
         }
+        const projectResponse = await updateProjectStatus(
+          {
+            completion_percentage: 10,
+            project_status: "in progress",
+          },
+          response.project_id || project_id
+        );
+        setProjectStatus(projectResponse?.completion_percentage);
 
         const targetProjectId = project_id || response.project_id;
         if (targetProjectId) await fetchExtractedData(targetProjectId);
@@ -83,7 +105,8 @@ const UploadPage = () => {
     try {
       const response = await getProjectById(projId);
       if (response) {
-        if (response.pdf_file_name && response.pdf_file_size) {
+        setProjectStatus(response?.completion_percentage);
+        if (response?.pdf_file_name && response?.pdf_file_size) {
           setFile({
             name: response.pdf_file_name,
             size: response.pdf_file_size,
@@ -126,11 +149,17 @@ const UploadPage = () => {
           handlePdfUpload={handlePdfUpload}
           loading={loading}
           isExtracting={isExtracting}
-          extractionComplete={!isExtracting && uploadedProjectId}
+          extractionComplete={
+            (isExtracting === "success" || isExtracting === "failed") &&
+            uploadedProjectId
+          }
           handleNext={() =>
             navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
           }
-          setUploadedProjectId={setUploadedProjectId} // ✅ Added this
+          setUploadedProjectId={setUploadedProjectId}
+          uploadedProjectId={uploadedProjectId}
+          fetchExtractedData={fetchExtractedData}
+          projectStatus={projectStatus}
         />
       </Box>
     </Box>

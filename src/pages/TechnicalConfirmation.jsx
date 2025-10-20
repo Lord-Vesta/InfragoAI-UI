@@ -57,7 +57,13 @@ const TechnicalConfirmation = () => {
   };
 
   return (
-    <Box width="100%" display="flex" flexDirection="column" gap={3} position="relative">
+    <Box
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      gap={3}
+      position="relative"
+    >
       <Typography fontWeight="600" fontSize={24} color={colors.black_text}>
         Confirm Technical & Financial Details
       </Typography>
@@ -67,7 +73,8 @@ const TechnicalConfirmation = () => {
         <Box
           sx={{
             "& button": {
-              backgroundColor: activeTab === "extracted" ? colors.green : "#E0E0E0",
+              backgroundColor:
+                activeTab === "extracted" ? colors.green : "#E0E0E0",
               color: activeTab === "extracted" ? "#fff" : "#333",
             },
           }}
@@ -78,16 +85,19 @@ const TechnicalConfirmation = () => {
         <Box
           sx={{
             "& button": {
-              backgroundColor: activeTab === "userInput" ? colors.green : "#E0E0E0",
+              backgroundColor:
+                activeTab === "userInput" ? colors.green : "#E0E0E0",
               color: activeTab === "userInput" ? "#fff" : "#333",
             },
           }}
         >
-          <CustomButton label="User Input Data" onClick={handleUserInputClick} />
+          <CustomButton
+            label="User Input Data"
+            onClick={handleUserInputClick}
+          />
         </Box>
       </Box>
 
-      {/* Render content based on active tab */}
       <Box mt={2}>
         {loading && <Typography>Loading...</Typography>}
         {!loading && activeTab === "extracted" && (
