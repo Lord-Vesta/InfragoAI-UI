@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   DialogTitle,
   DialogContent,
@@ -33,6 +33,7 @@ const FileUploadDialog = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const { jwtToken } = useContext(userContext);
+  const fileInputRef = React.useRef(null);
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) setFile(selectedFile);
@@ -63,7 +64,9 @@ const FileUploadDialog = ({
       alert("Only PDF files are supported!");
     }
   };
-
+ useEffect(() => {
+  console.log("is",isExtracting)
+ })
   return (
     <Paper
       open={open}
@@ -112,22 +115,47 @@ const FileUploadDialog = ({
       {projectStatus <= 10 && (
         <DialogContent sx={{ p: 0 }}>
           {isExtracting === "loading" && (
-            <Alert
-              severity="info"
-              sx={{
-                width: "100%",
-                py: 4,
-                textAlign: "center",
-                fontWeight: 500,
-              }}
-            >
-              Extraction can take up to 1 minute. Please wait...
-            </Alert>
+          <Alert
+    severity="info"
+    icon={<img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 40, height: 40 }} />}
+    sx={{
+      width: "100%",
+      py: 2,
+      display: "flex",
+      alignItems: "center",
+      fontWeight: 500,
+    }}
+  >
+    Extraction can take up to 1 minute. Please wait...
+  </Alert>
           )}
+          {isExtracting === "upload_failed" && (
+  <Alert
+    severity="error"
+    sx={{
+      width: "100%",
+      py: 4,
+      textAlign: "center",
+      fontWeight: 500,
+    }}
+  >
+    File upload failed. Please retry.
+  </Alert>
+)}
           {isExtracting === "uploading" && (
-            <Alert severity="info" sx={{ width: "100%", py: 4, textAlign: "center", fontWeight: 500 }}>
-              Uploading your PDF...
-            </Alert>
+            <Alert
+    severity="info"
+    icon={<img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 40, height: 40 }} />}
+    sx={{
+      width: "100%",
+      py: 2,
+      display: "flex",
+      alignItems: "center",
+      fontWeight: 500,
+    }}
+  >
+    File Upload is in progress.Please wait..
+  </Alert>
           )}
           {isExtracting === "failed" && (
             <Alert
@@ -215,6 +243,7 @@ const FileUploadDialog = ({
                 <input
                   type="file"
                   accept=".pdf"
+                  ref={fileInputRef}
                   onChange={handleFileChange}
                   style={{ display: "none" }}
                   id="file-upload-input"
@@ -296,7 +325,7 @@ const FileUploadDialog = ({
                 <IconButton
                   onClick={handleCancelUploadFile}
                   size="small"
-                  disabled={isExtracting === "loading"}
+                  disabled={isExtracting === "loading" || isExtracting === "uploading"}
                 >
                   <CloseIcon />
                 </IconButton>
@@ -319,38 +348,46 @@ const FileUploadDialog = ({
             justifyContent: "center",
             gap: 1,
             disabled:
-              (!file && !extractionComplete) || isExtracting === "loading",
+              (!file && !extractionComplete) || isExtracting === "loading" || isExtracting ==="uploading",
             "&:hover": {
               backgroundColor: "#0FB97D",
             },
           }}
           disabled={
-            (!file && !extractionComplete) || isExtracting === "loading"
+            (!file && !extractionComplete) || isExtracting === "loading" || isExtracting ==="uploading"
           }
-          onClick={
-            jwtToken
-              ? isExtracting === "failed"
-                ? () => fetchExtractedData(uploadedProjectId)
-                : isExtracting === "idle" && projectStatus === 0
-                ? handlePdfUpload
-                : projectStatus === 0
-                ? handlePdfUpload
-                : projectStatus === 10
-                ? () => fetchExtractedData(uploadedProjectId)
-                : handleNext
-              : isExtracting === "failed"
-              ? () => fetchExtractedData(uploadedProjectId)
-              : isExtracting === "idle"
-              ? handlePdfUpload
-              : handleNext
-          }
+            onClick={
+    isExtracting === "upload_failed"
+  ? () => {
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    }
+      : jwtToken
+      ? isExtracting === "failed"
+        ? () => fetchExtractedData(uploadedProjectId)
+        : isExtracting === "idle" && projectStatus === 0
+        ? handlePdfUpload
+        : projectStatus === 0
+        ? handlePdfUpload
+        : projectStatus === 10
+        ? () => fetchExtractedData(uploadedProjectId)
+        : handleNext
+      : isExtracting === "failed"
+      ? () => fetchExtractedData(uploadedProjectId)
+      : isExtracting === "idle"
+      ? handlePdfUpload
+      : handleNext
+  }
         >
           {isExtracting === "loading" ? (
             <>
               <CircularProgress size={18} sx={{ color: "#fff" }} />
               Extracting...
             </>
-          ) : jwtToken ? (
+          ): isExtracting === "upload_failed" ? (
+    "Retry Upload" // 👈 new label
+  )  : jwtToken ? (
             isExtracting === "failed" ? (
               "Retry Extraction"
             ) :isExtracting==="uploading"?(<>

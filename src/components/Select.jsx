@@ -29,7 +29,11 @@ const CustomSelect = ({
 
       <FormControl fullWidth size="small" sx={{ width }}>
         <AlertTooltip
-          title={tooltipText || ""} // show tooltip only if tooltipText exists
+          title={
+        <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+          {tooltipText || ""}
+        </Typography>
+      }
           placement="top"
           arrow
           type="success"

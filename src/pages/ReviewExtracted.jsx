@@ -79,7 +79,7 @@ const fieldConfig = [
 
   { label: "Commercial/Security", type: "heading" },
   {
-    label: "EMD Value",
+    label: "EMD Value (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 0.01 },
   },
@@ -131,12 +131,12 @@ const fieldConfig = [
 
   { label: "Eligibility Thresholds (Tender-defined)", type: "heading" },
   {
-    label: "avg annual turnover threshold",
+    label: "avg annual turnover threshold (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "similar work threshold",
+    label: "similar work threshold (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
@@ -151,7 +151,7 @@ const fieldConfig = [
     validation: { required: true },
   },
   {
-    label: "Liquid Assets / WC Requirement",
+    label: "Liquid Assets / WC Requirement (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
@@ -443,10 +443,10 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
+      flexDirection={"column"}
     >
-      <Typography fontSize={18} color={colors.green}>
-        Loading...
-      </Typography>
+     <img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 80, height: 80 }} />
+     <Typography sx={{color:colors.green, fontWeight:600,fontSize:"16px"}}>Loading</Typography>
     </Box>
   ) : (
     <Box

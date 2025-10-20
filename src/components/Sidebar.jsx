@@ -1,4 +1,4 @@
-import React, { act, useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
@@ -179,15 +179,17 @@ export default function Sidebar() {
                   py: 2,
                   backgroundColor: "#e3e0e0ff",
                   cursor: "pointer",
+                  
                   transition: "background-color 0.3s",
                   "&:hover": {
                     backgroundColor: "#d5d2d2",
                   },
                 }}
+                onClick={handleLogout}
               >
                 <Box
                   sx={{ flexGrow: 1, cursor: "pointer" }}
-                  onClick={handleLogout}
+                  
                 >
                   <Typography variant="subtitle1" fontWeight="bold">
                     Logout

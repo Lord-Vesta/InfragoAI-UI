@@ -51,10 +51,22 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const { projectStatus } = useContext(userContext);
   const mergedData =
     qualificationApiData?.data &&
-    Object.keys(qualificationApiData.data).length > 0
+      Object.keys(qualificationApiData.data).length > 0
       ? qualificationApiData
       : initialData;
+  const validateNumericField = (field, value) => {
+    let error = "";
+    if (!value) {
+      error = "This field is required";
+    } else if (!/^[0-9]*$/.test(value)) {
+      error = "Only numeric values allowed";
+    } else if (Number(value) <= 0) {
+      error = "Value must be greater than 0";
+    }
 
+    setErrors((prev) => ({ ...prev, [field]: error }));
+    return !error;
+  };
   useEffect(() => {
     if (mergedData) {
 
@@ -104,7 +116,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (response) {
         setQualificationApiData(response);
       }
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Error fetching qualification inputs");
     }
@@ -122,7 +134,59 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const handleAddProject = () => {
     setProjects([...projects, { name: "", scope: "", year: "", value: "" }]);
   };
+  const validateAllFields = () => {
+    let valid = true;
+    const newErrors = {};
+
+    // Validate numeric fields
+    Object.keys(numericValues).forEach((key) => {
+      const value = numericValues[key];
+      if (!value) {
+        newErrors[key] = "This field is required";
+        valid = false;
+      } else if (!/^[0-9]*$/.test(value)) {
+        newErrors[key] = "Only numeric values allowed";
+        valid = false;
+      } else if (Number(value) <= 0) {
+        newErrors[key] = "Value must be greater than 0";
+        valid = false;
+      }
+    });
+
+    // Validate similar projects
+    const projectErrors = projects.map((proj) => {
+      const projErr = {};
+      ["name", "scope", "year", "value"].forEach((field) => {
+        if (!proj[field]) {
+          projErr[field] = "Required";
+          valid = false;
+        }
+      });
+      return projErr;
+    });
+
+    setErrors(newErrors);
+    setProjects((prev) =>
+      prev.map((proj, idx) => ({
+        ...proj,
+        errors: projectErrors[idx],
+      }))
+    );
+
+    // Validate file if required
+    if (!certificateFile && showUpload) {
+      toast.error("Please upload registration/certificate file");
+      valid = false;
+    }
+
+    return valid;
+  };
+
   const handleNext = async () => {
+    if (!validateAllFields()) {
+      toast.error("Please fix all errors before proceeding");
+      return; // Stop submission
+    }
     try {
       if (projectStatus < 60) {
         const payload = {
@@ -186,27 +250,32 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
   const handleChange = (field, value) => {
-    if (value === "" || /^[0-9]*$/.test(value)) {
+    if (/^[0-9]*$/.test(value) || value === "") {
       const updatedValues = { ...numericValues, [field]: value };
 
       if (field === "bgLimit" || field === "bgUtilized") {
         const limit = Number(updatedValues.bgLimit) || 0;
         const utilized = Number(updatedValues.bgUtilized) || 0;
-        updatedValues.bgAvailable =
-          limit - utilized > 0 ? String(limit - utilized) : "0";
+        updatedValues.bgAvailable = Math.max(limit - utilized, 0).toString();
       }
 
       setNumericValues(updatedValues);
 
-      if (value === "" || Number(value) <= 0) {
-        setErrors({ ...errors, [field]: "Value must be greater than 0" });
+      // Set error
+      if (!value) {
+        setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
+      } else if (Number(value) <= 0) {
+        setErrors((prev) => ({ ...prev, [field]: "Value must be greater than 0" }));
       } else {
-        const updatedErrors = { ...errors };
-        delete updatedErrors[field];
-        setErrors(updatedErrors);
+        setErrors((prev) => {
+          const updated = { ...prev };
+          delete updated[field];
+          return updated;
+        });
       }
     }
   };
+
 
   const handleDeleteFile = () => {
     setCertificateFile(null);
@@ -224,7 +293,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       position="relative"
       overflow="auto"
     >
-      <Typography fontWeight="600" fontSize={24} color={colors.black_text} sx={{ display: "flex", justifyContent:"space-between" }}>
+      <Typography fontWeight="600" fontSize={24} color={colors.black_text} sx={{ display: "flex", justifyContent: "space-between" }}>
         {mergedData ? "Review " : "Provide "}
         Qualification Inputs{" "}
         {mergedData ? (
@@ -296,15 +365,20 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           <Box display="flex" alignItems="center">
             <Box
               sx={{
-                "& button": {
-                  borderRadius: "12px 0 0 12px !important",
-                  boxShadow: "none",
-                  height: "40px !important",
-                },
+                backgroundColor: colors.green,
+                color: "#fff",
+                padding: "9px 16px",
+                borderRadius: "12px 0 0 12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 500,
+                fontSize: 14,
               }}
             >
-              <CustomButton label="Past 3 years" />
+              Past 3 years
             </Box>
+
             <Box
               sx={{
                 "& .MuiOutlinedInput-root": {
@@ -313,32 +387,38 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 },
               }}
             >
+
               <CustomTextField
                 placeholder="Enter value"
-                width="300px"
+                width="100%"
                 value={numericValues.Turnover_3_years}
                 onChange={(e) =>
                   handleChange("Turnover_3_years", e.target.value)
                 }
-                error={!!errors.turnover3}
-                helperText={errors.turnover3}
+                //               error={!!errors.Turnover_3_years}
+                // helperText={errors.Turnover_3_years}
                 disabled={isInitialData}
                 showIcon={true}
               />
+
             </Box>
           </Box>
 
           <Box display="flex" alignItems="center">
             <Box
               sx={{
-                "& button": {
-                  borderRadius: "12px 0 0 12px !important",
-                  boxShadow: "none",
-                  height: "40px !important",
-                },
+                backgroundColor: colors.green,
+                color: "#fff",
+                padding: "9px 16px",
+                borderRadius: "12px 0 0 12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 500,
+                fontSize: 14,
               }}
             >
-              <CustomButton label="Past 5 years" />
+              Past 5 years
             </Box>
             <Box
               sx={{
@@ -350,7 +430,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             >
               <CustomTextField
                 placeholder="Enter value"
-                width="300px"
+                width="100%"
                 value={numericValues.Turnover_5_years}
                 onChange={(e) =>
                   handleChange("Turnover_5_years", e.target.value)
@@ -402,7 +482,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               Project details {index + 1}
             </Typography>
 
-            {["name", "scope", "year", "value"].map((field) => (
+            {/* {["name", "scope", "year", "value"].map((field) => (
               <Box
                 key={field}
                 display="flex"
@@ -415,7 +495,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 </Typography>
                 <CustomTextField
                   placeholder={`Enter Project ${field}`}
-                  width="300px"
+                  width="100%"
                   value={project[field]}
                   disabled={isInitialData}
                   onChange={(e) => {
@@ -424,9 +504,37 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                     setProjects(updated);
                   }}
                   showIcon={true}
+                  multiline={field === "scope"}   // ✅ make textarea
+      minRows={field === "scope" ? 3 : 1}   // sets initial height
+  maxRows={field === "scope" ? 6 : 1} 
+                />
+              </Box>
+            ))} */}
+            {["name", "scope", "year", "value"].map((field) => (
+              <Box key={field} display="flex" alignItems="center" gap={2} mb={1}>
+                <Typography fontSize={12} fontWeight={700} width="80px">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}:
+                </Typography>
+                <CustomTextField
+                  placeholder={`Enter Project ${field}`}
+                  width="100%"
+                  value={project[field]}
+                  disabled={isInitialData}
+                  onChange={(e) => {
+                    const updated = [...projects];
+                    updated[index][field] = e.target.value;
+                    setProjects(updated);
+                  }}
+                  error={!!project.errors?.[field]}
+                  helperText={project.errors?.[field]}
+                  showIcon={true}
+                  multiline={field === "scope"}
+                  minRows={field === "scope" ? 3 : 1}
+                  maxRows={field === "scope" ? 6 : 1}
                 />
               </Box>
             ))}
+
           </Paper>
         ))}
 
@@ -439,8 +547,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         <Box display="flex" alignItems="center" gap={1}>
           <CustomTextField
             placeholder="Net Worth (CA certified)"
-            label="Net Worth (CA certified)"
-            width="45vw"
+            label="Net Worth (CA certified) (₹ Cr) "
+            width="80%"
             value={numericValues.netWorth}
             onChange={(e) => handleChange("netWorth", e.target.value)}
             error={!!errors.netWorth}
@@ -451,8 +559,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         </Box>
         <CustomTextField
           placeholder="Working Capital / Liquid Assets"
-          label="Working Capital / Liquid Assets"
-          width="45vw"
+          label="Working Capital / Liquid Assets (₹ Cr)"
+          width="80%"
           value={numericValues.workingCapital}
           onChange={(e) => handleChange("workingCapital", e.target.value)}
           error={!!errors.workingCapital}
@@ -462,8 +570,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         />
         <CustomTextField
           placeholder="Work in Hand (B value for formula)"
-          label="Work in Hand (B value for formula)"
-          width="45vw"
+          label="Work in Hand (B value for formula) (₹ Cr)"
+          width="80%"
           value={numericValues.workInHand}
           onChange={(e) => handleChange("workInHand", e.target.value)}
           error={!!errors.workInHand}
@@ -473,8 +581,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         />
         <CustomTextField
           placeholder="BG Limit (Sanctioned)"
-          label="BG Limit (Sanctioned)"
-          width="45vw"
+          label="BG Limit (Sanctioned) (₹ Cr)"
+          width="80%"
           value={numericValues.bgLimit}
           onChange={(e) => handleChange("bgLimit", e.target.value)}
           error={!!errors.bgLimit}
@@ -484,8 +592,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         />
         <CustomTextField
           placeholder="BG Utilized"
-          label="BG Utilized"
-          width="45vw"
+          label="BG Utilized (₹ Cr)"
+          width="80%"
           value={numericValues.bgUtilized}
           onChange={(e) => handleChange("bgUtilized", e.target.value)}
           error={!!errors.bgUtilized}
@@ -495,8 +603,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         />
         <CustomTextField
           placeholder="BG Available (Sanctioned – Utilized)"
-          label="BG Available (Sanctioned – Utilized)"
-          width="45vw"
+          label="BG Available (Sanctioned – Utilized) (₹ Cr) "
+          width="80%"
           value={numericValues.bgAvailable}
           error={!!errors.bgAvailable}
           helperText={errors.bgAvailable}
@@ -504,8 +612,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         />
         <CustomTextField
           placeholder="Quoted Price"
-          label="Quoted Price"
-          width="45vw"
+          label="Quoted Price (₹ Cr)"
+          width="80%"
           value={numericValues.quotedPrice}
           onChange={(e) => handleChange("quotedPrice", e.target.value)}
           error={!!errors.quotedPrice}
@@ -526,15 +634,21 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             placeholder="Yes"
             width="100px"
             value={litigationStatus}
-            onChange={(event) => setLitigationStatus(event.target.value)}
+             onChange={(event) => {
+    const value = event.target.value;
+    setLitigationStatus(value);
+    if (value === "No") {
+      setLitigationDetails(""); // ✅ clear the details if status is No
+    }
+  }}
             disabled={isInitialData}
           />
           <CustomTextField
             placeholder="Details if any"
-            width="37vw"
+            width="69%"
             value={litigationDetails}
             onChange={(e) => setLitigationDetails(e.target.value)}
-            disabled={isInitialData}
+            disabled={isInitialData || litigationStatus === "No"}
           />
         </Box>
       </Box>
@@ -556,7 +670,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             border="1px solid #e0e0e0"
             borderRadius="12px"
             p={3}
-            width="60vw"
+            width="80%"
             display="flex"
             flexDirection="column"
             alignItems="flex-start"
@@ -624,7 +738,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             sx={{
               borderRadius: "12px",
               padding: "24px",
-              width: "60vw",
+              width: "80%",
               gap: "16px",
               display: "flex",
               flexDirection: "column",
