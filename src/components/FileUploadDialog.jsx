@@ -16,6 +16,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import AlertTooltip from "./Tooltip";
 import { userContext } from "../context/ContextProvider";
+import { PuffLoader  } from "react-spinners";
 
 const FileUploadDialog = ({
   open,
@@ -117,7 +118,7 @@ const FileUploadDialog = ({
           {isExtracting === "loading" && (
           <Alert
     severity="info"
-    icon={<img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 40, height: 40 }} />}
+    icon={<PuffLoader  color="#0FB97D"  size={30}/>}
     sx={{
       width: "100%",
       py: 2,
@@ -145,7 +146,7 @@ const FileUploadDialog = ({
           {isExtracting === "uploading" && (
             <Alert
     severity="info"
-    icon={<img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 40, height: 40 }} />}
+    icon={<PuffLoader  color="#0FB97D"  size={30}/>}
     sx={{
       width: "100%",
       py: 2,

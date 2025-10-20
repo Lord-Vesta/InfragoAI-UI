@@ -23,6 +23,7 @@ import { toast } from "react-toastify";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import { PuffLoader  } from "react-spinners";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -445,8 +446,8 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       alignItems="center"
       flexDirection={"column"}
     >
-     <img src="/src/assets/Sandy Loading.gif" alt="loading" style={{ width: 80, height: 80 }} />
-     <Typography sx={{color:colors.green, fontWeight:600,fontSize:"16px"}}>Loading</Typography>
+   <PuffLoader  color="#0FB97D"  size={60}/>
+     {/* <Typography sx={{color:colors.green, fontWeight:600,fontSize:"16px"}}>Loading</Typography> */}
     </Box>
   ) : (
     <Box
