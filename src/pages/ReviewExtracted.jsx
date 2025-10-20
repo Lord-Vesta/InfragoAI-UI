@@ -8,7 +8,7 @@ import CustomDatePicker from "../components/DatePicker";
 import colors from "../assets/colors";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CustomButton from "../components/Button";
-import Toggle from "../components/toggleButton";
+import Toggle from "../components/ToggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { downloadPdf, updateProjectStatus } from "../Utils/Api.utils";
