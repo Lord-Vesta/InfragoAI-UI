@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
@@ -43,7 +43,7 @@ const TechnicalConfirmation = () => {
   // Initial load: fetch extracted data automatically
   useEffect(() => {
     fetchExtractedData();
-  }, []);
+  }, [fetchExtractedData]);
 
   // Button click handlers
   const handleExtractedClick = () => {

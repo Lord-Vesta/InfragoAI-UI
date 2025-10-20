@@ -20,7 +20,6 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
-import pdfImage from "../assets/PDF_file_icon.svg.png";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
@@ -179,7 +178,7 @@ const fieldConfig = [
   },
 ];
 
-const ReviewExtracted = ({ loggedIn, height = "85vh", extractedData }) => {
+const ReviewExtracted = ({  height = "85vh", extractedData }) => {
   const [fields, setFields] = useState([]);
   const [editableFields, setEditableFields] = useState([]);
   const [errors, setErrors] = useState([]);

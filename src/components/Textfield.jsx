@@ -1,15 +1,7 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { TextField, Typography, Box, IconButton } from "@mui/material";
-<<<<<<< HEAD
 import EditIcon from "@mui/icons-material/Edit";
-const CustomTextField = ({
-=======
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import AlertTooltip from "./Tooltip";
-
-
 const CustomTextField = forwardRef(({
->>>>>>> 45588ad7e2955c5ff0d3b564831bf6a92df6c49f
   value,
   onChange,
   placeholder,

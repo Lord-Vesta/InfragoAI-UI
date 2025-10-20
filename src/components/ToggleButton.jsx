@@ -2,7 +2,7 @@ import React from "react";
 import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import colors from "../assets/colors";
 
-const Toggle = ({ label, value, onChange }) => {
+const Toggle = ({  value, onChange }) => {
   const normalizedValue = value?.toLowerCase() || "no";
 
   const handleChange = (event, newValue) => {
