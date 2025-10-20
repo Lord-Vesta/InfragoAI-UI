@@ -71,7 +71,6 @@ const UploadPage = () => {
       } else {
         response = await uploadPdfAnonymous(formData);
       }
-
       if (response) {
         toast.success("File uploaded successfully");
 
@@ -79,6 +78,7 @@ const UploadPage = () => {
         if (response.project_id) {
           setProjectId(response.project_id);
           setUploadedProjectId(response.project_id);
+          localStorage.setItem("anonProjectId", response.project_id);
         }
         const projectResponse = await updateProjectStatus(
           {

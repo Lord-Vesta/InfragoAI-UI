@@ -16,11 +16,17 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { project_id } = useParams();
   const { jwtToken, projectStatus } = useContext(userContext);
-
+const storedProjectId = localStorage.getItem("anonProjectId");
+const projectIdToUse = jwtToken ? project_id : storedProjectId;
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
-
+ const location = useLocation().pathname;
+  useEffect(() => {
+    if (location === "/") {
+      localStorage.removeItem("anonProjectId");
+    }
+  }, [location]);
   const steps = [
     "Upload",
     "Review Extracted",
@@ -30,14 +36,14 @@ export default function Sidebar() {
   ];
 
   const stepRoutes = [
-    `/upload/${project_id}`,
-    `/reviewextracted/${project_id}`,
-    `/qualificationinputs/${project_id}`,
-    `/technicalconfirmation/${project_id}`,
-    `/bgsummary/${project_id}`,
+    `/upload/${projectIdToUse}`,
+    `/reviewextracted/${projectIdToUse}`,
+    `/qualificationinputs/${projectIdToUse}`,
+    `/technicalconfirmation/${projectIdToUse}`,
+    `/bgsummary/${projectIdToUse}`,
   ];
 
-  const location = useLocation().pathname;
+ 
   const handleStepClick = (i) => {
     if (!jwtToken && i >= 2) {
       toast.info("You must be logged in to access this step.");

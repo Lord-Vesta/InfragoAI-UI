@@ -67,6 +67,16 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     setErrors((prev) => ({ ...prev, [field]: error }));
     return !error;
   };
+  const validateYearField = (year) => {
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 5; // past 5 years
+  if (!year) return "This field is required";
+  if (!/^\d{4}$/.test(year)) return "Enter a valid 4-digit year";
+  if (Number(year) < minYear || Number(year) > currentYear)
+    return `Year must be between ${minYear} and ${currentYear}`;
+  return "";
+};
+
   useEffect(() => {
     if (mergedData) {
 
@@ -161,6 +171,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           projErr[field] = "Required";
           valid = false;
         }
+         if (field === "year") {
+      const yearError = validateYearField(proj[field]);
+      if (yearError) {
+        projErr[field] = yearError;
+        valid = false;
+      }
+    }
       });
       return projErr;
     });
@@ -523,6 +540,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                   onChange={(e) => {
                     const updated = [...projects];
                     updated[index][field] = e.target.value;
+                      if (field === "year") {
+    const error = validateYearField(e.target.value);
+    updated[index].errors = { ...updated[index].errors, year: error };
+  }
                     setProjects(updated);
                   }}
                   error={!!project.errors?.[field]}
