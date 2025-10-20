@@ -108,6 +108,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (response) {
         setQualificationApiData(response);
       }
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Error fetching qualification inputs");
     }

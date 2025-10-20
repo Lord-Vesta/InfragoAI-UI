@@ -4,9 +4,9 @@ import { TextField } from "@mui/material";
 import AlertTooltip from "./Tooltip";
 
 const CustomDatePicker = ({ value, onChange, placeholder,disabled ,onBlur,tooltipText}) => {
-    const [isEditable, setIsEditable] = useState(!disabled);
+    const [ setIsEditable] = useState(!disabled);
   return (
-    <AlertTooltip title={tooltipText || ""} placement="top" arrow>
+    <AlertTooltip title={tooltipText || ""} placement="top" arrow type="success">
     <TextField
       type="date"
       value={value || ""}

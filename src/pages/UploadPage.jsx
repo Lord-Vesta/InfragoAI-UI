@@ -61,6 +61,7 @@ const UploadPage = () => {
 
     setLoading(true);
     try {
+      setIsExtracting("uploading");
       const formData = new FormData();
       formData.append("pdf_file", file);
 

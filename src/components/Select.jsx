@@ -13,7 +13,7 @@ const CustomSelect = ({
   onBlur,
   tooltipText, // new prop
 }) => {
-  const [isEditable, setIsEditable] = useState(!disabled);
+  const [ setIsEditable] = useState(!disabled);
 
   return (
     <div style={{ width }}>
@@ -32,6 +32,7 @@ const CustomSelect = ({
           title={tooltipText || ""} // show tooltip only if tooltipText exists
           placement="top"
           arrow
+          type="success"
         >
           <Select
             value={value}

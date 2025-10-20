@@ -23,7 +23,6 @@ const FileUploadDialog = ({
   setFile,
   file,
   handlePdfUpload,
-  loading,
   isExtracting,
   extractionComplete,
   handleNext,
@@ -123,6 +122,11 @@ const FileUploadDialog = ({
               }}
             >
               Extraction can take up to 1 minute. Please wait...
+            </Alert>
+          )}
+          {isExtracting === "uploading" && (
+            <Alert severity="info" sx={{ width: "100%", py: 4, textAlign: "center", fontWeight: 500 }}>
+              Uploading your PDF...
             </Alert>
           )}
           {isExtracting === "failed" && (
@@ -349,7 +353,10 @@ const FileUploadDialog = ({
           ) : jwtToken ? (
             isExtracting === "failed" ? (
               "Retry Extraction"
-            ) : isExtracting === "idle" && projectStatus === 0 ? (
+            ) :isExtracting==="uploading"?(<>
+              <CircularProgress size={18} sx={{ color: "#fff" }} />
+              Uploading...
+            </>): isExtracting === "idle" && projectStatus === 0 ? (
               "Upload & Extract"
             ) : projectStatus === 0 ? (
               "Upload & Extract"

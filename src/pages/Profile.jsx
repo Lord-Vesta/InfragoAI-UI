@@ -60,6 +60,7 @@ const Profile = () => {
           closeOnClick: true,
         });
       }
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Failed to fetch projects. Please try again.", {
         autoClose: 2000,
