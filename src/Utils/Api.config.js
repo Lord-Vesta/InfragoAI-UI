@@ -16,7 +16,7 @@ export const ApiConfig = {
   GET_EXTRACTED_INPUTS: (projectId) =>
     `/api/projects/${projectId}/extracted-data/`,
   LOGOUT: `/api/users/logout/`,
-  GET_PROJECT_BY_ID: (projectId) => `/api/projects/${projectId}/detail`,
+  GET_PROJECT_BY_ID: (projectId) => `/api/projects/${projectId}/detail/`,
   UPLOAD_PROJECT_STATUS: (projectId) =>
     `/api/projects/${projectId}/update-completion-percentage/`,
   TENDER_EVALUATE: (projectId) =>

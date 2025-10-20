@@ -5,14 +5,12 @@ import {
   uploadPdfAnonymous,
   uploadPdfAuthenticated,
   getExtractedData,
-  downloadPdf,
   getProjectById,
   updateProjectStatus,
 } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { userContext } from "../context/ContextProvider";
-import { useNavigate, useParams, useLocation } from "react-router";
-import colors from "../assets/colors";
+import { useNavigate, useParams } from "react-router";
 
 const UploadPage = () => {
   const [open, setOpen] = useState(true);
@@ -61,6 +59,7 @@ const UploadPage = () => {
 
     setLoading(true);
     try {
+      setIsExtracting("uploading");
       const formData = new FormData();
       formData.append("pdf_file", file);
 
@@ -68,7 +67,7 @@ const UploadPage = () => {
 
       if (jwtToken) {
         formData.append("project_id", project_id);
-        response = await uploadPdfAuthenticated(formData, project_id);
+        response = await uploadPdfAuthenticated(formData,project_id);
       } else {
         response = await uploadPdfAnonymous(formData);
       }
@@ -94,6 +93,7 @@ const UploadPage = () => {
         if (targetProjectId) await fetchExtractedData(targetProjectId);
       }
     } catch (error) {
+       setIsExtracting("upload_failed"); 
       toast.error("Error uploading file");
       console.error(error);
     } finally {

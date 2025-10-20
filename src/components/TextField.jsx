@@ -12,6 +12,7 @@ const CustomTextField = forwardRef(({
   label,
   minRows = 1,
   maxRows,
+  rows,
   width = "100%",
   showIcon = false,
   disabled = false,
@@ -58,7 +59,11 @@ const CustomTextField = forwardRef(({
       )}
 
       {tooltip ? (
-        <AlertTooltip title={tooltip} type="success" placement="top" arrow>
+        <AlertTooltip  title={
+        <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
+          {tooltip || ""}
+        </Typography>
+      } type="success" placement="top" arrow>
           <TextField
             fullWidth
             value={value}
@@ -72,6 +77,7 @@ const CustomTextField = forwardRef(({
             multiline={multiline}
             minRows={minRows}
             maxRows={maxRows}
+            rows={rows}
             error={error}
             helperText={helperText}
             variant="outlined"
