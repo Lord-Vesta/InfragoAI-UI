@@ -13,6 +13,7 @@ import {
   TableRow,
   LinearProgress,
   Chip,
+  Skeleton
 } from "@mui/material";
 import Person from "../assets/Person.png";
 import AddIcon from "@mui/icons-material/Add";
@@ -27,6 +28,7 @@ import { useNavigate } from "react-router";
 const Profile = () => {
   const [openPopup, setOpenPopup] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const handleAddProject = async (projectName) => {
@@ -49,6 +51,7 @@ const Profile = () => {
   }, []);
 
   const fetchProjects = async () => {
+    setLoading(true);
     try {
       const response = await getProjects();
       if (response?.length > 0) {
@@ -66,7 +69,10 @@ const Profile = () => {
         autoClose: 2000,
         pauseOnHover: true,
         closeOnClick: true,
-      });
+      }
+    );
+    }finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -224,19 +230,26 @@ const Profile = () => {
 
         {/* Table */}
         <Box sx={{ px: 2, overflowY: "auto" }}>
+          {loading ? (
+          // Show skeleton while loading
+          Array.from({ length: 5 }).map((_, idx) => (
+            <Box key={idx} sx={{ display: "flex", gap: 2, mb: 2, alignItems: "center" }}>
+              <Skeleton variant="circular" width={40} height={40} />
+              <Skeleton variant="text" width="50%" height={60} />
+              <Skeleton variant="text" width="40%" height={60} />
+            </Box>
+          ))
+        ) : (
           <Table>
             <TableHead>
-              <TableRow
-                sx={{ "& th": { borderBottom: "none", color: "#929292" } }}
-              >
+              <TableRow sx={{ "& th": { borderBottom: "none", color: "#929292" } }}>
                 <TableCell>Project Name</TableCell>
-                {/* <TableCell>Lorem</TableCell> */}
                 <TableCell>Status</TableCell>
                 <TableCell>Completion Status</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
-            <TableBody sx={{ overflowY: "auto" }}>
+            <TableBody>
               {projects.map((p) => (
                 <TableRow
                   key={p.project_id}
@@ -251,19 +264,14 @@ const Profile = () => {
                   onClick={() => {
                     let route = "upload";
                     if (p.completion_percentage < 20) route = "upload";
-                    else if (p.completion_percentage < 40)
-                      route = "reviewExtracted";
-                    else if (p.completion_percentage < 60)
-                      route = "QualificationInputs";
-                    else if (p.completion_percentage < 80)
-                      route = "TechnicalConfirmation";
+                    else if (p.completion_percentage < 40) route = "reviewExtracted";
+                    else if (p.completion_percentage < 60) route = "QualificationInputs";
+                    else if (p.completion_percentage < 80) route = "TechnicalConfirmation";
                     else if (p.completion_percentage >= 80) route = "BGsummary";
-                    navigate(`/${route}/${p.project_id}`, {
-                      state: { project: p },
-                    });
+                    navigate(`/${route}/${p.project_id}`, { state: { project: p } });
                   }}
                 >
-                  {/* Company + Avatar */}
+                  {/* Project Name */}
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
                       <img
@@ -274,9 +282,6 @@ const Profile = () => {
                       <Typography fontSize={12}>{p.name}</Typography>
                     </Box>
                   </TableCell>
-
-                  {/* Lorem */}
-                  {/* <TableCell sx={{ fontSize: "12px" }}>lorem</TableCell> */}
 
                   {/* Status */}
                   <TableCell>
@@ -294,11 +299,7 @@ const Profile = () => {
                   {/* Completion */}
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        fontSize={12}
-                      >
+                      <Typography variant="body2" fontWeight="bold" fontSize={12}>
                         {p.completion_percentage}%
                       </Typography>
                       <LinearProgress
@@ -332,6 +333,7 @@ const Profile = () => {
               ))}
             </TableBody>
           </Table>
+        )}
         </Box>
       </Box>
       {openPopup && (
