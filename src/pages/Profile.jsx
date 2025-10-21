@@ -338,6 +338,7 @@ const Profile = () => {
         <AddProject
           handleClose={() => setOpenPopup(false)}
           handleAddProject={handleAddProject}
+          existingProjects={projects}
         />
       )}
     </Box>

@@ -22,12 +22,13 @@ const UploadPage = () => {
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
-  const { project_id } = useParams();
-
+  const { project_id:urlProjectId  } = useParams();
+const projectId =
+  jwtToken ? urlProjectId : localStorage.getItem("anonProjectId");
   const fetchExtractedData = async (projId) => {
     setIsExtracting("loading");
     try {
-      const response = await getExtractedData(projId || project_id);
+      const response = await getExtractedData(projId || projectId);
       if (response) {
         setIsExtracting("success");
         toast.success("Extracted data fetched successfully");
@@ -37,7 +38,7 @@ const UploadPage = () => {
             completion_percentage: 20,
             project_status: "in progress",
           },
-          projId || project_id
+          projId || projectId
         );
         setProjectStatus(projectResponse?.completion_percentage);
       } else {
@@ -66,8 +67,8 @@ const UploadPage = () => {
       let response;
 
       if (jwtToken) {
-        formData.append("project_id", project_id);
-        response = await uploadPdfAuthenticated(formData,project_id);
+        formData.append("project_id", projectId);
+        response = await uploadPdfAuthenticated(formData,projectId);
       } else {
         response = await uploadPdfAnonymous(formData);
       }
@@ -85,11 +86,11 @@ const UploadPage = () => {
             completion_percentage: 10,
             project_status: "in progress",
           },
-          response.project_id || project_id
+          response.project_id || projectId
         );
         setProjectStatus(projectResponse?.completion_percentage);
 
-        const targetProjectId = project_id || response.project_id;
+        const targetProjectId = projectId || response.project_id;
         if (targetProjectId) await fetchExtractedData(targetProjectId);
       }
     } catch (error) {
@@ -120,10 +121,10 @@ const UploadPage = () => {
   };
 
   useEffect(() => {
-    if (project_id) {
-      handleFetchProjectData(project_id);
+    if (projectId) {
+      handleFetchProjectData(projectId);
     }
-  }, [project_id]);
+  }, [projectId]);
 
   return (
     <Box
@@ -154,7 +155,7 @@ const UploadPage = () => {
             uploadedProjectId
           }
           handleNext={() =>
-            navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
+            navigate(`/ReviewExtracted/${projectId || uploadedProjectId}`)
           }
           setUploadedProjectId={setUploadedProjectId}
           uploadedProjectId={uploadedProjectId}

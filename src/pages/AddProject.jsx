@@ -12,9 +12,31 @@ import {
 import CustomTextField from "../components/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect } from "react";
+import {Alert} from "@mui/material";
 
-const AddProject = ({ handleClose, handleAddProject }) => {
+const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) => {
   const [projectName, setProjectName] = useState("");
+  const [error, setError] = useState("");
+
+  // Validate project name whenever it changes
+  useEffect(() => {
+    const name = projectName.trim().toLowerCase();
+
+    if (!projectName.trim()) {
+      setError("");
+      return;
+    }
+
+    const duplicate = existingProjects.some(
+      (p) => p.name.trim().toLowerCase() === name
+    );
+
+    if (duplicate) {
+      setError("A project with this name already exists.");
+    } else {
+      setError("");
+    }
+  }, [projectName, existingProjects]);
 
   const handleSubmit = () => {
     if (!projectName.trim()) return;
@@ -50,64 +72,78 @@ const AddProject = ({ handleClose, handleAddProject }) => {
         }}
       >
         <Typography
-        variant="h6"
-        fontWeight="bold"
-        textAlign="center"
-      >
-        Add New Project
-      </Typography>
+          variant="h6"
+          fontWeight="bold"
+          textAlign="center"
+        >
+          Add New Project
+        </Typography>
         <DialogContent
           sx={{ textAlign: "center", position: "relative", pt: 4 }}
         >
-          
-          <Box display="flex" flexDirection="column" gap={2} mb={4}>
-            <CustomTextField 
-            label="Project Name"
-            placeholder="Enter Project Name"
-            onChange={(e) => setProjectName(e.target.value)}
-             size="small"
-             width="100%"
-             disableOnBlur={false} 
+
+          <Box display="flex" flexDirection="column" gap={2} mb={2}>
+            <CustomTextField
+              label="Project Name"
+              placeholder="Enter Project Name"
+              onChange={(e) => setProjectName(e.target.value)}
+              size="small"
+              width="100%"
+              disableOnBlur={false}
               required
             />
           </Box>
-
-          {/* Buttons */}
-          <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button
-              variant="outlined"
+         {error && (
+            <Alert
+              severity="error"
               sx={{
-                flex: 1,
-                mr: 1,
-                borderRadius: 0.5,
-                textTransform: "none",
-                fontWeight: "bold",
-                color: "#6B7280",
-                borderColor: "#D1D5DB",
+                fontSize: "0.85rem",
+                mb: 2,
+                borderRadius: "6px",
+                textAlign: "left",
               }}
-              onClick={handleClose}
             >
-              BACK
-            </Button>
-            <Button
-              variant="contained"
-              sx={{
-                flex: 1,
-                ml: 1,
-                borderRadius: 0.5,
-                textTransform: "none",
-                fontWeight: "bold",
-                bgcolor: "#0FB97D",
-                "&:hover": { bgcolor: "#0ca76f" },
-              }}
-              onClick={handleSubmit}
-            >
-              NEXT
-            </Button>
-          </Box>
-        </DialogContent>
+              {error}
+            </Alert>
+          )}
+      
+      {/* Buttons */}
+      <Box display="flex" justifyContent="space-between" mt={2}>
+        <Button
+          variant="outlined"
+          sx={{
+            flex: 1,
+            mr: 1,
+            borderRadius: 0.5,
+            textTransform: "none",
+            fontWeight: "bold",
+            color: "#6B7280",
+            borderColor: "#D1D5DB",
+          }}
+          onClick={handleClose}
+        >
+          BACK
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            flex: 1,
+            ml: 1,
+            borderRadius: 0.5,
+            textTransform: "none",
+            fontWeight: "bold",
+            bgcolor: error || !projectName.trim() ? "#A5D6A7" : "#0FB97D",
+            "&:hover": { bgcolor: error || !projectName.trim() ? "#A5D6A7" : "#0ca76f" },
+          }}
+          disabled={!!error || !projectName.trim()}
+          onClick={handleSubmit}
+        >
+          NEXT
+        </Button>
       </Box>
-    </Box>
+    </DialogContent>
+      </Box >
+    </Box >
   );
 };
 
