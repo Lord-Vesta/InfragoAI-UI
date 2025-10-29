@@ -41,7 +41,7 @@ const Profile = () => {
         setOpenPopup(false);
       }
     } catch (error) {
-      toast.error("Error creating project:", error);
+      toast.error("Error creating project", error);
     }
     // handleClose();
   };

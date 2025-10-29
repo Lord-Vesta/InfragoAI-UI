@@ -18,16 +18,20 @@ import { useParams, useNavigate, useLocation } from "react-router";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
-import { userContext } from "../context/ContextProvider";
 import DownloadIcon from "@mui/icons-material/Download";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
+
   const [projects, setProjects] = useState([
     { name: "", scope: "", year: "", value: "" },
   ]);
-
+  const [turnoverEditable, setTurnoverEditable] = useState(false);
+  const [litigationEditable, setLitigationEditable] = useState(false);
   const location = useLocation().pathname;
 
+  const [projectsEditable, setProjectsEditable] = useState(
+    projects.map(() => false)
+  );
   const [numericValues, setNumericValues] = useState({
     Turnover_3_years: "",
     Turnover_5_years: "",
@@ -60,7 +64,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   );
   const { project_id } = useParams();
   const navigate = useNavigate();
-  const { projectStatus } = useContext(userContext);
   const mergedData =
     qualificationApiData?.data &&
     Object.keys(qualificationApiData.data).length > 0
@@ -177,7 +180,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         Array.isArray(mergedData.similar_projects)
       ) {
         const formattedProjects = mergedData?.similar_projects.map((proj) => ({
-          id: proj.similar_project_id,
+          similar_project_id: proj.similar_project_id,
           name: proj.is_edited ? proj.edited_name : proj.name,
           scope: proj.is_edited ? proj.edited_scope : proj.scope,
           year: proj.is_edited ? proj.edited_year || proj.year : proj.year,
@@ -195,7 +198,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (response) {
         setQualificationApiData(response);
       }
-      // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Error fetching qualification inputs");
     }
@@ -268,12 +271,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
 
   const handleNext = async () => {
-    if (!validateAllFields()) {
-      toast.error("Please fix all errors before proceeding");
-      return; // Stop submission
-    }
     try {
-      if (projectStatus < 60) {
+      // if (projectStatus < 60) {
         const payload = {
           turnover_past_3_years:
             currencyValues.Turnover_3_years === "Crore"
@@ -346,13 +345,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             navigate(`/BGsummary/${project_id}`);
           }
         }
-      } else {
-        if (location.toLowerCase().includes("qualificationinputs")) {
-          navigate(`/TechnicalConfirmation/${project_id}`);
-        } else {
-          navigate(`/BGsummary/${project_id}`);
-        }
-      }
+      // } else {
+      //   if (location.toLowerCase().includes("qualificationinputs")) {
+      //     navigate(`/TechnicalConfirmation/${project_id}`);
+      //   } else {
+      //     navigate(`/BGsummary/${project_id}`);
+      //   }
+      // }
     } catch (err) {
       if (err.response) {
         console.error("API Error Response:", err.response.data);
@@ -362,8 +361,24 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
   const handleChange = (field, value) => {
-    if (/^[0-9]*$/.test(value) || value === "") {
-      const updatedValues = { ...numericValues, [field]: value };
+    // ✅ Allow only numeric input for all numeric fields
+    const numericFields = [
+      "turnover3",
+      "turnover5",
+      "netWorth",
+      "workingCapital",
+      "workInHand",
+      "bgLimit",
+      "bgUtilized",
+      "bgAvailable",
+      "quotedPrice",
+    ];
+
+    if (numericFields.includes(field) && value !== "" && !/^[0-9]*$/.test(value)) {
+      return; // Ignore non-numeric input
+    }
+
+    const updatedValues = { ...numericValues, [field]: value };
 
       if (field === "bgLimit" || field === "bgUtilized") {
         const limit = Number(updatedValues.bgLimit) || 0;
@@ -387,7 +402,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         }));
       }
 
-      setNumericValues(updatedValues);
+    setNumericValues(updatedValues);
 
       // Set error
       if (!value) {
@@ -398,14 +413,11 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           [field]: "Value must be greater than 0",
         }));
       } else {
-        setErrors((prev) => {
-          const updated = { ...prev };
-          delete updated[field];
-          return updated;
-        });
+        const updatedErrors = { ...errors };
+        delete updatedErrors[field];
+        setErrors(updatedErrors);
       }
     }
-  };
 
   const handleDeleteFile = () => {
     setCertificateFile(null);
@@ -452,6 +464,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
 
   return (
+    <>
     <Box
       width="100%"
       display="flex"
@@ -469,7 +482,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       >
         {mergedData ? "Review " : "Provide "}
         Qualification Inputs{" "}
-        {mergedData ? (
+        {initialData ? (
           <Box component="span" sx={{ display: "inline-block" }}>
             {/* <GetAppIcon
               style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
@@ -508,6 +521,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                   gap: "8px",
                   justifyContent: "center",
                   alignItems: "center",
+                  marginRight:"16px"
                 }}
               >
                 <Box
@@ -523,7 +537,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 >
                   <DownloadIcon />
                 </Box>
-                <Typography>Download Bid Data</Typography>
+                <Typography>Download User Input Data</Typography>
               </Box>
             </Button>
           </Box>
@@ -531,27 +545,36 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       </Typography>
 
       <Box>
-        <Typography fontWeight="400" mb={1}>
-          Avg Annual Turnover
-        </Typography>
-        <Box display="flex" alignItems="center" gap={4}>
-          <Box display="flex" gap={1}>
-            <Box display="flex" alignItems="center">
-              <Box
-                sx={{
-                  backgroundColor: colors.green,
-                  color: "#fff",
-                  padding: "9px 16px",
-                  borderRadius: "12px 0 0 12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 500,
-                  fontSize: 14,
-                }}
-              >
-                Past 3 years
-              </Box>
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <Typography fontWeight="400">Avg Annual Turnover (₹ Cr)</Typography>
+
+        {/* Edit Icon */}
+        {isInitialData  && (
+          <IconButton
+            size="small" sx={{ ml: 1, color: "#0FB97D" }}
+            onClick={() => setTurnoverEditable(true)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+        <Box display="flex" alignItems="center" gap={3}>
+          <Box display="flex" alignItems="center">
+            <Box
+              sx={{
+                backgroundColor: colors.green,
+                color: "#fff",
+                padding: "9px 16px",
+                borderRadius: "12px 0 0 12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 500,
+                fontSize: 14,
+              }}
+            >
+              Past 3 years
+            </Box>
 
               <Box
                 sx={{
@@ -585,7 +608,9 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 handleCurrencyChange("Turnover_3_years", e.target.value)
               }
             />
-          </Box>
+          {/* </Box>
+      <Box display="flex" alignItems="center" gap={2}> */}
+     
 
           <Box display="flex" alignItems="center" gap={1}>
             <Box display="flex">
@@ -640,10 +665,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         </Box>
       </Box>
 
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Typography fontWeight="400" fontSize={16}>
-          Similar Projects Executed
-        </Typography>
+    <Box display="flex" flexDirection="column" gap={1}>
+      <Typography fontWeight="400" fontSize={16}>
+        Similar Projects Executed
+      </Typography>
 
         {projects.map((project, index) => (
           <Paper
@@ -666,89 +691,85 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 right: 8,
               }}
               onClick={() => {
-                // Remove the project from the array
                 const updated = projects.filter((_, i) => i !== index);
                 setProjects(updated);
               }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
+            <Box sx={{display:"flex"}}>
             <Typography fontWeight="700" fontSize={18} mb={2}>
               Project details {index + 1}
             </Typography>
-
-            {/* {["name", "scope", "year", "value"].map((field) => (
-              <Box
-                key={field}
-                display="flex"
-                alignItems="center"
-                gap={2}
-                mb={1}
+            {isInitialData && (
+              <IconButton
+                onClick={() => {
+                  const updated = [...projectsEditable];
+                  updated[index] = true;
+                  setProjectsEditable(updated);
+                }}
+                size="small" sx={{ ml: 1, color: "#0FB97D", mb: 2 }}
               >
-                <Typography fontSize={12} fontWeight={700} width="80px">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}:
-                </Typography>
-                <CustomTextField
-                  placeholder={`Enter Project ${field}`}
-                  width="100%"
-                  value={project[field]}
-                  disabled={isInitialData}
-                  onChange={(e) => {
-                    const updated = [...projects];
-                    updated[index][field] = e.target.value;
-                    setProjects(updated);
-                  }}
-                  showIcon={true}
-                  multiline={field === "scope"}   // ✅ make textarea
-      minRows={field === "scope" ? 3 : 1}   // sets initial height
-  maxRows={field === "scope" ? 6 : 1} 
-                />
-              </Box>
-            ))} */}
-            {["name", "scope", "year", "value"].map((field) => (
-              <Box
-                key={field}
-                display="flex"
-                alignItems="center"
-                gap={2}
-                mb={1}
-              >
-                <Typography fontSize={12} fontWeight={700} width="80px">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}:
-                </Typography>
-                <CustomTextField
-                  placeholder={`Enter Project ${field}`}
-                  width="100%"
-                  value={project[field]}
-                  disabled={isInitialData}
-                  onChange={(e) => {
-                    const updated = [...projects];
-                    updated[index][field] = e.target.value;
-                    if (field === "year") {
-                      const error = validateYearField(e.target.value);
-                      updated[index].errors = {
-                        ...updated[index].errors,
-                        year: error,
-                      };
-                    }
-                    setProjects(updated);
-                  }}
-                  error={!!project.errors?.[field]}
-                  helperText={project.errors?.[field]}
-                  showIcon={true}
-                  multiline={field === "scope"}
-                  minRows={field === "scope" ? 3 : 1}
-                  maxRows={field === "scope" ? 6 : 1}
-                />
-              </Box>
-            ))}
-          </Paper>
-        ))}
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+            </Box>
+            
 
-        <Box mb={2}>
-          <CustomButton label="Add More" onClick={handleAddProject} />
-        </Box>
+          {["name", "scope", "year", "value"].map((field) => (
+            <Box
+              key={field}
+              display="flex"
+              alignItems={field === "scope" ? "flex-start" : "center"}
+              gap={2}
+              mb={1}
+            >
+              <Typography
+                fontSize={12}
+                fontWeight={700}
+                width="80px"
+                mt={field === "scope" ? "6px" : 0}
+              >
+                {field.charAt(0).toUpperCase() + field.slice(1)}:
+              </Typography>
+              <CustomTextField
+                placeholder={`Enter Project ${field}`}
+                width="100%"
+                value={project[field]}
+                disabled={!projectsEditable[index] && isInitialData}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  
+                  if (
+                    (field === "year" || field === "value") &&
+                    value !== "" &&
+                    !/^[0-9]*$/.test(value)
+                  ) {
+                    return; 
+                  }
+
+                  const updated = [...projects];
+                  updated[index][field] = value;
+                  setProjects(updated);
+                }}
+                showIcon={true}
+                multiline={field === "scope"}       
+                minRows={field === "scope" ? 3 : 1} 
+                type={field === "year" || field === "value" ? "number" : "text"} 
+              />
+            </Box>
+          ))}
+
+
+        </Paper>
+
+      ))}
+
+      <Box mb={2}>
+        <CustomButton label="Add More" onClick={handleAddProject} />
       </Box>
+    </Box>
 
       <Box display="flex" flexDirection="column" gap={2}>
         <Box display="flex" alignItems="center" gap={1}>
@@ -911,7 +932,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         </Box>
       </Box>
 
-      <Box mb={3} display={"flex"} flexDirection="column">
+    {/* <Box mb={3} display={"flex"} flexDirection="column">
         <Typography fontWeight="400" fontSize={14} mb={1}>
           Litigation/Blacklist Declaration
         </Typography>
@@ -933,15 +954,54 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           />
           <CustomTextField
             placeholder="Details if any"
-            width="69%"
+            width="65%"
             value={litigationDetails}
             onChange={(e) => setLitigationDetails(e.target.value)}
-            disabled={isInitialData || litigationStatus === "No"}
+            disabled={isInitialData}
           />
         </Box>
+      </Box> */}
+    <Box mb={3} display={"flex"} flexDirection="column">
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <Typography fontWeight="400" fontSize={14}>
+          Litigation/Blacklist Declaration
+        </Typography>
+
+        {/* ✅ Edit Icon for Litigation Section */}
+        {isInitialData && (
+          <IconButton
+            size="small"
+            sx={{ color: "#0FB97D" }}
+            onClick={() => setLitigationEditable(true)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
       </Box>
 
-      <Box mb={3}>
+      <Box mb={3} display="flex" gap={2}>
+        <CustomSelect
+          options={["Yes", "No"]}
+          placeholder="Select"
+          width="100px"
+          value={litigationStatus}
+          onChange={(event) => setLitigationStatus(event.target.value)}
+          disabled={isInitialData && !litigationEditable}
+        />
+        <CustomTextField
+          placeholder="Details if any"
+          width="65%"
+          value={litigationDetails}
+          onChange={(e) => setLitigationDetails(e.target.value)}
+          disabled={isInitialData && !litigationEditable}
+          showIcon={true}
+        />
+      </Box>
+    </Box>
+
+
+    {/* Registration / Certificates */}
+<Box mb={3}>
         <Typography
           fontWeight="400"
           fontSize={14}
@@ -958,7 +1018,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             border="1px solid #e0e0e0"
             borderRadius="12px"
             p={3}
-            width="80%"
+            width="60vw"
             display="flex"
             flexDirection="column"
             alignItems="flex-start"
@@ -1026,7 +1086,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             sx={{
               borderRadius: "12px",
               padding: "24px",
-              width: "80%",
+              width: "60vw",
               gap: "16px",
               display: "flex",
               flexDirection: "column",
@@ -1074,74 +1134,29 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 Selected: {certificateFile.name}
               </Typography>
             )}
-            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                PDF
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                DOCX
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                TXT
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                &gt; 10 MB
-              </Box>
-            </Box>
+           
           </Box>
         )}
       </Box>
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: 16,
-          right: 32,
-          display: "flex",
-          marginRight: 4,
-          justifyContent: "flex-end",
-        }}
-      >
-        <CustomButton label="Next" onClick={handleNext} />
-      </Box>
+
+
+
+    <Box
+      sx={{
+        position: "sticky",
+        bottom: 16,
+        right: 32,
+        display: "flex",
+        marginRight: 4,
+        justifyContent: "flex-end",
+      }}
+    >
+      <CustomButton label="Next" onClick={handleNext} />
     </Box>
-  );
+  </Box>
+  </>
+);
 };
 
 export default QualificationInputs;

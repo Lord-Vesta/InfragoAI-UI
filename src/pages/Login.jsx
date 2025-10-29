@@ -239,8 +239,7 @@ const Login = () => {
             sx={{ mt: 1, opacity: 0.9, fontWeight: "400" }}
             theme={theme}
           >
-            Use these awesome forms to login or create new account in your
-            project for free.
+          Here we are helping you evaluate tenders 70% faster, qualify smarter, and connect with partners for seamless project execution.
           </Typography>
         </Container>
       </Box>

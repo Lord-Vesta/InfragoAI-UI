@@ -11,19 +11,20 @@ import CustomButton from "../components/Button";
 import Toggle from "../components/ToggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { downloadPdf, updateProjectStatus } from "../Utils/Api.utils";
+import { downloadPdf } from "../Utils/Api.utils";
 import { toTitleCase } from "../Utils/stringUtils";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
+import {  getExtractedInputs ,updateEditedFields,updateProjectStatus} from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import { PuffLoader  } from "react-spinners";
+import BeforeProceedModal from "../components/ProceedModal";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -147,17 +148,17 @@ const fieldConfig = [
     validation: { required: true },
   },
   {
-    label: "Net Worth Requirement",
+    label: "Net Worth Requirement (₹ Cr)",
     type: "text",
     validation: { required: true },
   },
   {
-    label: "Liquid Assets / WC Requirement (₹ Cr)",
+    label: "Liquid Assets/ WC Requirement (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Bid Capacity",
+    label: "Bid Capacity (₹ Cr)",
     type: "text",
     validation: { required: true },
   },
@@ -186,6 +187,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
   const [pdfPageNumber, setPdfPageNumber] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [extractedInputs, setExtractedInputs] = useState(null);
 
   const [pdfBuffer, setPdfBuffer] = useState(null);
   const { jwtToken } = useContext(userContext);
@@ -193,7 +195,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const location = useLocation().pathname;
 
   const navigate = useNavigate();
-
+const [openModal, setOpenModal] = useState(false);
   const handleDownloadPdf = async () => {
     try {
       const response = await downloadPdf(project_id);
@@ -212,27 +214,39 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       try {
         let dataArray = [];
 
-        if (!extractedData) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          const response = await getExtractedInputs(project_id);
-          dataArray = Array.isArray(response.data) ? response.data : [];
-        } else {
-          dataArray = extractedData.data;
-        }
+        
+      if (!extractedData) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const response = await getExtractedInputs(project_id);
+        dataArray = Array.isArray(response.data) ? response.data : [];
 
-        const normalizedResponse = dataArray.map((item) => ({
-          ...item,
-          normalizedKey: item.field_key
-            .toLowerCase()
-            .replace(/[\s-/_()]+/g, ""),
-        }));
+        setExtractedInputs({
+          data: response.data,
+          pdfData: response.pdf_data,
+        });
+      } else {
+        dataArray = extractedData.data;
+      }
+      const normalizedResponse = dataArray.map((item) => {
+  const cleanedKey = item.field_key
+    ? item.field_key.replace(/\(.*?(₹|rs|cr).*?\)/gi, "").trim()
+    : "";
+  return {
+    ...item,
+    normalizedKey: cleanedKey.toLowerCase().replace(/[\s-/_()]+/g, ""),
+  };
+});
 
         const apiData = fieldConfig.map((config) => {
           if (config.type === "heading") return config;
 
-          const normalizedLabel = config.label
-            .toLowerCase()
-            .replace(/[\s-/_()]+/g, "");
+          const cleanedLabel = config.label
+  .replace(/\(.*?(₹|rs|cr).*?\)/gi, "") // remove currency/unit phrases in parentheses
+  .trim();
+
+const normalizedLabel = cleanedLabel
+  .toLowerCase()
+  .replace(/[\s-/_()]+/g, "");
 
           const match = normalizedResponse.find(
             (r) => r.normalizedKey === normalizedLabel
@@ -352,26 +366,6 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   //     input?.scrollIntoView({ behavior: "smooth", block: "center" });
   //   }, 100);
   // };
-  const handleCancel = (index) => {
-    setFields((prev) =>
-      prev.map((field, i) =>
-        i === index
-          ? {
-              ...field,
-              value: field.prevValue,
-              isEdited: false,
-              prevValue: undefined,
-            }
-          : field
-      )
-    );
-
-    setEditableFields((prev) =>
-      prev.map((editable, i) => (i === index ? false : editable))
-    );
-
-    setErrors((prev) => prev.map((err, i) => (i === index ? "" : err)));
-  };
 
   const handleChange = (index, newValue) => {
     setFields((prev) =>
@@ -397,8 +391,67 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const handleLoginRedirect = () => {
     navigate("/");
   };
+// const handleNext=async()=>{
+//   setOpenModal(true);
+// }
+// const handleNext = async () => {
+//   if (!extractedData) {
+//     // Show modal only if extractedData is missing
+//     setOpenModal(true);
+//   } else {
+//     // Directly redirect if extractedData exists
+//     navigate(`/BGsummary/${project_id}`);
+//   }
+// };
+const handleNext = async () => {
+  if (!extractedData) {
+    // 🔸 Show modal only if extractedData is missing
+    setOpenModal(true);
+    return;
+  }
 
-  const handleNext = async () => {
+  // 🔹 extractedData exists → update fields now
+  const editedFields = fields
+    .filter(
+      (field) =>
+        field.value !== undefined && field.value !== "" && field.isEdited
+    )
+    .map((field) => ({
+      extraction_id: field.extraction_id,
+      edited_value: field.value,
+    }));
+
+  const payload = { fields: editedFields };
+
+  if (jwtToken) {
+    try {
+      const response = await updateEditedFields(payload, project_id);
+      await updateProjectStatus(
+        {
+          completion_percentage: location
+            .toLowerCase()
+            .includes("reviewextracted")
+            ? 40
+            : 80,
+          project_status: "in progress",
+        },
+        response.project_id || project_id
+      );
+
+      location.toLowerCase().includes("reviewextracted")
+        ? navigate(`/QualificationInputs/${project_id}`)
+        : navigate(`/BGsummary/${project_id}`);
+    } catch (error) {
+      console.error("API Error:", error);
+      toast.error("Failed to update fields. Please try again.");
+    }
+  } else {
+    navigate("/login");
+  }
+};
+
+  const handleProceed =async () => {
+    setOpenModal(false);
     const editedFields = fields
       .filter(
         (field) =>
@@ -434,7 +487,47 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
     } else {
       navigate("/login");
     }
+  //  location.toLowerCase().includes("reviewextracted")
+  //         ? navigate(`/QualificationInputs/${project_id}`)
+  //         : navigate(`/BGsummary/${project_id}`);
   };
+  // const handleNext = async () => {
+  //   const editedFields = fields
+  //     .filter(
+  //       (field) =>
+  //         field.value !== undefined && field.value !== "" && field.isEdited
+  //     )
+  //     .map((field) => ({
+  //       extraction_id: field.extraction_id,
+  //       edited_value: field.value,
+  //     }));
+
+  //   const payload = { fields: editedFields };
+
+  //   if (jwtToken) {
+  //     try {
+  //       const response = await updateEditedFields(payload, project_id);
+  //       await updateProjectStatus(
+  //         {
+  //           completion_percentage: location
+  //             .toLowerCase()
+  //             .includes("reviewextracted")
+  //             ? 40
+  //             : 80,
+  //           project_status: "in progress",
+  //         },
+  //         response.project_id || project_id
+  //       );
+  //       location.toLowerCase().includes("reviewextracted")
+  //         ? navigate(`/QualificationInputs/${project_id}`)
+  //         : navigate(`/BGsummary/${project_id}`);
+  //     } catch (error) {
+  //       console.error("API Error:", error);
+  //     }
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // };
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
   return loading ? (
@@ -447,7 +540,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       flexDirection={"column"}
     >
    <PuffLoader  color="#0FB97D"  size={60}/>
-     {/* <Typography sx={{color:colors.green, fontWeight:600,fontSize:"16px"}}>Loading</Typography> */}
+     <Typography sx={{ fontWeight:600,fontSize:"16px"}}>Fetching Extracted Data can take upto 1 minute . Please do not refresh</Typography>
     </Box>
   ) : (
     <Box
@@ -483,15 +576,9 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                 },
               }}
               onClick={() => {
-                const pdfData = fields
-                  .filter((f) => f.type !== "heading")
-                  .map((f) => ({
-                    field_key: f.label,
-                    field_value: f.value,
-                    confidence_score: f.confidenceScore ?? "",
-                    source_page_number: f.pageNo ?? "-",
-                  }));
-
+                console.log("ex",extractedInputs)
+                const pdfData = extractedInputs.pdfData
+console.log("paf",pdfData)
                 GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
               }}
             >
@@ -637,7 +724,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                           }
                           tooltip={field.snippet}
                         />
-
+{/* 
                         {editableFields[index] && (
                           <Button
                             size="small"
@@ -647,7 +734,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                           >
                             Cancel
                           </Button>
-                        )}
+                        )} */}
                       </Box>
                     );
                   })()}
@@ -739,6 +826,11 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           }}
         >
           <CustomButton label="Next" onClick={handleNext} />
+           <BeforeProceedModal
+        open={openModal}
+        handleClose={() => setOpenModal(false)}
+        handleProceed={handleProceed}
+      />
         </Box>
       )}
 

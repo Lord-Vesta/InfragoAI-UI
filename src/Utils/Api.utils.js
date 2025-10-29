@@ -193,11 +193,13 @@ export const updateProjectStatus = async (data, projectId) => {
   }
 };
 
-export const tenderEvaluateStatus = async (projectId) => {
-  try {
-    const response = await axiosclient.post(TENDER_EVALUATE(projectId));
-    return response.data;
-  } catch (err) {
-    throw err;
+export const tenderEvaluateStatus = async (projectId) =>{
+  // eslint-disable-next-line no-useless-catch
+  try{
+  
+    const response = await axiosclient.post(TENDER_EVALUATE(projectId))
+    return response.data
+  }catch (err){
+    throw err
   }
 };

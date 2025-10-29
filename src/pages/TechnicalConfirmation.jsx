@@ -6,6 +6,7 @@ import ReviewExtracted from "./ReviewExtracted";
 import QualificationInputs from "./QualificationInputs";
 import { getQualificationInputs, getExtractedInputs } from "../Utils/Api.utils";
 import { useParams } from "react-router";
+import { PuffLoader } from "react-spinners";
 
 const TechnicalConfirmation = () => {
   const [activeTab, setActiveTab] = useState("extracted");
@@ -99,7 +100,29 @@ const TechnicalConfirmation = () => {
       </Box>
 
       <Box mt={2}>
-        {loading && <Typography>Loading...</Typography>}
+        {loading && (
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column", 
+    height: "70vh",
+    width: "100%",
+  }}
+>
+  <PuffLoader color="#0FB97D" size={60} />
+  <Typography
+    fontSize={16}
+    fontWeight={500}
+    color="#333"
+    mt={2} // space between spinner & text
+  >
+    Loading data, please wait...
+  </Typography>
+</Box>
+
+)}
         {!loading && activeTab === "extracted" && (
           <ReviewExtracted height="70vh" extractedData={extractedData} />
         )}
