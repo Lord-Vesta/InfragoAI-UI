@@ -18,17 +18,16 @@ const UploadPage = () => {
   const [uploadedProjectId, setUploadedProjectId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isExtracting, setIsExtracting] = useState("idle");
-  const [projectStatus, setProjectStatus] = useState(null);
+  const [projectStatus, setProjectStatus] = useState(0);
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
-  const { project_id:urlProjectId  } = useParams();
-const projectId =
-  jwtToken ? urlProjectId : localStorage.getItem("anonProjectId");
+  const { project_id } = useParams();
+
   const fetchExtractedData = async (projId) => {
     setIsExtracting("loading");
     try {
-      const response = await getExtractedData(projId || projectId);
+      const response = await getExtractedData(projId || project_id);
       if (response) {
         setIsExtracting("success");
         toast.success("Extracted data fetched successfully");
@@ -38,7 +37,7 @@ const projectId =
             completion_percentage: 20,
             project_status: "in progress",
           },
-          projId || projectId
+          projId || project_id
         );
         setProjectStatus(projectResponse?.completion_percentage);
       } else {
@@ -67,8 +66,8 @@ const projectId =
       let response;
 
       if (jwtToken) {
-        formData.append("project_id", projectId);
-        response = await uploadPdfAuthenticated(formData,projectId);
+        formData.append("project_id", project_id);
+        response = await uploadPdfAuthenticated(formData, project_id);
       } else {
         response = await uploadPdfAnonymous(formData);
       }
@@ -79,22 +78,22 @@ const projectId =
         if (response.project_id) {
           setProjectId(response.project_id);
           setUploadedProjectId(response.project_id);
-          localStorage.setItem("anonProjectId", response.project_id);
+
         }
         const projectResponse = await updateProjectStatus(
           {
             completion_percentage: 10,
             project_status: "in progress",
           },
-          response.project_id || projectId
+          response.project_id || project_id
         );
         setProjectStatus(projectResponse?.completion_percentage);
 
-        const targetProjectId = projectId || response.project_id;
+        const targetProjectId = project_id || response.project_id;
         if (targetProjectId) await fetchExtractedData(targetProjectId);
       }
     } catch (error) {
-       setIsExtracting("upload_failed"); 
+      setIsExtracting("upload_failed");
       toast.error("Error uploading file");
       console.error(error);
     } finally {
@@ -121,10 +120,10 @@ const projectId =
   };
 
   useEffect(() => {
-    if (projectId) {
-      handleFetchProjectData(projectId);
+    if (project_id) {
+      handleFetchProjectData(project_id);
     }
-  }, [projectId]);
+  }, [project_id]);
 
   return (
     <Box
@@ -155,7 +154,7 @@ const projectId =
             uploadedProjectId
           }
           handleNext={() =>
-            navigate(`/ReviewExtracted/${projectId || uploadedProjectId}`)
+            navigate(`/ReviewExtracted/${project_id || uploadedProjectId}`)
           }
           setUploadedProjectId={setUploadedProjectId}
           uploadedProjectId={uploadedProjectId}

@@ -758,6 +758,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           }}
           onClick={() => {
             setIsPdfViewerOpen(false);
+            setPdfPageNumber(1);
           }}
         >
           <Box

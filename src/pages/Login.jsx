@@ -112,7 +112,7 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100%",
         bgcolor: "#f9f9f9",
         maxWidth: "100%",
         p: 4,
@@ -126,7 +126,6 @@ const Login = () => {
           borderRadius: 2,
           pb: 20,
           backgroundImage: `url(${background1}), url(${background2})`,
-
           backgroundRepeat: "no-repeat, no-repeat",
           backgroundPosition: "100%",
           backgroundSize: "cover, contain",
