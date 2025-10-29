@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, use } from "react";
 import { Box, Icon, Paper, Typography, Button } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
@@ -25,6 +25,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const [projects, setProjects] = useState([
     { name: "", scope: "", year: "", value: "" },
   ]);
+
   const location = useLocation().pathname;
 
   const [numericValues, setNumericValues] = useState({
@@ -39,6 +40,17 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     quotedPrice: "",
   });
   const [litigationStatus, setLitigationStatus] = useState("No");
+  const [currencyValues, setCurrencyValues] = useState({
+    Turnover_3_years: "Crore",
+    Turnover_5_years: "Crore",
+    netWorth: "Crore",
+    workingCapital: "Crore",
+    workInHand: "Crore",
+    bgLimit: "Crore",
+    bgUtilized: "Crore",
+    bgAvailable: "Crore",
+    quotedPrice: "Crore",
+  });
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
   const [errors, setErrors] = useState({});
@@ -51,7 +63,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const { projectStatus } = useContext(userContext);
   const mergedData =
     qualificationApiData?.data &&
-      Object.keys(qualificationApiData.data).length > 0
+    Object.keys(qualificationApiData.data).length > 0
       ? qualificationApiData
       : initialData;
   const validateNumericField = (field, value) => {
@@ -68,30 +80,87 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     return !error;
   };
   const validateYearField = (year) => {
-  const currentYear = new Date().getFullYear();
-  const minYear = currentYear - 5; // past 5 years
-  if (!year) return "This field is required";
-  if (!/^\d{4}$/.test(year)) return "Enter a valid 4-digit year";
-  if (Number(year) < minYear || Number(year) > currentYear)
-    return `Year must be between ${minYear} and ${currentYear}`;
-  return "";
-};
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 5; // past 5 years
+    if (!year) return "This field is required";
+    if (!/^\d{4}$/.test(year)) return "Enter a valid 4-digit year";
+    if (Number(year) < minYear || Number(year) > currentYear)
+      return `Year must be between ${minYear} and ${currentYear}`;
+    return "";
+  };
 
   useEffect(() => {
     if (mergedData) {
-
       setNumericValues({
         Turnover_3_years:
-          mergedData?.data?.turnover_past_3_years?.edited_value || "",
+          mergedData?.data?.turnover_past_3_years?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.turnover_past_3_years?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.turnover_past_3_years?.edited_value / 100000
+              ).toString() || "",
         Turnover_5_years:
-          mergedData?.data?.turnover_past_5_years?.edited_value || "",
-        netWorth: mergedData?.data?.net_worth?.edited_value || "",
-        workingCapital: mergedData?.data?.working_capital?.edited_value || "", // 🟢 added .data and .original_value
-        workInHand: mergedData?.data?.work_in_hand?.edited_value || "",
-        bgLimit: mergedData?.data?.bg_limit_sanctioned?.edited_value || "",
-        bgUtilized: mergedData?.data?.bg_utilized?.edited_value || "",
-        bgAvailable: mergedData?.data?.bg_available?.edited_value || "",
-        quotedPrice: mergedData?.data?.quoted_price?.edited_value || "",
+          mergedData?.data?.turnover_past_5_years?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.turnover_past_5_years?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.turnover_past_5_years?.edited_value / 100000
+              ).toString() || "",
+        netWorth:
+          mergedData?.data?.net_worth?.edited_value / 10000000 >= 1
+            ? (mergedData?.data?.net_worth?.edited_value / 10000000).toString()
+            : (mergedData?.data?.net_worth?.edited_value / 100000).toString() ||
+              "",
+        workingCapital:
+          mergedData?.data?.working_capital?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.working_capital?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.working_capital?.edited_value / 100000
+              ).toString() || "", // 🟢 added .data and .original_value
+        workInHand:
+          mergedData?.data?.work_in_hand?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.work_in_hand?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.work_in_hand?.edited_value / 100000
+              ).toString() || "",
+        bgLimit:
+          mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.bg_limit_sanctioned?.edited_value / 100000
+              ).toString() || "",
+        bgUtilized:
+          mergedData?.data?.bg_utilized?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.bg_utilized?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.bg_utilized?.edited_value / 100000
+              ).toString() || "",
+        bgAvailable:
+          mergedData?.data?.bg_available?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.bg_available?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.bg_available?.edited_value / 100000
+              ).toString() || "",
+        quotedPrice:
+          mergedData?.data?.quoted_price?.edited_value / 10000000 >= 1
+            ? (
+                mergedData?.data?.quoted_price?.edited_value / 10000000
+              ).toString()
+            : (
+                mergedData?.data?.quoted_price?.edited_value / 100000
+              ).toString() || "",
       });
 
       setLitigationStatus(
@@ -136,7 +205,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     handleFetchQualificationInputs();
   }, [project_id]);
 
-
   const isInitialData = Boolean(
     mergedData && Object.keys(mergedData).length > 0
   );
@@ -171,13 +239,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           projErr[field] = "Required";
           valid = false;
         }
-         if (field === "year") {
-      const yearError = validateYearField(proj[field]);
-      if (yearError) {
-        projErr[field] = yearError;
-        valid = false;
-      }
-    }
+        if (field === "year") {
+          const yearError = validateYearField(proj[field]);
+          if (yearError) {
+            projErr[field] = yearError;
+            valid = false;
+          }
+        }
       });
       return projErr;
     });
@@ -207,15 +275,42 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     try {
       if (projectStatus < 60) {
         const payload = {
-          turnover_past_3_years: numericValues.Turnover_3_years,
-          turnover_past_5_years: numericValues.Turnover_5_years,
-          net_worth: numericValues.netWorth,
-          working_capital: numericValues.workingCapital,
-          work_in_hand: numericValues.workInHand,
-          bg_limit_sanctioned: numericValues.bgLimit,
-          bg_utilized: numericValues.bgUtilized,
-          bg_available: numericValues.bgAvailable,
-          quoted_price: numericValues.quotedPrice,
+          turnover_past_3_years:
+            currencyValues.Turnover_3_years === "Crore"
+              ? numericValues.Turnover_3_years * 10000000
+              : numericValues.Turnover_3_years * 100000,
+          turnover_past_5_years:
+            currencyValues.Turnover_5_years === "Crore"
+              ? numericValues.Turnover_5_years * 10000000
+              : numericValues.Turnover_5_years * 100000,
+          net_worth:
+            currencyValues.netWorth === "Crore"
+              ? numericValues.netWorth * 10000000
+              : numericValues.netWorth * 100000,
+          working_capital:
+            currencyValues.workingCapital === "Crore"
+              ? numericValues.workingCapital * 10000000
+              : numericValues.workingCapital * 100000,
+          work_in_hand:
+            currencyValues.workInHand === "Crore"
+              ? numericValues.workInHand * 10000000
+              : numericValues.workInHand * 100000,
+          bg_limit_sanctioned:
+            currencyValues.bgLimit === "Crore"
+              ? numericValues.bgLimit * 10000000
+              : numericValues.bgLimit * 100000,
+          bg_utilized:
+            currencyValues.bgUtilized === "Crore"
+              ? numericValues.bgUtilized * 10000000
+              : numericValues.bgUtilized * 100000,
+          bg_available:
+            currencyValues.bgAvailable === "Crore"
+              ? numericValues.bgAvailable * 10000000
+              : numericValues.bgAvailable * 100000,
+          quoted_price:
+            currencyValues.quotedPrice === "Crore"
+              ? numericValues.quotedPrice * 10000000
+              : numericValues.quotedPrice * 100000,
           litigation_blacklist_status:
             litigationStatus === "Yes" ? "True" : "False",
           litigation_blacklist_details: litigationDetails,
@@ -273,7 +368,23 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (field === "bgLimit" || field === "bgUtilized") {
         const limit = Number(updatedValues.bgLimit) || 0;
         const utilized = Number(updatedValues.bgUtilized) || 0;
-        updatedValues.bgAvailable = Math.max(limit - utilized, 0).toString();
+
+        const limitNumbericValue =
+          limit * (currencyValues.bgLimit === "Crore" ? 10000000 : 100000);
+        const utilizedNumericValue =
+          utilized *
+          (currencyValues.bgUtilized === "Crore" ? 10000000 : 100000);
+        const bgAvaliableNumeric = limitNumbericValue - utilizedNumericValue;
+        updatedValues.bgAvailable = Math.max(
+          (limitNumbericValue - utilizedNumericValue) / 10000000 >= 1
+            ? (bgAvaliableNumeric / 10000000).toString()
+            : (bgAvaliableNumeric / 100000).toString(),
+          0
+        ).toString();
+        setCurrencyValues((prev) => ({
+          ...prev,
+          bgAvailable: bgAvaliableNumeric >= 10000000 ? "Crore" : "Lakhs",
+        }));
       }
 
       setNumericValues(updatedValues);
@@ -282,7 +393,10 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (!value) {
         setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
       } else if (Number(value) <= 0) {
-        setErrors((prev) => ({ ...prev, [field]: "Value must be greater than 0" }));
+        setErrors((prev) => ({
+          ...prev,
+          [field]: "Value must be greater than 0",
+        }));
       } else {
         setErrors((prev) => {
           const updated = { ...prev };
@@ -293,11 +407,48 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
 
-
   const handleDeleteFile = () => {
     setCertificateFile(null);
     setShowUpload(true);
     toast.success("File deleted successfully");
+  };
+
+  const handleCurrencyChange = (field, value) => {
+    // const updatedValues = { ...numericValues, [field]: value };
+    // if (field === "bgLimit" || field === "bgUtilized") {
+    //   const limit = Number(updatedValues.bgLimit) || 0;
+    //   const utilized = Number(updatedValues.bgUtilized) || 0;
+
+    //   const limitNumbericValue =
+    //     limit * (currencyValues.bgLimit === "Crore" ? 10000000 : 100000);
+    //   const utilizedNumericValue =
+    //     utilized * (currencyValues.bgUtilized === "Crore" ? 10000000 : 100000);
+    //     console.log("Limit:", limitNumbericValue, "Utilized:", utilizedNumericValue);
+    //   const bgAvaliableNumeric = limitNumbericValue - utilizedNumericValue;
+    //   updatedValues.bgAvailable = Math.max(
+    //       (limitNumbericValue - utilizedNumericValue) / 10000000 >= 1
+    //         ? (bgAvaliableNumeric / 10000000).toString()
+    //         : (bgAvaliableNumeric / 100000).toString(),
+    //       0
+    //     ).toString();
+    //   setCurrencyValues((prev) => ({
+    //     ...prev,
+    //     [field]: value,
+    //     bgAvailable: bgAvaliableNumeric >= 10000000 ? "Crore" : "Lakhs",
+    //   }));
+    //   // setNumericValues(updatedValues);
+    // } else {
+    //   setCurrencyValues((prev) => ({
+    //     ...prev,
+    //     [field]: value,
+    //   }));
+    // }
+
+    setCurrencyValues((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    // setNumericValues(updatedValues);
   };
 
   return (
@@ -310,7 +461,12 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       position="relative"
       overflow="auto"
     >
-      <Typography fontWeight="600" fontSize={24} color={colors.black_text} sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Typography
+        fontWeight="600"
+        fontSize={24}
+        color={colors.black_text}
+        sx={{ display: "flex", justifyContent: "space-between" }}
+      >
         {mergedData ? "Review " : "Provide "}
         Qualification Inputs{" "}
         {mergedData ? (
@@ -376,88 +532,110 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
 
       <Box>
         <Typography fontWeight="400" mb={1}>
-          Avg Annual Turnover (₹ Cr)
+          Avg Annual Turnover
         </Typography>
-        <Box display="flex" alignItems="center" gap={3}>
-          <Box display="flex" alignItems="center">
-            <Box
-              sx={{
-                backgroundColor: colors.green,
-                color: "#fff",
-                padding: "9px 16px",
-                borderRadius: "12px 0 0 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 500,
-                fontSize: 14,
-              }}
-            >
-              Past 3 years
+        <Box display="flex" alignItems="center" gap={4}>
+          <Box display="flex" gap={1}>
+            <Box display="flex" alignItems="center">
+              <Box
+                sx={{
+                  backgroundColor: colors.green,
+                  color: "#fff",
+                  padding: "9px 16px",
+                  borderRadius: "12px 0 0 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 500,
+                  fontSize: 14,
+                }}
+              >
+                Past 3 years
+              </Box>
+
+              <Box
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "0 12px 12px 0 !important",
+                    backgroundColor: "#fff",
+                  },
+                }}
+              >
+                <CustomTextField
+                  placeholder="Enter value"
+                  width="100%"
+                  value={numericValues.Turnover_3_years}
+                  onChange={(e) =>
+                    handleChange("Turnover_3_years", e.target.value)
+                  }
+                  //               error={!!errors.Turnover_3_years}
+                  // helperText={errors.Turnover_3_years}
+                  disabled={isInitialData}
+                  showIcon={true}
+                />
+              </Box>
             </Box>
-
-            <Box
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0 12px 12px 0 !important",
-                  backgroundColor: "#fff",
-                },
-              }}
-            >
-
-              <CustomTextField
-                placeholder="Enter value"
-                width="100%"
-                value={numericValues.Turnover_3_years}
-                onChange={(e) =>
-                  handleChange("Turnover_3_years", e.target.value)
-                }
-                //               error={!!errors.Turnover_3_years}
-                // helperText={errors.Turnover_3_years}
-                disabled={isInitialData}
-                showIcon={true}
-              />
-
-            </Box>
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              value={currencyValues.Turnover_3_years}
+              disabled={isInitialData}
+              onChange={(e) =>
+                handleCurrencyChange("Turnover_3_years", e.target.value)
+              }
+            />
           </Box>
 
-          <Box display="flex" alignItems="center">
-            <Box
-              sx={{
-                backgroundColor: colors.green,
-                color: "#fff",
-                padding: "9px 16px",
-                borderRadius: "12px 0 0 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 500,
-                fontSize: 14,
-              }}
-            >
-              Past 5 years
+          <Box display="flex" alignItems="center" gap={1}>
+            <Box display="flex">
+              <Box
+                sx={{
+                  backgroundColor: colors.green,
+                  color: "#fff",
+                  padding: "9px 16px",
+                  borderRadius: "12px 0 0 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 500,
+                  fontSize: 14,
+                }}
+              >
+                Past 5 years
+              </Box>
+              <Box
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "0 12px 12px 0 !important",
+                    backgroundColor: "#fff",
+                  },
+                }}
+              >
+                <CustomTextField
+                  placeholder="Enter value"
+                  width="100%"
+                  value={numericValues.Turnover_5_years}
+                  onChange={(e) =>
+                    handleChange("Turnover_5_years", e.target.value)
+                  }
+                  error={!!errors.turnover5}
+                  helperText={errors.turnover5}
+                  disabled={isInitialData}
+                  showIcon={true}
+                />
+              </Box>
             </Box>
-            <Box
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "0 12px 12px 0 !important",
-                  backgroundColor: "#fff",
-                },
-              }}
-            >
-              <CustomTextField
-                placeholder="Enter value"
-                width="100%"
-                value={numericValues.Turnover_5_years}
-                onChange={(e) =>
-                  handleChange("Turnover_5_years", e.target.value)
-                }
-                error={!!errors.turnover5}
-                helperText={errors.turnover5}
-                disabled={isInitialData}
-                showIcon={true}
-              />
-            </Box>
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              value={currencyValues.Turnover_5_years}
+              disabled={isInitialData}
+              onChange={(e) =>
+                handleCurrencyChange("Turnover_5_years", e.target.value)
+              }
+            />
           </Box>
         </Box>
       </Box>
@@ -528,7 +706,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               </Box>
             ))} */}
             {["name", "scope", "year", "value"].map((field) => (
-              <Box key={field} display="flex" alignItems="center" gap={2} mb={1}>
+              <Box
+                key={field}
+                display="flex"
+                alignItems="center"
+                gap={2}
+                mb={1}
+              >
                 <Typography fontSize={12} fontWeight={700} width="80px">
                   {field.charAt(0).toUpperCase() + field.slice(1)}:
                 </Typography>
@@ -540,10 +724,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                   onChange={(e) => {
                     const updated = [...projects];
                     updated[index][field] = e.target.value;
-                      if (field === "year") {
-    const error = validateYearField(e.target.value);
-    updated[index].errors = { ...updated[index].errors, year: error };
-  }
+                    if (field === "year") {
+                      const error = validateYearField(e.target.value);
+                      updated[index].errors = {
+                        ...updated[index].errors,
+                        year: error,
+                      };
+                    }
                     setProjects(updated);
                   }}
                   error={!!project.errors?.[field]}
@@ -555,7 +742,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 />
               </Box>
             ))}
-
           </Paper>
         ))}
 
@@ -568,8 +754,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         <Box display="flex" alignItems="center" gap={1}>
           <CustomTextField
             placeholder="Net Worth (CA certified)"
-            label="Net Worth (CA certified) (₹ Cr) "
-            width="80%"
+            label="Net Worth (CA certified)"
+            width="48vw"
             value={numericValues.netWorth}
             onChange={(e) => handleChange("netWorth", e.target.value)}
             error={!!errors.netWorth}
@@ -577,71 +763,152 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             showIcon={true}
             disabled={isInitialData}
           />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.netWorth}
+            disabled={isInitialData}
+            onChange={(e) => handleCurrencyChange("netWorth", e.target.value)}
+          />
         </Box>
-        <CustomTextField
-          placeholder="Working Capital / Liquid Assets"
-          label="Working Capital / Liquid Assets (₹ Cr)"
-          width="80%"
-          value={numericValues.workingCapital}
-          onChange={(e) => handleChange("workingCapital", e.target.value)}
-          error={!!errors.workingCapital}
-          helperText={errors.workingCapital}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="Work in Hand (B value for formula)"
-          label="Work in Hand (B value for formula) (₹ Cr)"
-          width="80%"
-          value={numericValues.workInHand}
-          onChange={(e) => handleChange("workInHand", e.target.value)}
-          error={!!errors.workInHand}
-          helperText={errors.workInHand}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Limit (Sanctioned)"
-          label="BG Limit (Sanctioned) (₹ Cr)"
-          width="80%"
-          value={numericValues.bgLimit}
-          onChange={(e) => handleChange("bgLimit", e.target.value)}
-          error={!!errors.bgLimit}
-          helperText={errors.bgLimit}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Utilized"
-          label="BG Utilized (₹ Cr)"
-          width="80%"
-          value={numericValues.bgUtilized}
-          onChange={(e) => handleChange("bgUtilized", e.target.value)}
-          error={!!errors.bgUtilized}
-          helperText={errors.bgUtilized}
-          disabled={isInitialData}
-          showIcon={true}
-        />
-        <CustomTextField
-          placeholder="BG Available (Sanctioned – Utilized)"
-          label="BG Available (Sanctioned – Utilized) (₹ Cr) "
-          width="80%"
-          value={numericValues.bgAvailable}
-          error={!!errors.bgAvailable}
-          helperText={errors.bgAvailable}
-          disabled
-        />
-        <CustomTextField
-          placeholder="Quoted Price"
-          label="Quoted Price (₹ Cr)"
-          width="80%"
-          value={numericValues.quotedPrice}
-          onChange={(e) => handleChange("quotedPrice", e.target.value)}
-          error={!!errors.quotedPrice}
-          helperText={errors.quotedPrice}
-          disabled={isInitialData}
-          showIcon={true}
-        />
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="Working Capital / Liquid Assets"
+            label="Working Capital / Liquid Assets"
+            width="48vw"
+            value={numericValues.workingCapital}
+            onChange={(e) => handleChange("workingCapital", e.target.value)}
+            error={!!errors.workingCapital}
+            helperText={errors.workingCapital}
+            disabled={isInitialData}
+            showIcon={true}
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.workingCapital}
+            disabled={isInitialData}
+            onChange={(e) =>
+              handleCurrencyChange("workingCapital", e.target.value)
+            }
+          />
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="Work in Hand (B value for formula)"
+            label="Work in Hand (B value for formula)"
+            width="48vw"
+            value={numericValues.workInHand}
+            onChange={(e) => handleChange("workInHand", e.target.value)}
+            error={!!errors.workInHand}
+            helperText={errors.workInHand}
+            disabled={isInitialData}
+            showIcon={true}
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.workInHand}
+            disabled={isInitialData}
+            onChange={(e) => handleCurrencyChange("workInHand", e.target.value)}
+          />
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="BG Limit (Sanctioned)"
+            label="BG Limit (Sanctioned)"
+            width="48vw"
+            value={numericValues.bgLimit}
+            onChange={(e) => handleChange("bgLimit", e.target.value)}
+            error={!!errors.bgLimit}
+            helperText={errors.bgLimit}
+            disabled={isInitialData}
+            showIcon={true}
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.bgLimit}
+            disabled={isInitialData}
+            onChange={(e) => handleCurrencyChange("bgLimit", e.target.value)}
+          />
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="BG Utilized"
+            label="BG Utilized"
+            width="48vw"
+            value={numericValues.bgUtilized}
+            onChange={(e) => handleChange("bgUtilized", e.target.value)}
+            error={!!errors.bgUtilized}
+            helperText={errors.bgUtilized}
+            disabled={isInitialData}
+            showIcon={true}
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.bgUtilized}
+            disabled={isInitialData}
+            onChange={(e) => handleCurrencyChange("bgUtilized", e.target.value)}
+          />
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="BG Available (Sanctioned – Utilized)"
+            label="BG Available (Sanctioned – Utilized)"
+            width="48vw"
+            value={numericValues.bgAvailable}
+            error={!!errors.bgAvailable}
+            helperText={errors.bgAvailable}
+            disabled
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder={currencyValues.bgAvailable}
+            width="100px"
+            disabled={true}
+            sx={{ marginTop: numericValues.netWorth ? "25px" : "25px" }}
+            value={currencyValues.bgAvailable}
+            onChange={(e) =>
+              handleCurrencyChange("bgAvailable", e.target.value)
+            }
+          />
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <CustomTextField
+            placeholder="Quoted Price"
+            label="Quoted Price"
+            width="48vw"
+            value={numericValues.quotedPrice}
+            onChange={(e) => handleChange("quotedPrice", e.target.value)}
+            error={!!errors.quotedPrice}
+            helperText={errors.quotedPrice}
+            disabled={isInitialData}
+            showIcon={true}
+          />
+          <CustomSelect
+            options={["Crore", "Lakhs"]}
+            placeholder="Crore"
+            width="100px"
+            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+            value={currencyValues.quotedPrice}
+            disabled={isInitialData}
+            onChange={(e) =>
+              handleCurrencyChange("quotedPrice", e.target.value)
+            }
+          />
+        </Box>
       </Box>
 
       <Box mb={3} display={"flex"} flexDirection="column">
@@ -655,13 +922,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             placeholder="Yes"
             width="100px"
             value={litigationStatus}
-             onChange={(event) => {
-    const value = event.target.value;
-    setLitigationStatus(value);
-    if (value === "No") {
-      setLitigationDetails(""); // ✅ clear the details if status is No
-    }
-  }}
+            onChange={(event) => {
+              const value = event.target.value;
+              setLitigationStatus(value);
+              if (value === "No") {
+                setLitigationDetails(""); // ✅ clear the details if status is No
+              }
+            }}
             disabled={isInitialData}
           />
           <CustomTextField

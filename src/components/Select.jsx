@@ -3,6 +3,7 @@ import { Select, MenuItem, FormControl, Typography } from "@mui/material";
 import AlertTooltip from "./Tooltip";
 
 const CustomSelect = ({
+  sx,
   value,
   onChange,
   placeholder,
@@ -13,7 +14,7 @@ const CustomSelect = ({
   onBlur,
   tooltipText, // new prop
 }) => {
-  const [ setIsEditable] = useState(!disabled);
+  const [setIsEditable] = useState(!disabled);
 
   return (
     <div style={{ width }}>
@@ -27,17 +28,58 @@ const CustomSelect = ({
         </Typography>
       )}
 
-      <FormControl fullWidth size="small" sx={{ width }}>
-        <AlertTooltip
-          title={
-        <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}>
-          {tooltipText || ""}
-        </Typography>
-      }
-          placement="top"
-          arrow
-          type="success"
-        >
+      <FormControl fullWidth size="small" sx={{ width, ...sx }}>
+        {tooltipText ? (
+          <AlertTooltip
+            title={
+              <Typography
+                sx={{ fontSize: 12, fontWeight: 500, color: "#4B555F" }}
+              >
+                {tooltipText}
+              </Typography>
+            }
+            placement="top"
+            arrow
+            type="success"
+          >
+            <Select
+              value={value}
+              onChange={onChange}
+              disabled={disabled}
+              onBlur={(e) => {
+                setIsEditable(false);
+                if (onBlur) onBlur(e);
+              }}
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) {
+                  return (
+                    <span style={{ color: "#999", textAlign: "left" }}>
+                      {placeholder}
+                    </span>
+                  );
+                }
+                return <span style={{ textAlign: "left" }}>{selected}</span>;
+              }}
+              sx={{
+                borderRadius: "12px",
+                "& .MuiSelect-select": {
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  background: "#ffffff",
+                },
+              }}
+            >
+              {options.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </AlertTooltip>
+        ) : (
           <Select
             value={value}
             onChange={onChange}
@@ -74,7 +116,7 @@ const CustomSelect = ({
               </MenuItem>
             ))}
           </Select>
-        </AlertTooltip>
+        )}
       </FormControl>
     </div>
   );
