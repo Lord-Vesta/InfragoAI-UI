@@ -8,40 +8,65 @@ export const GenerateQualificationPDF = (
   projects
 ) => {
   const doc = new jsPDF();
+  const currentDate = new Date().toLocaleDateString();
 
-  // ✅ Title
-  doc.setFontSize(18);
-  doc.text("Qualification Input Summary", 14, 20);
+  doc.setFontSize(16);
+  doc.text("Qualification Input Summary", 14, 15);
 
-  // ✅ Section 1: Numeric values
-  const numericRows = Object.entries(numericValues).map(([key, value]) => ({
-    key: key.replace(/([A-Z])/g, " $1").toUpperCase(),
-    value: value || "-",
-  }));
+  doc.setFontSize(10);
+  doc.text(`Generated on: ${currentDate}`, 14, 22);
+
+  const getNextY = () => (doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30);
+
+   const formatLabel = (key) => {
+    return key
+      .replace(/_/g, " ") 
+      .replace(/([a-z])([A-Z])/g, "$1 $2") 
+      .replace(/\b(\d+)\s*years?\b/gi, "($1 Years)") 
+      .replace(/\b(bg)\b/gi, "BG") 
+      .replace(/\b(\w)/g, (c) => c.toUpperCase()) 
+      .replace(/\(\(/g, "(")
+      .replace(/\)\)/g, ")") 
+      .replace(/\s+/g, " ") 
+      .trim();
+  };
+
+  const numericRows = Object.entries(numericValues || {}).map(([key, value]) => [
+    formatLabel(key),
+    value || "-",
+  ]);
+
+  if (numericRows.length > 0) {
+    autoTable(doc, {
+      startY: getNextY(),
+      head: [["Field", "Value"]],
+      body: numericRows,
+      theme: "grid",
+      styles: { fontSize: 10 },
+      headStyles: {
+        fillColor: [220, 220, 220],
+        textColor: 0,
+        fontStyle: "bold",
+      },
+      margin: { left: 10, right: 10 },
+    });
+  }
 
   autoTable(doc, {
-    startY: 30,
-    head: [["Field", "Value"]],
-    body: numericRows.map((row) => [row.key, row.value]),
-    theme: "grid",
-    styles: { fontSize: 10, lineColor: 0, },
-    headStyles: { fillColor: [255, 255, 255],textColor: 0, valign: "middle",  lineColor: [0, 0, 0], 
-      lineWidth: 0.2, 
-    }
-  });
-
-  // ✅ Section 2: Litigation
-  autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 10,
+    startY: getNextY(),
     head: [["Litigation Status", "Litigation Details"]],
-    body: [[litigationStatus, litigationDetails || "-"]],
+    body: [[litigationStatus || "-", litigationDetails || "-"]],
     theme: "grid",
-    styles: { fontSize: 10, lineColor: 0, },
-    headStyles: { fillColor: [255, 255, 255] }, 
+    styles: { fontSize: 10 },
+    headStyles: {
+      fillColor: [220, 220, 220],
+      textColor: 0,
+      fontStyle: "bold",
+    },
+    margin: { left: 10, right: 10 },
   });
 
-  // ✅ Section 3: Projects
-  if (projects.length > 0) {
+  if (projects?.length > 0) {
     const projectRows = projects.map((p, i) => [
       i + 1,
       p.name || "-",
@@ -51,15 +76,28 @@ export const GenerateQualificationPDF = (
     ]);
 
     autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 10,
+      startY: getNextY(),
       head: [["#", "Project Name", "Scope", "Year", "Value"]],
       body: projectRows,
       theme: "grid",
-      styles: { fontSize: 10, lineColor: 0, },
-      headStyles: { fillColor: [255, 255, 255] }, 
+      styles: { fontSize: 10 },
+      headStyles: {
+        fillColor: [220, 220, 220],
+        textColor: 0,
+        fontStyle: "bold",
+      },
+      margin: { left: 10, right: 10 },
+      didDrawPage: () => {
+        const pageNumber = doc.internal.getNumberOfPages();
+        doc.setFontSize(9);
+        doc.text(
+          `Page ${pageNumber}`,
+          doc.internal.pageSize.width - 25,
+          doc.internal.pageSize.height - 5
+        );
+      },
     });
   }
 
-  // ✅ Save the PDF
   doc.save("qualification_inputs.pdf");
 };

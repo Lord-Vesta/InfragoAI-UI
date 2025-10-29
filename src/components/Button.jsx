@@ -1,5 +1,6 @@
+
 import React from "react";
-import { Button as MuiButton } from "@mui/material";
+import { Button as MuiButton, CircularProgress, Box } from "@mui/material";
 import colors from "../assets/colors";
 
 const Button = ({
@@ -9,28 +10,43 @@ const Button = ({
   width = "150px",
   height,
   bgColor,
+  loading = false,
 }) => {
   return (
     <MuiButton
       type="button"
       variant="contained"
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
       sx={{
-        backgroundColor: bgColor || colors.green,
+        backgroundColor: loading ? "#9e9e9e" : bgColor || colors.green, 
         color: "#fff",
         width: width,
         height: height || "40px",
-        borderRadius: "12px",
+        borderRadius: "8px",
         padding: "6px",
-        boxShadow: 3,
         textTransform: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
         "&:hover": {
-          backgroundColor: bgColor ? bgColor : "#059669",
+          backgroundColor: loading
+            ? "#9e9e9e"
+            : bgColor
+            ? bgColor
+            : "#059669",
         },
       }}
     >
-      {label}
+      {loading ? (
+        <Box display="flex" alignItems="center" gap={1}>
+          <CircularProgress size={20} color="inherit" thickness={5} />
+          <span>Processing...</span>
+        </Box>
+      ) : (
+        label
+      )}
     </MuiButton>
   );
 };

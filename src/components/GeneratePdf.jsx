@@ -1,50 +1,102 @@
-import React from 'react'
+
+import React from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+const formatKey = (key = "") => {
+  if (!key) return "";
+
+  let formatted = key.replace(/[_-]+/g, " ").trim();
+  const words = formatted.split(" ");
+  const acronyms = ["EMD", "PBG", "DLP", "JV", "BOQ", "NIT", "WC"];
+
+  formatted = words
+    .map((word) => {
+      const upper = word.toUpperCase();
+      if (acronyms.includes(upper)) return upper;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+
+  if (/(_cr|cr$|value|amount)/i.test(key)) {
+    formatted = formatted.replace(/\s*\(₹ Cr\)/gi, "");
+    formatted += " (₹ Cr)";
+  }
+
+  if (/percent|percentage|pct|%/i.test(key)) {
+    formatted = formatted.replace(/\s*\(%\)/gi, "");
+    formatted += " (%)";
+  }
+
+  return formatted;
+};
+
 const GeneratePDF = (data, pdfFileName = "Tender Analysis Summary.pdf") => {
-  const doc = new jsPDF();
-
-  // Add Title
+  const doc = new jsPDF("p", "mm", "a4");
   doc.setFontSize(16);
-  doc.text("Extracted Data", 14, 20);
+  doc.text("Extracted Tender Data", 14, 20);
 
-  // Prepare table columns
+  const rows = [];
+  let srNo = 1;
+
+  Object.entries(data).forEach(([section, fields]) => {
+   
+    if (typeof fields === "object" && Object.keys(fields).length > 1) {
+      const bullets = Object.entries(fields)
+        .map(([key, val]) => `• ${formatKey(key)}: ${val?.value || "—"}`)
+        .join("\n\n");
+
+      rows.push({
+        sr_no: srNo++,
+        field_key: formatKey(section),
+        field_value: bullets,
+      });
+    } else {
+     
+      Object.entries(fields).forEach(([key, val]) => {
+        rows.push({
+          sr_no: srNo++,
+          field_key: formatKey(key),
+          field_value: val?.value || "—",
+        });
+      });
+    }
+  });
+
   const columns = [
     { header: "Sr. No.", dataKey: "sr_no" },
     { header: "Parameter", dataKey: "field_key" },
     { header: "Details from Tender Document", dataKey: "field_value" },
-  
   ];
 
-  // Prepare table rows
-  const rows = data.map((item, i) => ({
-    sr_no: i + 1,
-    field_key: item.field_key,
-    field_value: item.field_value,
-  }));
-
-  // Generate table
   autoTable(doc, {
     columns,
     body: rows,
-    // startY: 10,
-    // margin: { right: 10 },
-    styles: { fontSize: 10, cellWidth: "wrap", lineWidth: 0.3, lineColor: 0 },
-    headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: "bold" },
-    columnStyles: {
-       sr_no: { cellWidth: 10 },
-      field_key: { cellWidth: 50 }, // narrower column
-      field_value: { cellWidth: 130 }, // wider column
-    },
     startY: 30,
+    styles: {
+      fontSize: 9,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.2,
+      cellPadding: 3,
+      overflow: "linebreak",
+      valign: "top",
+    },
+    headStyles: {
+      fillColor: [230, 230, 230],
+      textColor: 20,
+      fontStyle: "bold",
+      halign: "center",
+    },
+    columnStyles: {
+      sr_no: { cellWidth: 12, halign: "center" },
+      field_key: { cellWidth: 60 },
+      field_value: { cellWidth: 110 },
+    },
     theme: "grid",
     tableWidth: "auto",
   });
 
-  // Save PDF
   doc.save(pdfFileName);
- 
-}
+};
 
-export default GeneratePDF
+export default GeneratePDF;

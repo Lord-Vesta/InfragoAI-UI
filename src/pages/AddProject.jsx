@@ -1,29 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  TextField,
   Button,
-  Avatar,
-  IconButton,
-  Dialog,
   DialogContent,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import CustomTextField from "../components/TextField";
-import EditIcon from "@mui/icons-material/Edit";
-import { useState, useEffect } from "react";
-import {Alert} from "@mui/material";
 
 const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) => {
   const [projectName, setProjectName] = useState("");
   const [error, setError] = useState("");
-
-  // Validate project name whenever it changes
+  const [loading, setLoading] = useState(false); 
   useEffect(() => {
     const name = projectName.trim().toLowerCase();
 
     if (!projectName.trim()) {
       setError("");
+      return;
+    }
+
+    if (projectName.length > 200) {
+      setError("Project name cannot exceed 200 characters.");
       return;
     }
 
@@ -38,10 +37,19 @@ const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) =>
     }
   }, [projectName, existingProjects]);
 
-  const handleSubmit = () => {
-    if (!projectName.trim()) return;
-    handleAddProject(projectName);
+  const handleSubmit = async () => {
+    if (!projectName.trim() || error) return;
+
+    setLoading(true);
+    try {
+      await handleAddProject(projectName.trim());
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
+
   return (
     <Box
       sx={{
@@ -71,17 +79,11 @@ const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) =>
           p: 3,
         }}
       >
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          textAlign="center"
-        >
+        <Typography variant="h6" fontWeight="bold" textAlign="center">
           Add New Project
         </Typography>
-        <DialogContent
-          sx={{ textAlign: "center", position: "relative", pt: 4 }}
-        >
 
+        <DialogContent sx={{ textAlign: "center", position: "relative", pt: 4 }}>
           <Box display="flex" flexDirection="column" gap={2} mb={2}>
             <CustomTextField
               label="Project Name"
@@ -91,9 +93,20 @@ const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) =>
               width="100%"
               disableOnBlur={false}
               required
+              value={projectName}
+              disabled={loading} 
             />
+            {/* <Typography
+              variant="caption"
+              color={projectName.length > 200 ? "error" : "text.secondary"}
+              textAlign="right"
+              sx={{ mt: -1 }}
+            >
+              {projectName.length}/200
+            </Typography> */}
           </Box>
-         {error && (
+
+          {error && (
             <Alert
               severity="error"
               sx={{
@@ -106,44 +119,53 @@ const AddProject = ({ handleClose, handleAddProject, existingProjects = [] }) =>
               {error}
             </Alert>
           )}
-      
-      {/* Buttons */}
-      <Box display="flex" justifyContent="space-between" mt={2}>
-        <Button
-          variant="outlined"
-          sx={{
-            flex: 1,
-            mr: 1,
-            borderRadius: 0.5,
-            textTransform: "none",
-            fontWeight: "bold",
-            color: "#6B7280",
-            borderColor: "#D1D5DB",
-          }}
-          onClick={handleClose}
-        >
-          BACK
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            flex: 1,
-            ml: 1,
-            borderRadius: 0.5,
-            textTransform: "none",
-            fontWeight: "bold",
-            bgcolor: error || !projectName.trim() ? "#A5D6A7" : "#0FB97D",
-            "&:hover": { bgcolor: error || !projectName.trim() ? "#A5D6A7" : "#0ca76f" },
-          }}
-          disabled={!!error || !projectName.trim()}
-          onClick={handleSubmit}
-        >
-          NEXT
-        </Button>
+
+          {/* Buttons */}
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            <Button
+              variant="outlined"
+              sx={{
+                flex: 1,
+                mr: 1,
+                borderRadius: 0.5,
+                textTransform: "none",
+                fontWeight: "bold",
+                color: "#6B7280",
+                borderColor: "#D1D5DB",
+              }}
+              onClick={handleClose}
+              disabled={loading}
+            >
+              BACK
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{
+                flex: 1,
+                ml: 1,
+                borderRadius: 0.5,
+                textTransform: "none",
+                fontWeight: "bold",
+                bgcolor: error || !projectName.trim() ? "#A5D6A7" : "#0FB97D",
+                "&:hover": {
+                  bgcolor:
+                    error || !projectName.trim() ? "#A5D6A7" : "#0ca76f",
+                },
+              }}
+              disabled={!!error || !projectName.trim() || loading}
+              onClick={handleSubmit}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "NEXT"
+              )}
+            </Button>
+          </Box>
+        </DialogContent>
       </Box>
-    </DialogContent>
-      </Box >
-    </Box >
+    </Box>
   );
 };
 

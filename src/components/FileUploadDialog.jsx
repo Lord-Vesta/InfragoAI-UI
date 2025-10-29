@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   DialogTitle,
   DialogContent,
@@ -109,7 +109,20 @@ const FileUploadDialog = ({
           )}
         </Box>
       </DialogTitle>
-
+      {projectStatus > 10 && (
+        <Alert
+          severity="success"
+          sx={{
+            width: "100%",
+            py: 4,
+            textAlign: "left",
+            fontWeight: 500,
+          }}
+        >
+          PDF extraction completed successfully!
+          Click on next to see extracted data
+        </Alert>
+      )}
       {projectStatus <= 10 && (
         <DialogContent sx={{ p: 0 }}>
           {isExtracting === "loading" && (
