@@ -16,7 +16,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import AlertTooltip from "./Tooltip";
 import { userContext } from "../context/ContextProvider";
-import { PuffLoader  } from "react-spinners";
+import { PuffLoader } from "react-spinners";
 
 const FileUploadDialog = ({
   open,
@@ -65,9 +65,6 @@ const FileUploadDialog = ({
       alert("Only PDF files are supported!");
     }
   };
- useEffect(() => {
-  console.log("is",isExtracting)
- })
   return (
     <Paper
       open={open}
@@ -116,47 +113,47 @@ const FileUploadDialog = ({
       {projectStatus <= 10 && (
         <DialogContent sx={{ p: 0 }}>
           {isExtracting === "loading" && (
-          <Alert
-    severity="info"
-    icon={<PuffLoader  color="#0FB97D"  size={30}/>}
-    sx={{
-      width: "100%",
-      py: 2,
-      display: "flex",
-      alignItems: "center",
-      fontWeight: 500,
-    }}
-  >
-    Extraction can take up to 1 minute. Please wait...
-  </Alert>
+            <Alert
+              severity="info"
+              icon={<PuffLoader color="#0FB97D" size={30} />}
+              sx={{
+                width: "100%",
+                py: 2,
+                display: "flex",
+                alignItems: "center",
+                fontWeight: 500,
+              }}
+            >
+              Extraction can take up to 1 minute. Please wait...
+            </Alert>
           )}
           {isExtracting === "upload_failed" && (
-  <Alert
-    severity="error"
-    sx={{
-      width: "100%",
-      py: 4,
-      textAlign: "center",
-      fontWeight: 500,
-    }}
-  >
-    File upload failed. Please retry.
-  </Alert>
-)}
+            <Alert
+              severity="error"
+              sx={{
+                width: "100%",
+                py: 4,
+                textAlign: "center",
+                fontWeight: 500,
+              }}
+            >
+              File upload failed. Please retry.
+            </Alert>
+          )}
           {isExtracting === "uploading" && (
             <Alert
-    severity="info"
-    icon={<PuffLoader  color="#0FB97D"  size={30}/>}
-    sx={{
-      width: "100%",
-      py: 2,
-      display: "flex",
-      alignItems: "center",
-      fontWeight: 500,
-    }}
-  >
-    File Upload is in progress.Please wait..
-  </Alert>
+              severity="info"
+              icon={<PuffLoader color="#0FB97D" size={30} />}
+              sx={{
+                width: "100%",
+                py: 2,
+                display: "flex",
+                alignItems: "center",
+                fontWeight: 500,
+              }}
+            >
+              File Upload is in progress.Please wait..
+            </Alert>
           )}
           {isExtracting === "failed" && (
             <Alert
@@ -326,7 +323,9 @@ const FileUploadDialog = ({
                 <IconButton
                   onClick={handleCancelUploadFile}
                   size="small"
-                  disabled={isExtracting === "loading" || isExtracting === "uploading"}
+                  disabled={
+                    isExtracting === "loading" || isExtracting === "uploading"
+                  }
                 >
                   <CloseIcon />
                 </IconButton>
@@ -349,52 +348,58 @@ const FileUploadDialog = ({
             justifyContent: "center",
             gap: 1,
             disabled:
-              (!file && !extractionComplete) || isExtracting === "loading" || isExtracting ==="uploading",
+              (!file && !extractionComplete) ||
+              isExtracting === "loading" ||
+              isExtracting === "uploading",
             "&:hover": {
               backgroundColor: "#0FB97D",
             },
           }}
           disabled={
-            (!file && !extractionComplete) || isExtracting === "loading" || isExtracting ==="uploading"
+            (!file && !extractionComplete) ||
+            isExtracting === "loading" ||
+            isExtracting === "uploading"
           }
-            onClick={
-    isExtracting === "upload_failed"
-  ? () => {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-    }
-      : jwtToken
-      ? isExtracting === "failed"
-        ? () => fetchExtractedData(uploadedProjectId)
-        : isExtracting === "idle" && projectStatus === 0
-        ? handlePdfUpload
-        : projectStatus === 0
-        ? handlePdfUpload
-        : projectStatus === 10
-        ? () => fetchExtractedData(uploadedProjectId)
-        : handleNext
-      : isExtracting === "failed"
-      ? () => fetchExtractedData(uploadedProjectId)
-      : isExtracting === "idle"
-      ? handlePdfUpload
-      : handleNext
-  }
+          onClick={
+            isExtracting === "upload_failed"
+              ? () => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.click();
+                  }
+                }
+              : jwtToken
+              ? isExtracting === "failed"
+                ? () => fetchExtractedData(uploadedProjectId)
+                : isExtracting === "idle" && projectStatus === 0
+                ? handlePdfUpload
+                : projectStatus === 0
+                ? handlePdfUpload
+                : projectStatus === 10
+                ? () => fetchExtractedData(uploadedProjectId)
+                : handleNext
+              : isExtracting === "failed"
+              ? () => fetchExtractedData(uploadedProjectId)
+              : isExtracting === "idle" && projectStatus === 0
+              ? handlePdfUpload
+              : handleNext
+          }
         >
           {isExtracting === "loading" ? (
             <>
               <CircularProgress size={18} sx={{ color: "#fff" }} />
               Extracting...
             </>
-          ): isExtracting === "upload_failed" ? (
-    "Retry Upload" // 👈 new label
-  )  : jwtToken ? (
+          ) : isExtracting === "upload_failed" ? (
+            "Retry Upload"
+          ) : jwtToken ? (
             isExtracting === "failed" ? (
               "Retry Extraction"
-            ) :isExtracting==="uploading"?(<>
-              <CircularProgress size={18} sx={{ color: "#fff" }} />
-              Uploading...
-            </>): isExtracting === "idle" && projectStatus === 0 ? (
+            ) : isExtracting === "uploading" ? (
+              <>
+                <CircularProgress size={18} sx={{ color: "#fff" }} />
+                Uploading...
+              </>
+            ) : isExtracting === "idle" && projectStatus === 0 ? (
               "Upload & Extract"
             ) : projectStatus === 0 ? (
               "Upload & Extract"
@@ -405,8 +410,10 @@ const FileUploadDialog = ({
             )
           ) : isExtracting === "failed" ? (
             "Retry Extraction"
-          ) : isExtracting === "idle" ? (
+          ) : isExtracting === "idle" && projectStatus === 0 ? (
             "Upload & Extract"
+          ) : projectStatus === 10 ? (
+            "Extract"
           ) : (
             "Next"
           )}

@@ -16,17 +16,11 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { project_id } = useParams();
   const { jwtToken, projectStatus } = useContext(userContext);
-const storedProjectId = localStorage.getItem("anonProjectId");
-const projectIdToUse = jwtToken ? project_id : storedProjectId;
+
   const handleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
- const location = useLocation().pathname;
-  useEffect(() => {
-    if (location === "/") {
-      localStorage.removeItem("anonProjectId");
-    }
-  }, [location]);
+
   const steps = [
     "Upload",
     "Review Extracted",
@@ -36,14 +30,14 @@ const projectIdToUse = jwtToken ? project_id : storedProjectId;
   ];
 
   const stepRoutes = [
-    `/upload/${projectIdToUse}`,
-    `/reviewextracted/${projectIdToUse}`,
-    `/qualificationinputs/${projectIdToUse}`,
-    `/technicalconfirmation/${projectIdToUse}`,
-    `/bgsummary/${projectIdToUse}`,
+    `/upload/${project_id}`,
+    `/reviewextracted/${project_id}`,
+    `/qualificationinputs/${project_id}`,
+    `/technicalconfirmation/${project_id}`,
+    `/bgsummary/${project_id}`,
   ];
 
- 
+  const location = useLocation().pathname;
   const handleStepClick = (i) => {
     if (!jwtToken && i >= 2) {
       toast.info("You must be logged in to access this step.");
@@ -173,7 +167,138 @@ const projectIdToUse = jwtToken ? project_id : storedProjectId;
                 Profile
               </Box>
             ) : (
-              <Box></Box>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "start",
+                  mr: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "start",
+                    gap: 0,
+                    width: "100%",
+                  }}
+                >
+                  {steps.map((label, i) => {
+                    let maxAllowedStep = 0;
+                    if (projectStatus >= 20 && projectStatus < 40)
+                      maxAllowedStep = 1;
+                    else if (projectStatus >= 40 && projectStatus < 60)
+                      maxAllowedStep = 2;
+                    else if (projectStatus >= 60 && projectStatus < 80)
+                      maxAllowedStep = 3;
+                    else if (projectStatus >= 80) maxAllowedStep = 4;
+
+                    const isStepDisabled =
+                      i > maxAllowedStep ||
+                      (!jwtToken && i >= 2) ||
+                      (i === 0 && activeStep === 0);
+                    return (
+                      <Box
+                        key={i}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "start",
+                          justifyContent: "start",
+                          width: "100%",
+                          cursor:
+                            (!jwtToken && i >= 2) ||
+                            (jwtToken && isStepDisabled) ||
+                            (!jwtToken && i >= activeStep)
+                              ? "not-allowed"
+                              : "pointer",
+                          opacity:
+                            (!jwtToken && i >= 2) ||
+                            (jwtToken && isStepDisabled) ||
+                            (!jwtToken && i > activeStep)
+                              ? 0.5
+                              : 1,
+                        }}
+                        onClick={() => {
+                          if (
+                            (!jwtToken && i >= 2) ||
+                            (jwtToken && isStepDisabled) ||
+                            (!jwtToken && i >= activeStep)
+                          )
+                            return;
+                          handleStepClick(i);
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            background:
+                              i === activeStep
+                                ? "linear-gradient(180deg, #78ffd0ff , #eafaf6)"
+                                : "transparent",
+
+                            borderRadius: "16px",
+                            width: "100%",
+                            py: i === activeStep ? "10px" : "0",
+                            ml: "10px",
+                            gap: "20px",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 35,
+                              height: 35,
+                              borderRadius: "50%",
+                              bgcolor: i === activeStep ? "#0FB97D" : "#2F3B37",
+                              color: "white",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer",
+                              margin: 0,
+                              padding: 0,
+                              ml: 4,
+                            }}
+                          >
+                            <CloudUploadOutlinedIcon
+                              fontSize="16"
+                              sx={{
+                                color: i < activeStep ? "#0FB97D" : "#fff",
+                              }}
+                            />
+                          </Box>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              left: 80,
+                              color: i < activeStep ? "#0FB97D" : "#2F3B37",
+                            }}
+                          >
+                            {label}
+                          </Typography>
+                        </Box>
+                        {i < steps.length - 1 && (
+                          <hr
+                            style={{
+                              height: "50px",
+                              margin: "0 59px",
+                              boxShadow: "none",
+                              color: "gray",
+                              borderRight: "none",
+                              borderLeft: `2px ${
+                                i < activeStep ? "solid" : "dashed"
+                              } gray`,
+                            }}
+                          />
+                        )}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
             )}
             {jwtToken ? (
               <Box
@@ -185,7 +310,7 @@ const projectIdToUse = jwtToken ? project_id : storedProjectId;
                   py: 2,
                   backgroundColor: "#e3e0e0ff",
                   cursor: "pointer",
-                  
+
                   transition: "background-color 0.3s",
                   "&:hover": {
                     backgroundColor: "#d5d2d2",
@@ -193,10 +318,7 @@ const projectIdToUse = jwtToken ? project_id : storedProjectId;
                 }}
                 onClick={handleLogout}
               >
-                <Box
-                  sx={{ flexGrow: 1, cursor: "pointer" }}
-                  
-                >
+                <Box sx={{ flexGrow: 1, cursor: "pointer" }}>
                   <Typography variant="subtitle1" fontWeight="bold">
                     Logout
                   </Typography>
@@ -347,7 +469,7 @@ const projectIdToUse = jwtToken ? project_id : storedProjectId;
         }}
         onClick={handleExpanded}
       >
-        {isExpanded === false && location !== "/" ? (
+        {isExpanded === false && location !== "/" && jwtToken ? (
           <Box
             sx={{
               display: "flex",
