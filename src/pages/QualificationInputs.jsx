@@ -1134,56 +1134,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 Selected: {certificateFile.name}
               </Typography>
             )}
-            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                PDF
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                DOCX
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                TXT
-              </Box>
-              <Box
-                sx={{
-                  background: "#d1fae5",
-                  color: "#34d399",
-                  borderRadius: "4px",
-                  px: 1.5,
-                  py: 0.5,
-                  fontSize: 12,
-                }}
-              >
-                &gt; 10 MB
-              </Box>
-            </Box>
+           
           </Box>
         )}
       </Box>
