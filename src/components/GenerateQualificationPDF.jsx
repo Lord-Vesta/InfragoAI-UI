@@ -36,7 +36,7 @@ export const GenerateQualificationPDF = (
       const pageHeight = doc.internal.pageSize.height;
       const pageWidth = doc.internal.pageSize.width;
       doc.setFontSize(9);
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth - 25, pageHeight - 5);
+      doc.text(`Page ${i}`, pageWidth - 25, pageHeight - 5);
     }
   };
 

@@ -34,6 +34,7 @@ const formatKey = (key = "") => {
 const GeneratePDF = async (data, pdfFileName = "Tender Analysis Summary.pdf") => {
   const doc = new jsPDF("p", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
   const img = new Image();
   img.src = logo;
@@ -52,18 +53,22 @@ const GeneratePDF = async (data, pdfFileName = "Tender Analysis Summary.pdf") =>
     minute: "2-digit",
   });
   const timestamp = `Downloaded on: ${formattedDate}`;
+
+  // 🔹 Header - Logo + Timestamp
   doc.addImage(img, "PNG", 10, 8, 10, 10);
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   const timestampWidth = doc.getTextWidth(timestamp);
   doc.text(timestamp, pageWidth - timestampWidth - 10, 10);
 
+  // 🔹 Title
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
   const title = "Extracted Tender Data";
   const titleWidth = doc.getTextWidth(title);
   doc.text(title, (pageWidth - titleWidth) / 2, 30);
 
+  // 🔹 Build Table Data
   const rows = [];
   let srNo = 1;
 
@@ -120,7 +125,8 @@ const GeneratePDF = async (data, pdfFileName = "Tender Analysis Summary.pdf") =>
     },
     theme: "grid",
 
-    didDrawPage: () => {
+    didDrawPage: (data) => {
+      // ✅ Logo & Timestamp on every page
       try {
         doc.addImage(img, "PNG", 10, 8, 10, 10);
       } catch (e) {
@@ -131,6 +137,12 @@ const GeneratePDF = async (data, pdfFileName = "Tender Analysis Summary.pdf") =>
       doc.setFont("helvetica", "normal");
       const timestampWidth = doc.getTextWidth(timestamp);
       doc.text(timestamp, pageWidth - timestampWidth - 10, 10);
+
+      const pageCurrent = data.pageNumber;
+      const pageText = `Page ${pageCurrent}`;
+      doc.setFontSize(9);
+      const textWidth = doc.getTextWidth(pageText);
+      doc.text(pageText, (pageWidth - textWidth) / 2, pageHeight - 10);
     },
   });
 
