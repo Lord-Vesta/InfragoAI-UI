@@ -235,11 +235,11 @@ const Login = () => {
             Welcome!
           </Typography>
           <Typography
-            variant="body1"
-            sx={{ mt: 1, opacity: 0.9, fontWeight: "400" }}
+            variant="h6"
+            sx={{ mt: 1, opacity: 0.9, fontWeight: "500"}}
             theme={theme}
           >
-          Here we are helping you evaluate tenders 70% faster, qualify smarter, and connect with partners for seamless project execution.
+          Upload your bid document and Infrago AI will highlight key requirements, show your eligibility, and help you prepare your bid confidently.
           </Typography>
         </Container>
       </Box>

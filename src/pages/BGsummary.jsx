@@ -141,7 +141,7 @@ if (error) {
       >
         <PuffLoader color="#0FB97D" size={60} />
         <Typography fontSize={16} fontWeight="500" mt={2}>
-          Loading qualification results...
+          Loading summary results will take upto 1 min, please wait...
         </Typography>
       </Box>
     );

@@ -597,13 +597,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
 
         <Box>
           <Box display="flex" alignItems="center" gap={1} mb={1}>
-            <Typography fontWeight="400">Avg Annual Turnover (₹ Cr)</Typography>
+            <Typography fontWeight="400">Avg Annual Turnover</Typography>
 
             {/* Edit Icon */}
             {isInitialData && (
               <IconButton
                 size="small"
-                sx={{ ml: 1, color: "#0FB97D" }}
+                sx={{ color: "#0FB97D" }}
                 onClick={() => setTurnoverEditable(true)}
               >
                 <EditIcon fontSize="small" />
@@ -611,59 +611,63 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             )}
           </Box>
           <Box display="flex" alignItems="center" gap={3}>
-            <Box display="flex" alignItems="center">
-              <Box
-                sx={{
-                  backgroundColor: colors.green,
-                  color: "#fff",
-                  padding: "9px 16px",
-                  borderRadius: "12px 0 0 12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 500,
-                  fontSize: 14,
-                }}
-              >
-                Past 3 years
-              </Box>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box display="flex">
+                <Box
+                  sx={{
+                    backgroundColor: colors.green,
+                    color: "#fff",
+                    padding: "9px 16px",
+                    borderRadius: "12px 0 0 12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 500,
+                    fontSize: 14,
+                  }}
+                >
+                  Past 3 years
+                </Box>
 
-              <Box
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "0 12px 12px 0 !important",
-                    backgroundColor: "#fff",
-                  },
-                }}
-              >
-                <CustomTextField
-                  placeholder="Enter value"
-                  width="100%"
-                  value={numericValues.Turnover_3_years}
-                  onChange={(e) =>
-                    handleChange("Turnover_3_years", e.target.value)
-                  }
-                  //               error={!!errors.Turnover_3_years}
-                  // helperText={errors.Turnover_3_years}
-                  disabled={isInitialData}
-                  showIcon={true}
-                  keyValue={"Turnover_3_years"}
-                  setEditableFields={setEditableFields}
-                />
+                <Box
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "0 12px 12px 0 !important",
+                      backgroundColor: "#fff",
+                      width: "185px",
+                    },
+                  }}
+                >
+                  <CustomTextField
+                    placeholder="Enter value"
+                    width="100%"
+                    value={numericValues.Turnover_3_years}
+                    onChange={(e) =>
+                      handleChange("Turnover_3_years", e.target.value)
+                    }
+                    //               error={!!errors.Turnover_3_years}
+                    // helperText={errors.Turnover_3_years}
+                    disabled={isInitialData}
+                    showIcon={true}
+                    keyValue={"Turnover_3_years"}
+                    setEditableFields={setEditableFields}
+                  />
+                </Box>
               </Box>
+              <CustomSelect
+                options={["Crore", "Lakhs"]}
+                placeholder="Crore"
+                width="100px"
+                value={currencyValues.Turnover_3_years}
+                disabled={isInitialData}
+                onChange={(e) =>
+                  handleCurrencyChange("Turnover_3_years", e.target.value)
+                }
+                editableFields={editableFields.Turnover_3_years}
+                keyValue={"Turnover_3_years"}
+              />
             </Box>
-            <CustomSelect
-              options={["Crore", "Lakhs"]}
-              placeholder="Crore"
-              width="100px"
-              value={currencyValues.Turnover_3_years}
-              disabled={isInitialData}
-              onChange={(e) =>
-                handleCurrencyChange("Turnover_3_years", e.target.value)
-              }
-              editableFields={editableFields.Turnover_3_years}
-              keyValue={"Turnover_3_years"}
-            />
+
             {/* </Box>
       <Box display="flex" alignItems="center" gap={2}> */}
 
@@ -689,12 +693,13 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "0 12px 12px 0 !important",
                       backgroundColor: "#fff",
+                      width: "185px",
                     },
                   }}
                 >
                   <CustomTextField
                     placeholder="Enter value"
-                    width="100%"
+                    width="90%"
                     value={numericValues.Turnover_5_years}
                     onChange={(e) =>
                       handleChange("Turnover_5_years", e.target.value)
@@ -1084,9 +1089,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               width="65%"
               value={litigationDetails}
               onChange={(e) => setLitigationDetails(e.target.value)}
-              disabled={
-                (isInitialData && !litigationEditable) 
-              }
+              disabled={isInitialData && !litigationEditable}
               showIcon={true}
               keyValue={"litigationDetails"}
               setEditableFields={setEditableFields}
