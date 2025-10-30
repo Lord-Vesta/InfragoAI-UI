@@ -246,16 +246,16 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           );
 
           if (location.toLowerCase().includes("qualificationinputs")) {
-            navigate(`/TechnicalConfirmation/${project_id}`);
+            navigate(`/technicalconfirmation/${project_id}`);
           } else {
-            navigate(`/BGsummary/${project_id}`);
+            navigate(`/bgsummary/${project_id}`);
           }
         }
       } else {
         if (location.toLowerCase().includes("qualificationinputs")) {
-          navigate(`/TechnicalConfirmation/${project_id}`);
+          navigate(`/technicalconfirmation/${project_id}`);
         } else {
-          navigate(`/BGsummary/${project_id}`);
+          navigate(`/bgsummary/${project_id}`);
         }
       }
     } catch (err) {

@@ -22,9 +22,10 @@ const UploadPage = () => {
 
   const { setSessionId, jwtToken, setProjectId } = useContext(userContext);
   const navigate = useNavigate();
-  const { project_id:urlProjectId  } = useParams();
-const projectId =
-  jwtToken ? urlProjectId : localStorage.getItem("anonProjectId");
+  const { project_id: urlProjectId } = useParams();
+  const projectId = jwtToken
+    ? urlProjectId
+    : localStorage.getItem("anonProjectId");
   const fetchExtractedData = async (projId) => {
     setIsExtracting("loading");
     try {
@@ -68,7 +69,7 @@ const projectId =
 
       if (jwtToken) {
         formData.append("project_id", projectId);
-        response = await uploadPdfAuthenticated(formData,projectId);
+        response = await uploadPdfAuthenticated(formData, projectId);
       } else {
         response = await uploadPdfAnonymous(formData);
       }
@@ -94,7 +95,7 @@ const projectId =
         if (targetProjectId) await fetchExtractedData(targetProjectId);
       }
     } catch (error) {
-       setIsExtracting("upload_failed"); 
+      setIsExtracting("upload_failed");
       toast.error("Error uploading file");
       console.error(error);
     } finally {
@@ -155,7 +156,7 @@ const projectId =
             uploadedProjectId
           }
           handleNext={() =>
-            navigate(`/ReviewExtracted/${projectId || uploadedProjectId}`)
+            navigate(`/reviewextracted/${projectId || uploadedProjectId}`)
           }
           setUploadedProjectId={setUploadedProjectId}
           uploadedProjectId={uploadedProjectId}

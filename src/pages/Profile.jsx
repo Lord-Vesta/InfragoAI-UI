@@ -264,10 +264,10 @@ const Profile = () => {
                   onClick={() => {
                     let route = "upload";
                     if (p.completion_percentage < 20) route = "upload";
-                    else if (p.completion_percentage < 40) route = "reviewExtracted";
-                    else if (p.completion_percentage < 60) route = "QualificationInputs";
-                    else if (p.completion_percentage < 80) route = "TechnicalConfirmation";
-                    else if (p.completion_percentage >= 80) route = "BGsummary";
+                    else if (p.completion_percentage < 40) route = "reviewextracted";
+                    else if (p.completion_percentage < 60) route = "qualificationinputs";
+                    else if (p.completion_percentage < 80) route = "technicalconfirmation";
+                    else if (p.completion_percentage >= 80) route = "bgsummary";
                     navigate(`/${route}/${p.project_id}`, { state: { project: p } });
                   }}
                 >

@@ -426,8 +426,8 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           response.project_id || project_id
         );
         location.toLowerCase().includes("reviewextracted")
-          ? navigate(`/QualificationInputs/${project_id}`)
-          : navigate(`/BGsummary/${project_id}`);
+          ? navigate(`/qualificationinputs/${project_id}`)
+          : navigate(`/bgsummary/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
       }
