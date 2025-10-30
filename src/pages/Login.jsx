@@ -112,7 +112,7 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100%",
         bgcolor: "#f9f9f9",
         maxWidth: "100%",
         p: 4,
@@ -126,7 +126,6 @@ const Login = () => {
           borderRadius: 2,
           pb: 20,
           backgroundImage: `url(${background1}), url(${background2})`,
-
           backgroundRepeat: "no-repeat, no-repeat",
           backgroundPosition: "100%",
           backgroundSize: "cover, contain",
@@ -236,12 +235,11 @@ const Login = () => {
             Welcome!
           </Typography>
           <Typography
-            variant="body1"
-            sx={{ mt: 1, opacity: 0.9, fontWeight: "400" }}
+            variant="h6"
+            sx={{ mt: 1, opacity: 0.9, fontWeight: "500"}}
             theme={theme}
           >
-            Use these awesome forms to login or create new account in your
-            project for free.
+          Upload your bid document and Infrago AI will highlight key requirements, show your eligibility, and help you prepare your bid confidently.
           </Typography>
         </Container>
       </Box>

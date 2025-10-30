@@ -16,7 +16,7 @@ const {
   GET_PROJECT_BY_ID,
   LOGOUT,
   UPLOAD_PROJECT_STATUS,
-  TENDER_EVALUATE
+  TENDER_EVALUATE,
 } = ApiConfig;
 
 export const sendOtp = async (data) => {
@@ -194,6 +194,7 @@ export const updateProjectStatus = async (data, projectId) => {
 };
 
 export const tenderEvaluateStatus = async (projectId) =>{
+  // eslint-disable-next-line no-useless-catch
   try{
   
     const response = await axiosclient.post(TENDER_EVALUATE(projectId))
@@ -201,4 +202,4 @@ export const tenderEvaluateStatus = async (projectId) =>{
   }catch (err){
     throw err
   }
-}
+};

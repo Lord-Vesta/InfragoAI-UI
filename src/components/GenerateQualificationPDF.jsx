@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logo from "../../public/logo.png"; 
 
 export const GenerateQualificationPDF = (
   numericValues,
@@ -8,58 +9,121 @@ export const GenerateQualificationPDF = (
   projects
 ) => {
   const doc = new jsPDF();
+  const currentDate = new Date().toLocaleString(); 
 
-  // ✅ Title
-  doc.setFontSize(18);
-  doc.text("Qualification Input Summary", 14, 20);
+  const addHeader = () => {
+    const pageWidth = doc.internal.pageSize.width;
 
-  // ✅ Section 1: Numeric values
-  const numericRows = Object.entries(numericValues).map(([key, value]) => ({
-    key: key.replace(/([A-Z])/g, " $1").toUpperCase(),
-    value: value || "-",
-  }));
+    const logoWidth = 10;
+    const logoHeight = 10;
+    doc.addImage(logo, "PNG", 10, 6, logoWidth, logoHeight);
 
-  autoTable(doc, {
-    startY: 30,
-    head: [["Field", "Value"]],
-    body: numericRows.map((row) => [row.key, row.value]),
-    theme: "grid",
-    styles: { fontSize: 10, lineColor: 0, },
-    headStyles: { fillColor: [255, 255, 255],textColor: 0, valign: "middle",  lineColor: [0, 0, 0], 
-      lineWidth: 0.2, 
+    doc.setFontSize(9);
+    doc.text(`Downloaded on: ${currentDate}`, pageWidth - 10, 10, {
+      align: "right",
+    });
+
+    doc.setFontSize(16);
+    doc.text("Qualification Input Summary", pageWidth / 2, 22, {
+      align: "center",
+    });
+  };
+
+  const addFooter = () => {
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const pageHeight = doc.internal.pageSize.height;
+      const pageWidth = doc.internal.pageSize.width;
+      doc.setFontSize(9);
+      doc.text(`Page ${i}`, pageWidth - 25, pageHeight - 5);
     }
-  });
+  };
 
-  // ✅ Section 2: Litigation
-  autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 10,
-    head: [["Litigation Status", "Litigation Details"]],
-    body: [[litigationStatus, litigationDetails || "-"]],
-    theme: "grid",
-    styles: { fontSize: 10, lineColor: 0, },
-    headStyles: { fillColor: [255, 255, 255] }, 
-  });
+  addHeader();
 
-  // ✅ Section 3: Projects
-  if (projects.length > 0) {
-    const projectRows = projects.map((p, i) => [
-      i + 1,
-      p.name || "-",
-      p.scope || "-",
-      p.year || "-",
-      p.value || "-",
-    ]);
+  const getNextY = () => (doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30);
 
+  const formatLabel = (key) => {
+    return key
+      .replace(/_/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\b(\d+)\s*years?\b/gi, "($1 Years)")
+      .replace(/\b(bg)\b/gi, "BG")
+      .replace(/\b(\w)/g, (c) => c.toUpperCase())
+      .replace(/\(\(/g, "(")
+      .replace(/\)\)/g, ")")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const numericRows = Object.entries(numericValues || {}).map(([key, value]) => [
+    formatLabel(key),
+    value || "-",
+  ]);
+
+  if (numericRows.length > 0) {
     autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 10,
-      head: [["#", "Project Name", "Scope", "Year", "Value"]],
-      body: projectRows,
+      startY: getNextY(),
+      head: [["Field", "Value"]],
+      body: numericRows,
       theme: "grid",
-      styles: { fontSize: 10, lineColor: 0, },
-      headStyles: { fillColor: [255, 255, 255] }, 
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [220, 220, 220], textColor: 0, fontStyle: "bold" },
+      margin: { left: 10, right: 10 },
+      didDrawPage: () => addHeader(),
     });
   }
 
-  // ✅ Save the PDF
+  autoTable(doc, {
+    startY: getNextY(),
+    head: [["Litigation Status", "Litigation Details"]],
+    body: [[litigationStatus || "-", litigationDetails || "-"]],
+    theme: "grid",
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [220, 220, 220], textColor: 0, fontStyle: "bold" },
+    margin: { left: 10, right: 10 },
+    didDrawPage: () => addHeader(),
+  });
+
+if (projects?.length > 0) {
+  const projectRows = projects.map((p, i) => [
+    i + 1,
+    p.name || "-",
+    p.scope || "-",
+    p.year || "-",
+    p.value || "-",
+  ]);
+
+  autoTable(doc, {
+    startY: getNextY(),
+    head: [
+      [
+        {
+          content: "Similar Projects", 
+          colSpan: 5, 
+          styles: {
+            halign: "center",
+            fillColor: [220, 220, 220],
+            textColor: 0,
+            fontStyle: "bold",
+            fontSize: 12,
+          },
+        },
+      ],
+      ["#", "Project Name", "Scope", "Year", "Value"], 
+    ],
+    body: projectRows,
+    theme: "grid",
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+    margin: { left: 10, right: 10 },
+    didDrawPage: () => addHeader(),
+  });
+}
+
+
+  addFooter();
+
   doc.save("qualification_inputs.pdf");
 };

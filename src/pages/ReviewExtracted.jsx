@@ -11,19 +11,20 @@ import CustomButton from "../components/Button";
 import Toggle from "../components/ToggleButton";
 import { userContext } from "../context/ContextProvider";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { downloadPdf, updateProjectStatus } from "../Utils/Api.utils";
+import { downloadPdf } from "../Utils/Api.utils";
 import { toTitleCase } from "../Utils/stringUtils";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import { updateEditedFields, getExtractedInputs } from "../Utils/Api.utils";
+import { getExtractedInputs, updateEditedFields, updateProjectStatus } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { PuffLoader  } from "react-spinners";
+import { PuffLoader } from "react-spinners";
+import BeforeProceedModal from "../components/ProceedModal";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
 const baseRates = ["DSR", "State SSR"];
@@ -147,17 +148,17 @@ const fieldConfig = [
     validation: { required: true },
   },
   {
-    label: "Net Worth Requirement",
+    label: "Net Worth Requirement (₹ Cr)",
     type: "text",
     validation: { required: true },
   },
   {
-    label: "Liquid Assets / WC Requirement (₹ Cr)",
+    label: "Liquid Assets/ WC Requirement (₹ Cr)",
     type: "text",
     validation: { required: true, number: true, min: 1 },
   },
   {
-    label: "Bid Capacity",
+    label: "Bid Capacity (₹ Cr)",
     type: "text",
     validation: { required: true },
   },
@@ -186,14 +187,15 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
   const [pdfPageNumber, setPdfPageNumber] = useState(1);
   const [loading, setLoading] = useState(true);
-
+  const [extractedInputs, setExtractedInputs] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [pdfBuffer, setPdfBuffer] = useState(null);
   const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
   const location = useLocation().pathname;
 
   const navigate = useNavigate();
-
+  const [openModal, setOpenModal] = useState(false);
   const handleDownloadPdf = async () => {
     try {
       const response = await downloadPdf(project_id);
@@ -212,25 +214,37 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       try {
         let dataArray = [];
 
+
         if (!extractedData) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
           const response = await getExtractedInputs(project_id);
           dataArray = Array.isArray(response.data) ? response.data : [];
+
+          setExtractedInputs({
+            data: response.data,
+            pdfData: response.pdf_data,
+          });
         } else {
           dataArray = extractedData.data;
         }
-
-        const normalizedResponse = dataArray.map((item) => ({
-          ...item,
-          normalizedKey: item.field_key
-            .toLowerCase()
-            .replace(/[\s-/_()]+/g, ""),
-        }));
+        const normalizedResponse = dataArray.map((item) => {
+          const cleanedKey = item.field_key
+            ? item.field_key.replace(/\(.*?(₹|rs|cr).*?\)/gi, "").trim()
+            : "";
+          return {
+            ...item,
+            normalizedKey: cleanedKey.toLowerCase().replace(/[\s-/_()]+/g, ""),
+          };
+        });
 
         const apiData = fieldConfig.map((config) => {
           if (config.type === "heading") return config;
 
-          const normalizedLabel = config.label
+          const cleanedLabel = config.label
+            .replace(/\(.*?(₹|rs|cr).*?\)/gi, "") // remove currency/unit phrases in parentheses
+            .trim();
+
+          const normalizedLabel = cleanedLabel
             .toLowerCase()
             .replace(/[\s-/_()]+/g, "");
 
@@ -241,8 +255,8 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           let value = match
             ? match.edited_value ?? match.field_value
             : config.type === "toggle"
-            ? "No"
-            : "";
+              ? "No"
+              : "";
 
           if (
             match &&
@@ -352,26 +366,6 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   //     input?.scrollIntoView({ behavior: "smooth", block: "center" });
   //   }, 100);
   // };
-  const handleCancel = (index) => {
-    setFields((prev) =>
-      prev.map((field, i) =>
-        i === index
-          ? {
-              ...field,
-              value: field.prevValue,
-              isEdited: false,
-              prevValue: undefined,
-            }
-          : field
-      )
-    );
-
-    setEditableFields((prev) =>
-      prev.map((editable, i) => (i === index ? false : editable))
-    );
-
-    setErrors((prev) => prev.map((err, i) => (i === index ? "" : err)));
-  };
 
   const handleChange = (index, newValue) => {
     setFields((prev) =>
@@ -397,8 +391,25 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const handleLoginRedirect = () => {
     navigate("/");
   };
-
+  // const handleNext=async()=>{
+  //   setOpenModal(true);
+  // }
+  // const handleNext = async () => {
+  //   if (!extractedData) {
+  //     // Show modal only if extractedData is missing
+  //     setOpenModal(true);
+  //   } else {
+  //     // Directly redirect if extractedData exists
+  //     navigate(`/BGsummary/${project_id}`);
+  //   }
+  // };
   const handleNext = async () => {
+    if (!extractedData) {
+      setSaving(false);
+      setOpenModal(true);
+      return;
+    }
+
     const editedFields = fields
       .filter(
         (field) =>
@@ -425,16 +436,86 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           },
           response.project_id || project_id
         );
+
         location.toLowerCase().includes("reviewextracted")
           ? navigate(`/qualificationinputs/${project_id}`)
           : navigate(`/bgsummary/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
+        toast.error("Failed to update fields. Please try again.");
       }
     } else {
       navigate("/login");
     }
   };
+  const handleProceed = async () => {
+    setSaving(true);
+
+    const editedFields = fields
+      .filter(
+        (field) =>
+          field.value !== undefined && field.value !== "" && field.isEdited
+      )
+      .map((field) => ({
+        extraction_id: field.extraction_id,
+        edited_value: field.value,
+      }));
+
+    const payload = { fields: editedFields };
+
+    if (!jwtToken) {
+      setSaving(false);
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await updateEditedFields(payload, project_id);
+
+
+      const projectId = project_id
+
+      if (!projectId) {
+        console.error("Invalid API response:", response);
+        throw new Error("Invalid response from updateEditedFields");
+      }
+
+      await updateProjectStatus(
+        {
+          completion_percentage: location
+            .toLowerCase()
+            .includes("reviewextracted")
+            ? 40
+            : 80,
+          project_status: "in progress",
+        },
+        projectId
+      );
+
+      toast.success("Fields updated successfully!");
+      setOpenModal(false);
+
+      const isReviewExtracted = location
+        .toLowerCase()
+        .includes("reviewextracted");
+
+      setTimeout(() => {
+        navigate(
+          isReviewExtracted
+            ? `/QualificationInputs/${project_id}`
+            : `/BGsummary/${project_id}`
+        );
+      }, 300);
+    } catch (error) {
+      console.error("Error updating fields:", error);
+      toast.error("Failed to update. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
+
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
   return loading ? (
@@ -446,8 +527,8 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
       alignItems="center"
       flexDirection={"column"}
     >
-   <PuffLoader  color="#0FB97D"  size={60}/>
-     {/* <Typography sx={{color:colors.green, fontWeight:600,fontSize:"16px"}}>Loading</Typography> */}
+      <PuffLoader color="#0FB97D" size={60} />
+      <Typography sx={{ fontWeight: 600, fontSize: "16px" }}>Fetching Extracted Data can take upto 1 minute . Please do not refresh</Typography>
     </Box>
   ) : (
     <Box
@@ -469,8 +550,9 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
         </Typography>
-        {jwtToken && (
-          <Box display="flex" gap={2} mx={2}>
+
+        <Box display="flex" gap={2} mx={2}>
+          {jwtToken && (
             <Button
               variant="outlined"
               sx={{
@@ -483,51 +565,44 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                 },
               }}
               onClick={() => {
-                const pdfData = fields
-                  .filter((f) => f.type !== "heading")
-                  .map((f) => ({
-                    field_key: f.label,
-                    field_value: f.value,
-                    confidence_score: f.confidenceScore ?? "",
-                    source_page_number: f.pageNo ?? "-",
-                  }));
-
-                GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
+                const pdfData = extractedInputs?.pdfData;
+                if (pdfData) GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
               }}
             >
               <Box sx={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
-                <Box sx={{ p: 0, color: colors.green, display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", mt:"2px" }}>
+                <Box sx={{ p: 0, color: colors.green, display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", mt: "2px" }}>
                   <DownloadIcon />
                 </Box>
                 <Typography>Download Bid Data</Typography>
               </Box>
             </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                color: colors.green,
+          )}
+
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
                 borderColor: colors.green,
-                borderRadius: "4px",
-                textTransform: "capitalize",
-                "&:hover": {
-                  borderColor: colors.green,
-                },
-              }}
-              onClick={() => {
-                if (!isPdfViewerOpen) {
-                  setIsPdfViewerOpen(true);
-                }
-              }}
-            >
-              <Box sx={{ display: "flex", gap: "8px" }}>
-                <IconButton sx={{ p: 0, color: colors.green }}>
-                  <FileCopyIcon />
-                </IconButton>
-                <Typography>View pdf</Typography>
-              </Box>
-            </Button>
-          </Box>
-        )}
+              },
+            }}
+            onClick={() => {
+              if (!isPdfViewerOpen) {
+                setIsPdfViewerOpen(true);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                <FileCopyIcon />
+              </IconButton>
+              <Typography>View pdf</Typography>
+            </Box>
+          </Button>
+        </Box>
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -577,31 +652,33 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                     />
                   </IconButton>
 
-                  <IconButton
-                    size="small"
-                    disableRipple
-                    onClick={() => handleEdit(index)}
-                  >
-                    <EditIcon
-                      style={{ color: colors.green, fontSize: "17px" }}
-                    />
-                  </IconButton>
+                  {jwtToken && (
+                    <IconButton
+                      size="small"
+                      disableRipple
+                      onClick={() => handleEdit(index)}
+                    >
+                      <EditIcon
+                        style={{ color: colors.green, fontSize: "17px" }}
+                      />
+                    </IconButton>
+                  )}
                   {(!field.value ||
                     field.value === "" ||
                     field.value === "Not found in document") && (
-                    <AlertTooltip
-                      title="No value found for particular label in document"
-                      type="error"
-                    >
-                      <ErrorOutlineIcon
-                        style={{
-                          color: "red",
-                          fontSize: 18,
-                          cursor: "pointer",
-                        }}
-                      />
-                    </AlertTooltip>
-                  )}
+                      <AlertTooltip
+                        title="No value found for particular label in document"
+                        type="error"
+                      >
+                        <ErrorOutlineIcon
+                          style={{
+                            color: "red",
+                            fontSize: 18,
+                            cursor: "pointer",
+                          }}
+                        />
+                      </AlertTooltip>
+                    )}
                 </Box>
               </Box>
 
@@ -610,7 +687,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                   label={field.label}
                   value={field.value}
                   onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                  // disabled={!editableFields[index]}
+                // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <span>
@@ -637,7 +714,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                           }
                           tooltip={field.snippet}
                         />
-
+                        {/* 
                         {editableFields[index] && (
                           <Button
                             size="small"
@@ -647,7 +724,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
                           >
                             Cancel
                           </Button>
-                        )}
+                        )} */}
                       </Box>
                     );
                   })()}
@@ -739,6 +816,12 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           }}
         >
           <CustomButton label="Next" onClick={handleNext} />
+          <BeforeProceedModal
+            open={openModal}
+            handleClose={() => setOpenModal(false)}
+            handleProceed={handleProceed}
+            loading={saving}
+          />
         </Box>
       )}
 
@@ -758,6 +841,7 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
           }}
           onClick={() => {
             setIsPdfViewerOpen(false);
+            setPdfPageNumber(1);
           }}
         >
           <Box

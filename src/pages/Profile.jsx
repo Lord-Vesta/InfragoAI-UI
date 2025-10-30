@@ -24,6 +24,7 @@ import { getProjects } from "../Utils/Api.utils.js";
 import { createProject } from "../Utils/Api.utils";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { toTitleCase } from "../Utils/stringUtils.js";
 
 const Profile = () => {
   const [openPopup, setOpenPopup] = useState(false);
@@ -41,7 +42,7 @@ const Profile = () => {
         setOpenPopup(false);
       }
     } catch (error) {
-      toast.error("Error creating project:", error);
+      toast.error("Error creating project", error);
     }
     // handleClose();
   };
@@ -198,33 +199,7 @@ const Profile = () => {
             Projects
           </Typography>
           <Box display="flex" gap={2}>
-            {/* <Button
-              variant="outlined"
-              size="small"
-              sx={{
-                borderRadius: "8px",
-                px: 6,
-                color: "#48BB78",
-                borderColor: "#48BB78",
-                textTransform: "none",
-              }}
-              onClick={() => setOpenPopup(true)}
-            >
-              Create New <AddIcon sx={{ ml: 1, fontSize: "14px" }} />
-            </Button> */}
-            {/* <Button
-              variant="outlined"
-              size="small"
-              sx={{
-                borderRadius: "8px",
-                px: 4,
-                color: "#929292",
-                borderColor: "#929292",
-                textTransform: "none",
-              }}
-            >
-              View All
-            </Button> */}
+            
           </Box>
         </Box>
 
@@ -286,7 +261,7 @@ const Profile = () => {
                   {/* Status */}
                   <TableCell>
                     <Chip
-                      label={p.project_status}
+                       label={toTitleCase(p.project_status)}
                       sx={{
                         bgcolor: statusColors[p.project_status].bg,
                         color: statusColors[p.project_status].color,
@@ -297,37 +272,34 @@ const Profile = () => {
                   </TableCell>
 
                   {/* Completion */}
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body2" fontWeight="bold" fontSize={12}>
-                        {p.completion_percentage}%
-                      </Typography>
-                      <LinearProgress
-                        variant="determinate"
-                        value={p.completion}
-                        sx={{
-                          flex: 1,
-                          height: 5,
-                          borderRadius: 5,
-                          bgcolor: "#E0E0E0",
-                          "& .MuiLinearProgress-bar": {
-                            bgcolor:
-                              p.project_status === "Working"
-                                ? "#1E3A8A"
-                                : p.project_status === "Completed"
-                                ? "#0FB97D"
-                                : "#9E9E9E",
-                          },
-                        }}
-                      />
-                    </Box>
-                  </TableCell>
+             <TableCell>
+  <Box display="flex" alignItems="center" gap={1} sx={{ width: "100%" }}>
+    <Typography variant="body2" fontWeight="bold" fontSize={12}>
+      {p.completion_percentage}%
+    </Typography>
+    <LinearProgress
+      variant="determinate"
+      value={p.completion_percentage}
+      sx={{
+        flex: 1,
+        height: 5,
+        borderRadius: 5,
+        bgcolor: "#E0E0E0",
+        "& .MuiLinearProgress-bar": {
+          bgcolor: "#0FB97D", 
+        },
+      }}
+    />
+  </Box>
+</TableCell>
+
+
 
                   {/* Menu Icon */}
                   <TableCell align="right">
-                    <IconButton>
+                    {/* <IconButton>
                       <MoreVertIcon />
-                    </IconButton>
+                    </IconButton> */}
                   </TableCell>
                 </TableRow>
               ))}
