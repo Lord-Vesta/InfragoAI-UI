@@ -78,7 +78,7 @@ const Login = () => {
         localStorage.setItem("accessToken", access);
         if (sessionId) {
           setSessionId(null);
-          navigate("/ReviewExtracted/" + projectId);
+          navigate("/reviewextracted/" + projectId);
         } else {
           navigate("/");
         }

@@ -438,8 +438,8 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
         );
 
         location.toLowerCase().includes("reviewextracted")
-          ? navigate(`/QualificationInputs/${project_id}`)
-          : navigate(`/BGsummary/${project_id}`);
+          ? navigate(`/qualificationinputs/${project_id}`)
+          : navigate(`/bgsummary/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
         toast.error("Failed to update fields. Please try again.");

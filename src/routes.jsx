@@ -16,18 +16,17 @@ export const router = createBrowserRouter([
       { path: "/upload", element: <UploadPage /> },
       { path: "/profile", element: <Profile /> },
       { path: "/", element: <Profile /> },
-      { path: "/ReviewExtracted/:project_id", element: <ReviewExtracted /> },
+      { path: "/reviewextracted/:project_id", element: <ReviewExtracted /> },
       {
-        path: "/QualificationInputs/:project_id",
+        path: "/qualificationinputs/:project_id",
         element: <QualificationInputs />,
       },
       {
-        path: "/TechnicalConfirmation/:project_id",
+        path: "/technicalconfirmation/:project_id",
         element: <TechnicalConfirmation />,
       },
-      { path: "/BGsummary/:project_id", element: <BGsummary /> },
+      { path: "/bgsummary/:project_id", element: <BGsummary /> },
       { path: "/upload/:project_id", element: <UploadPage /> },
-      { path: "/ReviewExtracted/:projectId", element: <ReviewExtracted /> },
     ],
   },
 ]);
@@ -42,7 +41,7 @@ export const loginRoute = createBrowserRouter([
     element: <Mainlayout />,
     children: [
       { path: "/upload", element: <UploadPage /> },
-      { path: "/ReviewExtracted/:project_id", element: <ReviewExtracted /> },
+      { path: "/reviewextracted/:project_id", element: <ReviewExtracted /> },
       { path: "/upload/:project_id", element: <UploadPage /> },
       { path: "/login", element: <Login /> },
     ],
