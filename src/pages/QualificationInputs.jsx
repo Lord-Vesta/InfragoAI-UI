@@ -1067,27 +1067,26 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             )}
           </Box>
 
-          <Box mb={3} display="flex" gap={2}>
-            <CustomSelect
-              options={["Yes", "No"]}
-              placeholder="Select"
-              width="100px"
-              value={litigationStatus}
-              onChange={(event) => setLitigationStatus(event.target.value)}
-              disabled={isInitialData && !litigationEditable}
-            />
-            <CustomTextField
-              placeholder="Details if any"
-              width="65%"
-              value={litigationDetails}
-              onChange={(e) => setLitigationDetails(e.target.value)}
-              disabled={isInitialData && !litigationEditable}
-              showIcon={true}
-              keyValue={"litigationDetails"}
-              setEditableFields={setEditableFields}
-            />
-          </Box>
-        </Box>
+      <Box mb={3} display="flex" gap={2}>
+        <CustomSelect
+          options={["Yes", "No"]}
+          placeholder="Select"
+          width="100px"
+          value={litigationStatus}
+          onChange={(event) => setLitigationStatus(event.target.value)}
+          disabled={isInitialData && !litigationEditable}
+        />
+        <CustomTextField
+          placeholder="Details if any"
+          width="65%"
+          value={litigationDetails}
+          onChange={(e) => setLitigationDetails(e.target.value)}
+          disabled={isInitialData && !litigationEditable || litigationStatus === "No"}
+          showIcon={true}
+        />
+      </Box>
+    </Box>
+
 
         {/* Registration / Certificates */}
         <Box mb={3}>
