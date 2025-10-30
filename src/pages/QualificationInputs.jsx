@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import DownloadIcon from "@mui/icons-material/Download";
 
 const QualificationInputs = ({ height = "85vh", initialData }) => {
-
   const [projects, setProjects] = useState([
     { name: "", scope: "", year: "", value: "" },
   ]);
@@ -57,6 +56,17 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   });
   const [litigationDetails, setLitigationDetails] = useState("");
   const [certificateFile, setCertificateFile] = useState(null);
+  const [editableFields, setEditableFields] = useState({
+    Turnover_3_years: false,
+    Turnover_5_years: false,
+    netWorth: false,
+    workingCapital: false,
+    workInHand: false,
+    bgLimit: false,
+    bgUtilized: false,
+    bgAvailable: false,
+    quotedPrice: false,
+  });
   const [errors, setErrors] = useState({});
   const [qualificationApiData, setQualificationApiData] = useState(null);
   const [showUpload, setShowUpload] = useState(
@@ -165,6 +175,44 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 mergedData?.data?.quoted_price?.edited_value / 100000
               ).toString() || "",
       });
+      setCurrencyValues({
+        Turnover_3_years:
+          mergedData?.data?.turnover_past_3_years?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        Turnover_5_years:
+          mergedData?.data?.turnover_past_5_years?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        netWorth:
+          mergedData?.data?.net_worth?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        workingCapital:
+          mergedData?.data?.working_capital?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        workInHand:
+          mergedData?.data?.work_in_hand?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        bgLimit:
+          mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        bgUtilized:
+          mergedData?.data?.bg_utilized?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        bgAvailable:
+          mergedData?.data?.bg_available?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+        quotedPrice:
+          mergedData?.data?.quoted_price?.edited_value / 10000000 >= 1
+            ? "Crore"
+            : "Lakhs",
+      });
 
       setLitigationStatus(
         mergedData?.data?.litigation_blacklist_status?.edited_value === "True"
@@ -198,7 +246,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       if (response) {
         setQualificationApiData(response);
       }
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Error fetching qualification inputs");
     }
@@ -273,78 +320,78 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const handleNext = async () => {
     try {
       // if (projectStatus < 60) {
-        const payload = {
-          turnover_past_3_years:
-            currencyValues.Turnover_3_years === "Crore"
-              ? numericValues.Turnover_3_years * 10000000
-              : numericValues.Turnover_3_years * 100000,
-          turnover_past_5_years:
-            currencyValues.Turnover_5_years === "Crore"
-              ? numericValues.Turnover_5_years * 10000000
-              : numericValues.Turnover_5_years * 100000,
-          net_worth:
-            currencyValues.netWorth === "Crore"
-              ? numericValues.netWorth * 10000000
-              : numericValues.netWorth * 100000,
-          working_capital:
-            currencyValues.workingCapital === "Crore"
-              ? numericValues.workingCapital * 10000000
-              : numericValues.workingCapital * 100000,
-          work_in_hand:
-            currencyValues.workInHand === "Crore"
-              ? numericValues.workInHand * 10000000
-              : numericValues.workInHand * 100000,
-          bg_limit_sanctioned:
-            currencyValues.bgLimit === "Crore"
-              ? numericValues.bgLimit * 10000000
-              : numericValues.bgLimit * 100000,
-          bg_utilized:
-            currencyValues.bgUtilized === "Crore"
-              ? numericValues.bgUtilized * 10000000
-              : numericValues.bgUtilized * 100000,
-          bg_available:
-            currencyValues.bgAvailable === "Crore"
-              ? numericValues.bgAvailable * 10000000
-              : numericValues.bgAvailable * 100000,
-          quoted_price:
-            currencyValues.quotedPrice === "Crore"
-              ? numericValues.quotedPrice * 10000000
-              : numericValues.quotedPrice * 100000,
-          litigation_blacklist_status:
-            litigationStatus === "Yes" ? "True" : "False",
-          litigation_blacklist_details: litigationDetails,
-          similar_projects: JSON.stringify(projects),
-        };
+      const payload = {
+        turnover_past_3_years:
+          currencyValues.Turnover_3_years === "Crore"
+            ? numericValues.Turnover_3_years * 10000000
+            : numericValues.Turnover_3_years * 100000,
+        turnover_past_5_years:
+          currencyValues.Turnover_5_years === "Crore"
+            ? numericValues.Turnover_5_years * 10000000
+            : numericValues.Turnover_5_years * 100000,
+        net_worth:
+          currencyValues.netWorth === "Crore"
+            ? numericValues.netWorth * 10000000
+            : numericValues.netWorth * 100000,
+        working_capital:
+          currencyValues.workingCapital === "Crore"
+            ? numericValues.workingCapital * 10000000
+            : numericValues.workingCapital * 100000,
+        work_in_hand:
+          currencyValues.workInHand === "Crore"
+            ? numericValues.workInHand * 10000000
+            : numericValues.workInHand * 100000,
+        bg_limit_sanctioned:
+          currencyValues.bgLimit === "Crore"
+            ? numericValues.bgLimit * 10000000
+            : numericValues.bgLimit * 100000,
+        bg_utilized:
+          currencyValues.bgUtilized === "Crore"
+            ? numericValues.bgUtilized * 10000000
+            : numericValues.bgUtilized * 100000,
+        bg_available:
+          currencyValues.bgAvailable === "Crore"
+            ? numericValues.bgAvailable * 10000000
+            : numericValues.bgAvailable * 100000,
+        quoted_price:
+          currencyValues.quotedPrice === "Crore"
+            ? numericValues.quotedPrice * 10000000
+            : numericValues.quotedPrice * 100000,
+        litigation_blacklist_status:
+          litigationStatus === "Yes" ? "True" : "False",
+        litigation_blacklist_details: litigationDetails,
+        similar_projects: JSON.stringify(projects),
+      };
 
-        const formData = new FormData();
-        Object.keys(payload).forEach((key) => {
-          formData.append(key, payload[key]);
-        });
+      const formData = new FormData();
+      Object.keys(payload).forEach((key) => {
+        formData.append(key, payload[key]);
+      });
 
-        if (certificateFile) {
-          formData.append("registration_certification", certificateFile);
+      if (certificateFile) {
+        formData.append("registration_certification", certificateFile);
+      }
+
+      const response = await qualificationInputs(formData, project_id);
+      if (response) {
+        await updateProjectStatus(
+          {
+            completion_percentage: location
+              .toLowerCase()
+              .includes("qualificationinputs")
+              ? 60
+              : 80,
+            project_status: "in progress",
+          },
+          response.project_id
+        );
+
+        if (location.toLowerCase().includes("qualificationinputs")) {
+          navigate(`/TechnicalConfirmation/${project_id}`);
+        } else {
+          navigate(`/BGsummary/${project_id}`);
         }
-
-        const response = await qualificationInputs(formData, project_id);
-        if (response) {
-          await updateProjectStatus(
-            {
-              completion_percentage: location
-                .toLowerCase()
-                .includes("qualificationinputs")
-                ? 60
-                : 80,
-              project_status: "in progress",
-            },
-            response.project_id
-          );
-
-          if (location.toLowerCase().includes("qualificationinputs")) {
-            navigate(`/TechnicalConfirmation/${project_id}`);
-          } else {
-            navigate(`/BGsummary/${project_id}`);
-          }
-        }
+      }
       // } else {
       //   if (location.toLowerCase().includes("qualificationinputs")) {
       //     navigate(`/TechnicalConfirmation/${project_id}`);
@@ -361,7 +408,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     }
   };
   const handleChange = (field, value) => {
-    // ✅ Allow only numeric input for all numeric fields
     const numericFields = [
       "turnover3",
       "turnover5",
@@ -373,51 +419,55 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
       "bgAvailable",
       "quotedPrice",
     ];
+    const floatRegex = /^[0-9]*\.?[0-9]*$/;
 
-    if (numericFields.includes(field) && value !== "" && !/^[0-9]*$/.test(value)) {
-      return; // Ignore non-numeric input
+    if (
+      numericFields.includes(field) &&
+      value !== "" &&
+      !floatRegex.test(value)
+    ) {
+      return;
     }
 
     const updatedValues = { ...numericValues, [field]: value };
 
-      if (field === "bgLimit" || field === "bgUtilized") {
-        const limit = Number(updatedValues.bgLimit) || 0;
-        const utilized = Number(updatedValues.bgUtilized) || 0;
+    if (field === "bgLimit" || field === "bgUtilized") {
+      const limit = Number(updatedValues.bgLimit) || 0;
+      const utilized = Number(updatedValues.bgUtilized) || 0;
 
-        const limitNumbericValue =
-          limit * (currencyValues.bgLimit === "Crore" ? 10000000 : 100000);
-        const utilizedNumericValue =
-          utilized *
-          (currencyValues.bgUtilized === "Crore" ? 10000000 : 100000);
-        const bgAvaliableNumeric = limitNumbericValue - utilizedNumericValue;
-        updatedValues.bgAvailable = Math.max(
-          (limitNumbericValue - utilizedNumericValue) / 10000000 >= 1
-            ? (bgAvaliableNumeric / 10000000).toString()
-            : (bgAvaliableNumeric / 100000).toString(),
-          0
-        ).toString();
-        setCurrencyValues((prev) => ({
-          ...prev,
-          bgAvailable: bgAvaliableNumeric >= 10000000 ? "Crore" : "Lakhs",
-        }));
-      }
+      const limitNumbericValue =
+        limit * (currencyValues.bgLimit === "Crore" ? 10000000 : 100000);
+      const utilizedNumericValue =
+        utilized * (currencyValues.bgUtilized === "Crore" ? 10000000 : 100000);
+      const bgAvaliableNumeric = limitNumbericValue - utilizedNumericValue;
+      updatedValues.bgAvailable = Math.max(
+        (limitNumbericValue - utilizedNumericValue) / 10000000 >= 1
+          ? (bgAvaliableNumeric / 10000000).toString()
+          : (bgAvaliableNumeric / 100000).toString(),
+        0
+      ).toString();
+      setCurrencyValues((prev) => ({
+        ...prev,
+        bgAvailable: bgAvaliableNumeric >= 10000000 ? "Crore" : "Lakhs",
+      }));
+    }
 
     setNumericValues(updatedValues);
 
-      // Set error
-      if (!value) {
-        setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
-      } else if (Number(value) <= 0) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: "Value must be greater than 0",
-        }));
-      } else {
-        const updatedErrors = { ...errors };
-        delete updatedErrors[field];
-        setErrors(updatedErrors);
-      }
+    // Set error
+    if (!value) {
+      setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
+    } else if (parseFloat(value) <= 0) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "Value must be greater than 0",
+      }));
+    } else {
+      const updatedErrors = { ...errors };
+      delete updatedErrors[field];
+      setErrors(updatedErrors);
     }
+  };
 
   const handleDeleteFile = () => {
     setCertificateFile(null);
@@ -457,34 +507,34 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     // }
 
     setCurrencyValues((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      ...prev,
+      [field]: value,
+    }));
     // setNumericValues(updatedValues);
   };
 
   return (
     <>
-    <Box
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      gap={3}
-      height={height}
-      position="relative"
-      overflow="auto"
-    >
-      <Typography
-        fontWeight="600"
-        fontSize={24}
-        color={colors.black_text}
-        sx={{ display: "flex", justifyContent: "space-between" }}
+      <Box
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        gap={3}
+        height={height}
+        position="relative"
+        overflow="auto"
       >
-        {mergedData ? "Review " : "Provide "}
-        Qualification Inputs{" "}
-        {initialData ? (
-          <Box component="span" sx={{ display: "inline-block" }}>
-            {/* <GetAppIcon
+        <Typography
+          fontWeight="600"
+          fontSize={24}
+          color={colors.black_text}
+          sx={{ display: "flex", justifyContent: "space-between" }}
+        >
+          {mergedData ? "Review " : "Provide "}
+          Qualification Inputs{" "}
+          {initialData ? (
+            <Box component="span" sx={{ display: "inline-block" }}>
+              {/* <GetAppIcon
               style={{ fontSize: 20, cursor: "pointer", color: "#1976d2" }}
               onClick={() =>
                 GenerateQualificationPDF(
@@ -495,86 +545,87 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                 )
               }
             /> */}
-            <Button
-              variant="outlined"
-              sx={{
-                color: colors.green,
-                borderColor: colors.green,
-                borderRadius: "4px",
-                textTransform: "capitalize",
-                "&:hover": {
-                  borderColor: colors.green,
-                },
-              }}
-              onClick={() =>
-                GenerateQualificationPDF(
-                  numericValues,
-                  litigationStatus,
-                  litigationDetails,
-                  projects
-                )
-              }
-            >
-              <Box
+              <Button
+                variant="outlined"
                 sx={{
-                  display: "flex",
-                  gap: "8px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginRight:"16px"
+                  color: colors.green,
+                  borderColor: colors.green,
+                  borderRadius: "4px",
+                  textTransform: "capitalize",
+                  "&:hover": {
+                    borderColor: colors.green,
+                  },
                 }}
+                onClick={() =>
+                  GenerateQualificationPDF(
+                    numericValues,
+                    litigationStatus,
+                    litigationDetails,
+                    projects
+                  )
+                }
               >
                 <Box
                   sx={{
-                    p: 0,
-                    color: colors.green,
                     display: "flex",
                     gap: "8px",
                     justifyContent: "center",
                     alignItems: "center",
-                    mt: "2px",
+                    marginRight: "16px",
                   }}
                 >
-                  <DownloadIcon />
+                  <Box
+                    sx={{
+                      p: 0,
+                      color: colors.green,
+                      display: "flex",
+                      gap: "8px",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      mt: "2px",
+                    }}
+                  >
+                    <DownloadIcon />
+                  </Box>
+                  <Typography>Download User Input Data</Typography>
                 </Box>
-                <Typography>Download User Input Data</Typography>
-              </Box>
-            </Button>
-          </Box>
-        ) : null}
-      </Typography>
-
-      <Box>
-      <Box display="flex" alignItems="center" gap={1} mb={1}>
-        <Typography fontWeight="400">Avg Annual Turnover (₹ Cr)</Typography>
-
-        {/* Edit Icon */}
-        {isInitialData  && (
-          <IconButton
-            size="small" sx={{ ml: 1, color: "#0FB97D" }}
-            onClick={() => setTurnoverEditable(true)}
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-        )}
-      </Box>
-        <Box display="flex" alignItems="center" gap={3}>
-          <Box display="flex" alignItems="center">
-            <Box
-              sx={{
-                backgroundColor: colors.green,
-                color: "#fff",
-                padding: "9px 16px",
-                borderRadius: "12px 0 0 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 500,
-                fontSize: 14,
-              }}
-            >
-              Past 3 years
+              </Button>
             </Box>
+          ) : null}
+        </Typography>
+
+        <Box>
+          <Box display="flex" alignItems="center" gap={1} mb={1}>
+            <Typography fontWeight="400">Avg Annual Turnover (₹ Cr)</Typography>
+
+            {/* Edit Icon */}
+            {isInitialData && (
+              <IconButton
+                size="small"
+                sx={{ ml: 1, color: "#0FB97D" }}
+                onClick={() => setTurnoverEditable(true)}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Box display="flex" alignItems="center">
+              <Box
+                sx={{
+                  backgroundColor: colors.green,
+                  color: "#fff",
+                  padding: "9px 16px",
+                  borderRadius: "12px 0 0 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 500,
+                  fontSize: 14,
+                }}
+              >
+                Past 3 years
+              </Box>
 
               <Box
                 sx={{
@@ -595,6 +646,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
                   // helperText={errors.Turnover_3_years}
                   disabled={isInitialData}
                   showIcon={true}
+                  keyValue={"Turnover_3_years"}
+                  setEditableFields={setEditableFields}
                 />
               </Box>
             </Box>
@@ -607,332 +660,367 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
               onChange={(e) =>
                 handleCurrencyChange("Turnover_3_years", e.target.value)
               }
+              editableFields={editableFields.Turnover_3_years}
+              keyValue={"Turnover_3_years"}
             />
-          {/* </Box>
+            {/* </Box>
       <Box display="flex" alignItems="center" gap={2}> */}
-     
 
-          <Box display="flex" alignItems="center" gap={1}>
-            <Box display="flex">
-              <Box
-                sx={{
-                  backgroundColor: colors.green,
-                  color: "#fff",
-                  padding: "9px 16px",
-                  borderRadius: "12px 0 0 12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 500,
-                  fontSize: 14,
-                }}
-              >
-                Past 5 years
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box display="flex">
+                <Box
+                  sx={{
+                    backgroundColor: colors.green,
+                    color: "#fff",
+                    padding: "9px 16px",
+                    borderRadius: "12px 0 0 12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 500,
+                    fontSize: 14,
+                  }}
+                >
+                  Past 5 years
+                </Box>
+                <Box
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "0 12px 12px 0 !important",
+                      backgroundColor: "#fff",
+                    },
+                  }}
+                >
+                  <CustomTextField
+                    placeholder="Enter value"
+                    width="100%"
+                    value={numericValues.Turnover_5_years}
+                    onChange={(e) =>
+                      handleChange("Turnover_5_years", e.target.value)
+                    }
+                    error={!!errors.turnover5}
+                    helperText={errors.turnover5}
+                    disabled={isInitialData}
+                    showIcon={true}
+                    setEditableFields={setEditableFields}
+                    keyValue={"Turnover_5_years"}
+                  />
+                </Box>
               </Box>
-              <Box
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "0 12px 12px 0 !important",
-                    backgroundColor: "#fff",
-                  },
-                }}
-              >
-                <CustomTextField
-                  placeholder="Enter value"
-                  width="100%"
-                  value={numericValues.Turnover_5_years}
-                  onChange={(e) =>
-                    handleChange("Turnover_5_years", e.target.value)
-                  }
-                  error={!!errors.turnover5}
-                  helperText={errors.turnover5}
-                  disabled={isInitialData}
-                  showIcon={true}
-                />
-              </Box>
+              <CustomSelect
+                options={["Crore", "Lakhs"]}
+                placeholder="Crore"
+                width="100px"
+                value={currencyValues.Turnover_5_years}
+                disabled={isInitialData}
+                onChange={(e) =>
+                  handleCurrencyChange("Turnover_5_years", e.target.value)
+                }
+                editableFields={editableFields.Turnover_5_years}
+                keyValue={"Turnover_5_years"}
+              />
             </Box>
+          </Box>
+        </Box>
+
+        <Box display="flex" flexDirection="column" gap={1}>
+          <Typography fontWeight="400" fontSize={16}>
+            Similar Projects Executed
+          </Typography>
+
+          {projects.map((project, index) => (
+            <Paper
+              key={index}
+              sx={{
+                p: 2,
+                mb: 2,
+                borderRadius: "12px",
+                border: "1px solid #E0E0E0",
+                bgcolor: "#fff",
+                width: "80%",
+                position: "relative",
+              }}
+            >
+              <IconButton
+                size="small"
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                }}
+                onClick={() => {
+                  const updated = projects.filter((_, i) => i !== index);
+                  setProjects(updated);
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+              <Box sx={{ display: "flex" }}>
+                <Typography fontWeight="700" fontSize={18} mb={2}>
+                  Project details {index + 1}
+                </Typography>
+                {isInitialData && (
+                  <IconButton
+                    onClick={() => {
+                      const updated = [...projectsEditable];
+                      updated[index] = true;
+                      setProjectsEditable(updated);
+                    }}
+                    size="small"
+                    sx={{ ml: 1, color: "#0FB97D", mb: 2 }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+
+              {["name", "scope", "year", "value"].map((field) => (
+                <Box
+                  key={field}
+                  display="flex"
+                  alignItems={field === "scope" ? "flex-start" : "center"}
+                  gap={2}
+                  mb={1}
+                >
+                  <Typography
+                    fontSize={12}
+                    fontWeight={700}
+                    width="80px"
+                    mt={field === "scope" ? "6px" : 0}
+                  >
+                    {field.charAt(0).toUpperCase() + field.slice(1)}:
+                  </Typography>
+                  <CustomTextField
+                    placeholder={`Enter Project ${field}`}
+                    width="100%"
+                    value={project[field]}
+                    disabled={!projectsEditable[index] && isInitialData}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (
+                        (field === "year" || field === "value") &&
+                        value !== "" &&
+                        !/^[0-9]*$/.test(value)
+                      ) {
+                        return;
+                      }
+
+                      const updated = [...projects];
+                      updated[index][field] = value;
+                      setProjects(updated);
+                    }}
+                    showIcon={true}
+                    multiline={field === "scope"}
+                    minRows={field === "scope" ? 3 : 1}
+                    type={
+                      field === "year" || field === "value" ? "number" : "text"
+                    }
+                    keyValue={`${field}-${index}`}
+                    setEditableFields={setEditableFields}
+                  />
+                </Box>
+              ))}
+            </Paper>
+          ))}
+
+          <Box mb={2}>
+            <CustomButton label="Add More" onClick={handleAddProject} />
+          </Box>
+        </Box>
+
+        <Box display="flex" flexDirection="column" gap={2}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="Net Worth (CA certified)"
+              label="Net Worth (CA certified)"
+              width="48vw"
+              value={numericValues.netWorth}
+              onChange={(e) => handleChange("netWorth", e.target.value)}
+              error={!!errors.netWorth}
+              helperText={errors.netWorth}
+              showIcon={true}
+              disabled={isInitialData}
+              keyValue={"netWorth"}
+              setEditableFields={setEditableFields}
+            />
             <CustomSelect
               options={["Crore", "Lakhs"]}
               placeholder="Crore"
               width="100px"
-              value={currencyValues.Turnover_5_years}
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.netWorth}
+              disabled={isInitialData}
+              onChange={(e) => handleCurrencyChange("netWorth", e.target.value)}
+              editableFields={editableFields.netWorth}
+              keyValue={"netWorth"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="Working Capital / Liquid Assets"
+              label="Working Capital / Liquid Assets"
+              width="48vw"
+              value={numericValues.workingCapital}
+              onChange={(e) => handleChange("workingCapital", e.target.value)}
+              error={!!errors.workingCapital}
+              helperText={errors.workingCapital}
+              disabled={isInitialData}
+              showIcon={true}
+              keyValue={"workingCapital"}
+              setEditableFields={setEditableFields}
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.workingCapital}
               disabled={isInitialData}
               onChange={(e) =>
-                handleCurrencyChange("Turnover_5_years", e.target.value)
+                handleCurrencyChange("workingCapital", e.target.value)
+              }
+              editableFields={editableFields.workingCapital}
+              keyValue={"workingCapital"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="Work in Hand (B value for formula)"
+              label="Work in Hand (B value for formula)"
+              width="48vw"
+              value={numericValues.workInHand}
+              onChange={(e) => handleChange("workInHand", e.target.value)}
+              error={!!errors.workInHand}
+              helperText={errors.workInHand}
+              disabled={isInitialData}
+              showIcon={true}
+              keyValue={"workInHand"}
+              setEditableFields={setEditableFields}
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.workInHand}
+              disabled={isInitialData}
+              onChange={(e) =>
+                handleCurrencyChange("workInHand", e.target.value)
+              }
+              editableFields={editableFields.workInHand}
+              keyValue={"workInHand"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="BG Limit (Sanctioned)"
+              label="BG Limit (Sanctioned)"
+              width="48vw"
+              value={numericValues.bgLimit}
+              onChange={(e) => handleChange("bgLimit", e.target.value)}
+              error={!!errors.bgLimit}
+              helperText={errors.bgLimit}
+              disabled={isInitialData}
+              showIcon={true}
+              keyValue={"bgLimit"}
+              setEditableFields={setEditableFields}
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.bgLimit}
+              disabled={isInitialData}
+              onChange={(e) => handleCurrencyChange("bgLimit", e.target.value)}
+              editableFields={editableFields.bgLimit}
+              keyValue={"bgLimit"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="BG Utilized"
+              label="BG Utilized"
+              width="48vw"
+              value={numericValues.bgUtilized}
+              onChange={(e) => handleChange("bgUtilized", e.target.value)}
+              error={!!errors.bgUtilized}
+              helperText={errors.bgUtilized}
+              disabled={isInitialData}
+              showIcon={true}
+              keyValue={"bgUtilized"}
+              setEditableFields={setEditableFields}
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.bgUtilized}
+              disabled={isInitialData}
+              onChange={(e) =>
+                handleCurrencyChange("bgUtilized", e.target.value)
+              }
+              editableFields={editableFields.bgUtilized}
+              keyValue={"bgUtilized"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="BG Available (Sanctioned – Utilized)"
+              label="BG Available (Sanctioned – Utilized)"
+              width="48vw"
+              value={numericValues.bgAvailable}
+              error={!!errors.bgAvailable}
+              helperText={errors.bgAvailable}
+              disabled
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder={currencyValues.bgAvailable}
+              width="100px"
+              disabled={true}
+              sx={{ marginTop: numericValues.netWorth ? "25px" : "25px" }}
+              value={currencyValues.bgAvailable}
+              onChange={(e) =>
+                handleCurrencyChange("bgAvailable", e.target.value)
+              }
+              editableFields={editableFields.bgAvailable}
+              keyValue={"bgAvailable"}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" gap={1}>
+            <CustomTextField
+              placeholder="Quoted Price"
+              label="Quoted Price"
+              width="48vw"
+              value={numericValues.quotedPrice}
+              onChange={(e) => handleChange("quotedPrice", e.target.value)}
+              error={!!errors.quotedPrice}
+              helperText={errors.quotedPrice}
+              disabled={isInitialData}
+              keyValue={"quotedPrice"}
+              setEditableFields={setEditableFields}
+              showIcon={true}
+            />
+            <CustomSelect
+              options={["Crore", "Lakhs"]}
+              placeholder="Crore"
+              width="100px"
+              sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
+              value={currencyValues.quotedPrice}
+              disabled={isInitialData}
+              keyValue={"quotedPrice"}
+              editableFields={editableFields.quotedPrice}
+              onChange={(e) =>
+                handleCurrencyChange("quotedPrice", e.target.value)
               }
             />
           </Box>
         </Box>
-      </Box>
 
-    <Box display="flex" flexDirection="column" gap={1}>
-      <Typography fontWeight="400" fontSize={16}>
-        Similar Projects Executed
-      </Typography>
-
-        {projects.map((project, index) => (
-          <Paper
-            key={index}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: "12px",
-              border: "1px solid #E0E0E0",
-              bgcolor: "#fff",
-              width: "80%",
-              position: "relative",
-            }}
-          >
-            <IconButton
-              size="small"
-              sx={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-              }}
-              onClick={() => {
-                const updated = projects.filter((_, i) => i !== index);
-                setProjects(updated);
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-            <Box sx={{display:"flex"}}>
-            <Typography fontWeight="700" fontSize={18} mb={2}>
-              Project details {index + 1}
-            </Typography>
-            {isInitialData && (
-              <IconButton
-                onClick={() => {
-                  const updated = [...projectsEditable];
-                  updated[index] = true;
-                  setProjectsEditable(updated);
-                }}
-                size="small" sx={{ ml: 1, color: "#0FB97D", mb: 2 }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            )}
-            </Box>
-            
-
-          {["name", "scope", "year", "value"].map((field) => (
-            <Box
-              key={field}
-              display="flex"
-              alignItems={field === "scope" ? "flex-start" : "center"}
-              gap={2}
-              mb={1}
-            >
-              <Typography
-                fontSize={12}
-                fontWeight={700}
-                width="80px"
-                mt={field === "scope" ? "6px" : 0}
-              >
-                {field.charAt(0).toUpperCase() + field.slice(1)}:
-              </Typography>
-              <CustomTextField
-                placeholder={`Enter Project ${field}`}
-                width="100%"
-                value={project[field]}
-                disabled={!projectsEditable[index] && isInitialData}
-                onChange={(e) => {
-                  const value = e.target.value;
-
-                  
-                  if (
-                    (field === "year" || field === "value") &&
-                    value !== "" &&
-                    !/^[0-9]*$/.test(value)
-                  ) {
-                    return; 
-                  }
-
-                  const updated = [...projects];
-                  updated[index][field] = value;
-                  setProjects(updated);
-                }}
-                showIcon={true}
-                multiline={field === "scope"}       
-                minRows={field === "scope" ? 3 : 1} 
-                type={field === "year" || field === "value" ? "number" : "text"} 
-              />
-            </Box>
-          ))}
-
-
-        </Paper>
-
-      ))}
-
-      <Box mb={2}>
-        <CustomButton label="Add More" onClick={handleAddProject} />
-      </Box>
-    </Box>
-
-      <Box display="flex" flexDirection="column" gap={2}>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="Net Worth (CA certified)"
-            label="Net Worth (CA certified)"
-            width="48vw"
-            value={numericValues.netWorth}
-            onChange={(e) => handleChange("netWorth", e.target.value)}
-            error={!!errors.netWorth}
-            helperText={errors.netWorth}
-            showIcon={true}
-            disabled={isInitialData}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.netWorth}
-            disabled={isInitialData}
-            onChange={(e) => handleCurrencyChange("netWorth", e.target.value)}
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="Working Capital / Liquid Assets"
-            label="Working Capital / Liquid Assets"
-            width="48vw"
-            value={numericValues.workingCapital}
-            onChange={(e) => handleChange("workingCapital", e.target.value)}
-            error={!!errors.workingCapital}
-            helperText={errors.workingCapital}
-            disabled={isInitialData}
-            showIcon={true}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.workingCapital}
-            disabled={isInitialData}
-            onChange={(e) =>
-              handleCurrencyChange("workingCapital", e.target.value)
-            }
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="Work in Hand (B value for formula)"
-            label="Work in Hand (B value for formula)"
-            width="48vw"
-            value={numericValues.workInHand}
-            onChange={(e) => handleChange("workInHand", e.target.value)}
-            error={!!errors.workInHand}
-            helperText={errors.workInHand}
-            disabled={isInitialData}
-            showIcon={true}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.workInHand}
-            disabled={isInitialData}
-            onChange={(e) => handleCurrencyChange("workInHand", e.target.value)}
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="BG Limit (Sanctioned)"
-            label="BG Limit (Sanctioned)"
-            width="48vw"
-            value={numericValues.bgLimit}
-            onChange={(e) => handleChange("bgLimit", e.target.value)}
-            error={!!errors.bgLimit}
-            helperText={errors.bgLimit}
-            disabled={isInitialData}
-            showIcon={true}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.bgLimit}
-            disabled={isInitialData}
-            onChange={(e) => handleCurrencyChange("bgLimit", e.target.value)}
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="BG Utilized"
-            label="BG Utilized"
-            width="48vw"
-            value={numericValues.bgUtilized}
-            onChange={(e) => handleChange("bgUtilized", e.target.value)}
-            error={!!errors.bgUtilized}
-            helperText={errors.bgUtilized}
-            disabled={isInitialData}
-            showIcon={true}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.bgUtilized}
-            disabled={isInitialData}
-            onChange={(e) => handleCurrencyChange("bgUtilized", e.target.value)}
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="BG Available (Sanctioned – Utilized)"
-            label="BG Available (Sanctioned – Utilized)"
-            width="48vw"
-            value={numericValues.bgAvailable}
-            error={!!errors.bgAvailable}
-            helperText={errors.bgAvailable}
-            disabled
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder={currencyValues.bgAvailable}
-            width="100px"
-            disabled={true}
-            sx={{ marginTop: numericValues.netWorth ? "25px" : "25px" }}
-            value={currencyValues.bgAvailable}
-            onChange={(e) =>
-              handleCurrencyChange("bgAvailable", e.target.value)
-            }
-          />
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-          <CustomTextField
-            placeholder="Quoted Price"
-            label="Quoted Price"
-            width="48vw"
-            value={numericValues.quotedPrice}
-            onChange={(e) => handleChange("quotedPrice", e.target.value)}
-            error={!!errors.quotedPrice}
-            helperText={errors.quotedPrice}
-            disabled={isInitialData}
-            showIcon={true}
-          />
-          <CustomSelect
-            options={["Crore", "Lakhs"]}
-            placeholder="Crore"
-            width="100px"
-            sx={{ marginTop: numericValues.netWorth ? "35px" : "25px" }}
-            value={currencyValues.quotedPrice}
-            disabled={isInitialData}
-            onChange={(e) =>
-              handleCurrencyChange("quotedPrice", e.target.value)
-            }
-          />
-        </Box>
-      </Box>
-
-    {/* <Box mb={3} display={"flex"} flexDirection="column">
+        {/* <Box mb={3} display={"flex"} flexDirection="column">
         <Typography fontWeight="400" fontSize={14} mb={1}>
           Litigation/Blacklist Declaration
         </Typography>
@@ -961,202 +1049,202 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
           />
         </Box>
       </Box> */}
-    <Box mb={3} display={"flex"} flexDirection="column">
-      <Box display="flex" alignItems="center" gap={1} mb={1}>
-        <Typography fontWeight="400" fontSize={14}>
-          Litigation/Blacklist Declaration
-        </Typography>
+        <Box mb={3} display={"flex"} flexDirection="column">
+          <Box display="flex" alignItems="center" gap={1} mb={1}>
+            <Typography fontWeight="400" fontSize={14}>
+              Litigation/Blacklist Declaration
+            </Typography>
 
-        {/* ✅ Edit Icon for Litigation Section */}
-        {isInitialData && (
-          <IconButton
-            size="small"
-            sx={{ color: "#0FB97D" }}
-            onClick={() => setLitigationEditable(true)}
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-        )}
-      </Box>
-
-      <Box mb={3} display="flex" gap={2}>
-        <CustomSelect
-          options={["Yes", "No"]}
-          placeholder="Select"
-          width="100px"
-          value={litigationStatus}
-          onChange={(event) => setLitigationStatus(event.target.value)}
-          disabled={isInitialData && !litigationEditable}
-        />
-        <CustomTextField
-          placeholder="Details if any"
-          width="65%"
-          value={litigationDetails}
-          onChange={(e) => setLitigationDetails(e.target.value)}
-          disabled={isInitialData && !litigationEditable}
-          showIcon={true}
-        />
-      </Box>
-    </Box>
-
-
-    {/* Registration / Certificates */}
-<Box mb={3}>
-        <Typography
-          fontWeight="400"
-          fontSize={14}
-          mb={1}
-          color="#000000"
-          fontStyle={"montserrat"}
-        >
-          Registration/Certificates
-        </Typography>
-
-        {mergedData?.registration_file && !showUpload ? (
-          <Box
-            bgcolor="#fff"
-            border="1px solid #e0e0e0"
-            borderRadius="12px"
-            p={3}
-            width="60vw"
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-start"
-            gap={1}
-            mb={2}
-          >
-            <Box display="flex" alignItems="center" gap={2} width="100%">
-              <Typography fontWeight={600}>
-                Uploaded File: {mergedData.registration_file.file_name}
-              </Typography>
+            {/* ✅ Edit Icon for Litigation Section */}
+            {isInitialData && (
               <IconButton
                 size="small"
-                onClick={handleDeleteFile}
-                sx={{ color: "#d32f2f" }}
+                sx={{ color: "#0FB97D" }}
+                onClick={() => setLitigationEditable(true)}
               >
-                <DeleteIcon fontSize="small" />
+                <EditIcon fontSize="small" />
               </IconButton>
-            </Box>
-            <Typography fontSize={12} color="gray">
-              {(mergedData.registration_file.file_size / 1024 / 1024).toFixed(
-                2
-              )}{" "}
-              MB
-            </Typography>
+            )}
+          </Box>
 
-            {mergedData.registration_file.file_type === "pdf" ? (
-              <iframe
-                src={mergedData.registration_file.download_url}
-                title="Uploaded PDF"
-                width="100%"
-                height="400px"
-                style={{ borderRadius: "8px", border: "1px solid #ccc" }}
-              />
-            ) : (
-              <img
-                src={mergedData.registration_file.download_url}
-                alt="Uploaded file"
-                style={{
-                  width: "200px",
-                  height: "auto",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
+          <Box mb={3} display="flex" gap={2}>
+            <CustomSelect
+              options={["Yes", "No"]}
+              placeholder="Select"
+              width="100px"
+              value={litigationStatus}
+              onChange={(event) => setLitigationStatus(event.target.value)}
+              disabled={isInitialData && !litigationEditable}
+            />
+            <CustomTextField
+              placeholder="Details if any"
+              width="65%"
+              value={litigationDetails}
+              onChange={(e) => setLitigationDetails(e.target.value)}
+              disabled={isInitialData && !litigationEditable}
+              showIcon={true}
+              keyValue={"litigationDetails"}
+              setEditableFields={setEditableFields}
+            />
+          </Box>
+        </Box>
+
+        {/* Registration / Certificates */}
+        <Box mb={3}>
+          <Typography
+            fontWeight="400"
+            fontSize={14}
+            mb={1}
+            color="#000000"
+            fontStyle={"montserrat"}
+          >
+            Registration/Certificates
+          </Typography>
+
+          {mergedData?.registration_file && !showUpload ? (
+            <Box
+              bgcolor="#fff"
+              border="1px solid #e0e0e0"
+              borderRadius="12px"
+              p={3}
+              width="60vw"
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              gap={1}
+              mb={2}
+            >
+              <Box display="flex" alignItems="center" gap={2} width="100%">
+                <Typography fontWeight={600}>
+                  Uploaded File: {mergedData.registration_file.file_name}
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={handleDeleteFile}
+                  sx={{ color: "#d32f2f" }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
+              <Typography fontSize={12} color="gray">
+                {(mergedData.registration_file.file_size / 1024 / 1024).toFixed(
+                  2
+                )}{" "}
+                MB
+              </Typography>
+
+              {mergedData.registration_file.file_type === "pdf" ? (
+                <iframe
+                  src={mergedData.registration_file.download_url}
+                  title="Uploaded PDF"
+                  width="100%"
+                  height="400px"
+                  style={{ borderRadius: "8px", border: "1px solid #ccc" }}
+                />
+              ) : (
+                <img
+                  src={mergedData.registration_file.download_url}
+                  alt="Uploaded file"
+                  style={{
+                    width: "200px",
+                    height: "auto",
+                    borderRadius: "8px",
+                    border: "1px solid #ccc",
+                  }}
+                />
+              )}
+
+              <Typography
+                sx={{
+                  color: "#007BFF",
+                  textDecoration: "underline",
+                  mt: 1,
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  window.open(
+                    mergedData.registration_file.download_url,
+                    "_blank"
+                  )
+                }
+              >
+                Download / View Full File
+              </Typography>
+            </Box>
+          ) : (
+            <Box
+              bgcolor={"#FFFFFF"}
+              elevation={3}
+              sx={{
+                borderRadius: "12px",
+                padding: "24px",
+                width: "60vw",
+                gap: "16px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                // padding: "24px",
+                marginBottom: "8px",
+              }}
+            >
+              <Icon sx={{ fontSize: 36, color: "#4ec9b0", mt: 3 }}>
+                <UploadFileOutlinedIcon
+                  sx={{ fontSize: 36, color: "#4ec9b0", mb: 1 }}
+                />
+              </Icon>
+
+              <Typography
+                sx={{
+                  color: "#6e6e6eff",
+                  cursor: "pointer",
+                  mb: 2,
+                  fontWeight: 500,
+                  textDecoration: "underline",
+                  textDecorationColor: "#6e6e6eff",
+                }}
+                onClick={() =>
+                  document.getElementById("certificate-upload-input").click()
+                }
+              >
+                Click to upload
+              </Typography>
+              <input
+                id="certificate-upload-input"
+                type="file"
+                style={{ display: "none" }}
+                accept=".pdf,.docx,.txt"
+                onChange={(e) => {
+                  if (e.target.files.length > 0) {
+                    setCertificateFile(e.target.files[0]);
+                  }
                 }}
               />
-            )}
+              {certificateFile && (
+                <Typography fontSize={12} mt={1} color="green">
+                  Selected: {certificateFile.name}
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Box>
 
-            <Typography
-              sx={{
-                color: "#007BFF",
-                textDecoration: "underline",
-                mt: 1,
-                cursor: "pointer",
-              }}
-              onClick={() =>
-                window.open(mergedData.registration_file.download_url, "_blank")
-              }
-            >
-              Download / View Full File
-            </Typography>
-          </Box>
-        ) : (
-          <Box
-            bgcolor={"#FFFFFF"}
-            elevation={3}
-            sx={{
-              borderRadius: "12px",
-              padding: "24px",
-              width: "60vw",
-              gap: "16px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-              // padding: "24px",
-              marginBottom: "8px",
-            }}
-          >
-            <Icon sx={{ fontSize: 36, color: "#4ec9b0", mt: 3 }}>
-              <UploadFileOutlinedIcon
-                sx={{ fontSize: 36, color: "#4ec9b0", mb: 1 }}
-              />
-            </Icon>
-
-            <Typography
-              sx={{
-                color: "#6e6e6eff",
-                cursor: "pointer",
-                mb: 2,
-                fontWeight: 500,
-                textDecoration: "underline",
-                textDecorationColor: "#6e6e6eff",
-              }}
-              onClick={() =>
-                document.getElementById("certificate-upload-input").click()
-              }
-            >
-              Click to upload
-            </Typography>
-            <input
-              id="certificate-upload-input"
-              type="file"
-              style={{ display: "none" }}
-              accept=".pdf,.docx,.txt"
-              onChange={(e) => {
-                if (e.target.files.length > 0) {
-                  setCertificateFile(e.target.files[0]);
-                }
-              }}
-            />
-            {certificateFile && (
-              <Typography fontSize={12} mt={1} color="green">
-                Selected: {certificateFile.name}
-              </Typography>
-            )}
-           
-          </Box>
-        )}
+        <Box
+          sx={{
+            position: "sticky",
+            bottom: 16,
+            right: 32,
+            display: "flex",
+            marginRight: 4,
+            justifyContent: "flex-end",
+          }}
+        >
+          <CustomButton label="Next" onClick={handleNext} />
+        </Box>
       </Box>
-
-
-
-
-    <Box
-      sx={{
-        position: "sticky",
-        bottom: 16,
-        right: 32,
-        display: "flex",
-        marginRight: 4,
-        justifyContent: "flex-end",
-      }}
-    >
-      <CustomButton label="Next" onClick={handleNext} />
-    </Box>
-  </Box>
-  </>
-);
+    </>
+  );
 };
 
 export default QualificationInputs;

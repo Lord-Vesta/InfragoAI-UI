@@ -13,9 +13,10 @@ const CustomSelect = ({
   label,
   onBlur,
   tooltipText, // new prop
+  editableFields,
+  keyValue,
 }) => {
   const [setIsEditable] = useState(!disabled);
-
   return (
     <div style={{ width }}>
       {label && (
@@ -45,7 +46,7 @@ const CustomSelect = ({
             <Select
               value={value}
               onChange={onChange}
-              disabled={disabled}
+              disabled={!editableFields}
               onBlur={(e) => {
                 setIsEditable(false);
                 if (onBlur) onBlur(e);
@@ -83,7 +84,7 @@ const CustomSelect = ({
           <Select
             value={value}
             onChange={onChange}
-            disabled={disabled}
+            disabled={!editableFields}
             onBlur={(e) => {
               setIsEditable(false);
               if (onBlur) onBlur(e);
