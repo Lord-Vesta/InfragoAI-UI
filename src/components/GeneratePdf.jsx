@@ -1,7 +1,7 @@
-
 import React from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logo from "../../public/logo.png";
 
 const formatKey = (key = "") => {
   if (!key) return "";
@@ -31,28 +31,53 @@ const formatKey = (key = "") => {
   return formatted;
 };
 
-const GeneratePDF = (data, pdfFileName = "Tender Analysis Summary.pdf") => {
+const GeneratePDF = async (data, pdfFileName = "Tender Analysis Summary.pdf") => {
   const doc = new jsPDF("p", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const img = new Image();
+  img.src = logo;
+  await new Promise((resolve) => {
+    img.onload = resolve;
+    img.onerror = resolve;
+  });
+
+  const date = new Date();
+  const formattedDate = date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const timestamp = `Downloaded on: ${formattedDate}`;
+  doc.addImage(img, "PNG", 10, 8, 10, 10);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const timestampWidth = doc.getTextWidth(timestamp);
+  doc.text(timestamp, pageWidth - timestampWidth - 10, 10);
+
   doc.setFontSize(16);
-  doc.text("Extracted Tender Data", 14, 20);
+  doc.setFont("helvetica", "bold");
+  const title = "Extracted Tender Data";
+  const titleWidth = doc.getTextWidth(title);
+  doc.text(title, (pageWidth - titleWidth) / 2, 30);
 
   const rows = [];
   let srNo = 1;
 
   Object.entries(data).forEach(([section, fields]) => {
-   
     if (typeof fields === "object" && Object.keys(fields).length > 1) {
       const bullets = Object.entries(fields)
         .map(([key, val]) => `• ${formatKey(key)}: ${val?.value || "—"}`)
         .join("\n\n");
-
       rows.push({
         sr_no: srNo++,
         field_key: formatKey(section),
         field_value: bullets,
       });
     } else {
-     
       Object.entries(fields).forEach(([key, val]) => {
         rows.push({
           sr_no: srNo++,
@@ -72,7 +97,8 @@ const GeneratePDF = (data, pdfFileName = "Tender Analysis Summary.pdf") => {
   autoTable(doc, {
     columns,
     body: rows,
-    startY: 30,
+    startY: 40,
+    margin: { top: 40 },
     styles: {
       fontSize: 9,
       lineColor: [0, 0, 0],
@@ -93,7 +119,19 @@ const GeneratePDF = (data, pdfFileName = "Tender Analysis Summary.pdf") => {
       field_value: { cellWidth: 110 },
     },
     theme: "grid",
-    tableWidth: "auto",
+
+    didDrawPage: () => {
+      try {
+        doc.addImage(img, "PNG", 10, 8, 10, 10);
+      } catch (e) {
+        console.warn("Logo not drawn:", e);
+      }
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      const timestampWidth = doc.getTextWidth(timestamp);
+      doc.text(timestamp, pageWidth - timestampWidth - 10, 10);
+    },
   });
 
   doc.save(pdfFileName);

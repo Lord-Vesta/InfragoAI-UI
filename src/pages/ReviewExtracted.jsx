@@ -17,13 +17,13 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AlertTooltip from "../components/Tooltip";
 import Tooltip from "@mui/material/Tooltip";
 import GetAppIcon from "@mui/icons-material/GetApp";
-import {  getExtractedInputs ,updateEditedFields,updateProjectStatus} from "../Utils/Api.utils";
+import { getExtractedInputs, updateEditedFields, updateProjectStatus } from "../Utils/Api.utils";
 import PdfViewer from "../components/PdfViewer";
 import { toast } from "react-toastify";
 import GeneratePDF from "../components/GeneratePdf";
 import DownloadIcon from "@mui/icons-material/Download";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { PuffLoader  } from "react-spinners";
+import { PuffLoader } from "react-spinners";
 import BeforeProceedModal from "../components/ProceedModal";
 
 const procurementModes = ["EPC", "BOQ", "PAR"];
@@ -188,14 +188,14 @@ const ReviewExtracted = ({ height = "85vh", extractedData }) => {
   const [pdfPageNumber, setPdfPageNumber] = useState(1);
   const [loading, setLoading] = useState(true);
   const [extractedInputs, setExtractedInputs] = useState(null);
-
+  const [saving, setSaving] = useState(false);
   const [pdfBuffer, setPdfBuffer] = useState(null);
   const { jwtToken } = useContext(userContext);
   const { project_id } = useParams();
   const location = useLocation().pathname;
 
   const navigate = useNavigate();
-const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const handleDownloadPdf = async () => {
     try {
       const response = await downloadPdf(project_id);
@@ -214,39 +214,39 @@ const [openModal, setOpenModal] = useState(false);
       try {
         let dataArray = [];
 
-        
-      if (!extractedData) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const response = await getExtractedInputs(project_id);
-        dataArray = Array.isArray(response.data) ? response.data : [];
 
-        setExtractedInputs({
-          data: response.data,
-          pdfData: response.pdf_data,
+        if (!extractedData) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const response = await getExtractedInputs(project_id);
+          dataArray = Array.isArray(response.data) ? response.data : [];
+
+          setExtractedInputs({
+            data: response.data,
+            pdfData: response.pdf_data,
+          });
+        } else {
+          dataArray = extractedData.data;
+        }
+        const normalizedResponse = dataArray.map((item) => {
+          const cleanedKey = item.field_key
+            ? item.field_key.replace(/\(.*?(₹|rs|cr).*?\)/gi, "").trim()
+            : "";
+          return {
+            ...item,
+            normalizedKey: cleanedKey.toLowerCase().replace(/[\s-/_()]+/g, ""),
+          };
         });
-      } else {
-        dataArray = extractedData.data;
-      }
-      const normalizedResponse = dataArray.map((item) => {
-  const cleanedKey = item.field_key
-    ? item.field_key.replace(/\(.*?(₹|rs|cr).*?\)/gi, "").trim()
-    : "";
-  return {
-    ...item,
-    normalizedKey: cleanedKey.toLowerCase().replace(/[\s-/_()]+/g, ""),
-  };
-});
 
         const apiData = fieldConfig.map((config) => {
           if (config.type === "heading") return config;
 
           const cleanedLabel = config.label
-  .replace(/\(.*?(₹|rs|cr).*?\)/gi, "") // remove currency/unit phrases in parentheses
-  .trim();
+            .replace(/\(.*?(₹|rs|cr).*?\)/gi, "") // remove currency/unit phrases in parentheses
+            .trim();
 
-const normalizedLabel = cleanedLabel
-  .toLowerCase()
-  .replace(/[\s-/_()]+/g, "");
+          const normalizedLabel = cleanedLabel
+            .toLowerCase()
+            .replace(/[\s-/_()]+/g, "");
 
           const match = normalizedResponse.find(
             (r) => r.normalizedKey === normalizedLabel
@@ -255,8 +255,8 @@ const normalizedLabel = cleanedLabel
           let value = match
             ? match.edited_value ?? match.field_value
             : config.type === "toggle"
-            ? "No"
-            : "";
+              ? "No"
+              : "";
 
           if (
             match &&
@@ -391,67 +391,25 @@ const normalizedLabel = cleanedLabel
   const handleLoginRedirect = () => {
     navigate("/");
   };
-// const handleNext=async()=>{
-//   setOpenModal(true);
-// }
-// const handleNext = async () => {
-//   if (!extractedData) {
-//     // Show modal only if extractedData is missing
-//     setOpenModal(true);
-//   } else {
-//     // Directly redirect if extractedData exists
-//     navigate(`/BGsummary/${project_id}`);
-//   }
-// };
-const handleNext = async () => {
-  if (!extractedData) {
-    // 🔸 Show modal only if extractedData is missing
-    setOpenModal(true);
-    return;
-  }
-
-  // 🔹 extractedData exists → update fields now
-  const editedFields = fields
-    .filter(
-      (field) =>
-        field.value !== undefined && field.value !== "" && field.isEdited
-    )
-    .map((field) => ({
-      extraction_id: field.extraction_id,
-      edited_value: field.value,
-    }));
-
-  const payload = { fields: editedFields };
-
-  if (jwtToken) {
-    try {
-      const response = await updateEditedFields(payload, project_id);
-      await updateProjectStatus(
-        {
-          completion_percentage: location
-            .toLowerCase()
-            .includes("reviewextracted")
-            ? 40
-            : 80,
-          project_status: "in progress",
-        },
-        response.project_id || project_id
-      );
-
-      location.toLowerCase().includes("reviewextracted")
-        ? navigate(`/QualificationInputs/${project_id}`)
-        : navigate(`/BGsummary/${project_id}`);
-    } catch (error) {
-      console.error("API Error:", error);
-      toast.error("Failed to update fields. Please try again.");
+  // const handleNext=async()=>{
+  //   setOpenModal(true);
+  // }
+  // const handleNext = async () => {
+  //   if (!extractedData) {
+  //     // Show modal only if extractedData is missing
+  //     setOpenModal(true);
+  //   } else {
+  //     // Directly redirect if extractedData exists
+  //     navigate(`/BGsummary/${project_id}`);
+  //   }
+  // };
+  const handleNext = async () => {
+    if (!extractedData) {
+      setSaving(false);
+      setOpenModal(true);
+      return;
     }
-  } else {
-    navigate("/login");
-  }
-};
 
-  const handleProceed =async () => {
-    setOpenModal(false);
     const editedFields = fields
       .filter(
         (field) =>
@@ -478,56 +436,86 @@ const handleNext = async () => {
           },
           response.project_id || project_id
         );
+
         location.toLowerCase().includes("reviewextracted")
           ? navigate(`/QualificationInputs/${project_id}`)
           : navigate(`/BGsummary/${project_id}`);
       } catch (error) {
         console.error("API Error:", error);
+        toast.error("Failed to update fields. Please try again.");
       }
     } else {
       navigate("/login");
     }
-  //  location.toLowerCase().includes("reviewextracted")
-  //         ? navigate(`/QualificationInputs/${project_id}`)
-  //         : navigate(`/BGsummary/${project_id}`);
   };
-  // const handleNext = async () => {
-  //   const editedFields = fields
-  //     .filter(
-  //       (field) =>
-  //         field.value !== undefined && field.value !== "" && field.isEdited
-  //     )
-  //     .map((field) => ({
-  //       extraction_id: field.extraction_id,
-  //       edited_value: field.value,
-  //     }));
+  const handleProceed = async () => {
+    setSaving(true);
 
-  //   const payload = { fields: editedFields };
+    const editedFields = fields
+      .filter(
+        (field) =>
+          field.value !== undefined && field.value !== "" && field.isEdited
+      )
+      .map((field) => ({
+        extraction_id: field.extraction_id,
+        edited_value: field.value,
+      }));
 
-  //   if (jwtToken) {
-  //     try {
-  //       const response = await updateEditedFields(payload, project_id);
-  //       await updateProjectStatus(
-  //         {
-  //           completion_percentage: location
-  //             .toLowerCase()
-  //             .includes("reviewextracted")
-  //             ? 40
-  //             : 80,
-  //           project_status: "in progress",
-  //         },
-  //         response.project_id || project_id
-  //       );
-  //       location.toLowerCase().includes("reviewextracted")
-  //         ? navigate(`/QualificationInputs/${project_id}`)
-  //         : navigate(`/BGsummary/${project_id}`);
-  //     } catch (error) {
-  //       console.error("API Error:", error);
-  //     }
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+    const payload = { fields: editedFields };
+
+    if (!jwtToken) {
+      setSaving(false);
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await updateEditedFields(payload, project_id);
+
+
+      const projectId = project_id
+
+      if (!projectId) {
+        console.error("Invalid API response:", response);
+        throw new Error("Invalid response from updateEditedFields");
+      }
+
+      await updateProjectStatus(
+        {
+          completion_percentage: location
+            .toLowerCase()
+            .includes("reviewextracted")
+            ? 40
+            : 80,
+          project_status: "in progress",
+        },
+        projectId
+      );
+
+      toast.success("Fields updated successfully!");
+      setOpenModal(false);
+
+      const isReviewExtracted = location
+        .toLowerCase()
+        .includes("reviewextracted");
+
+      setTimeout(() => {
+        navigate(
+          isReviewExtracted
+            ? `/QualificationInputs/${project_id}`
+            : `/BGsummary/${project_id}`
+        );
+      }, 300);
+    } catch (error) {
+      console.error("Error updating fields:", error);
+      toast.error("Failed to update. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
+
 
   const displayedFields = jwtToken ? fields : fields.slice(0, 5);
   return loading ? (
@@ -539,8 +527,8 @@ const handleNext = async () => {
       alignItems="center"
       flexDirection={"column"}
     >
-   <PuffLoader  color="#0FB97D"  size={60}/>
-     <Typography sx={{ fontWeight:600,fontSize:"16px"}}>Fetching Extracted Data can take upto 1 minute . Please do not refresh</Typography>
+      <PuffLoader color="#0FB97D" size={60} />
+      <Typography sx={{ fontWeight: 600, fontSize: "16px" }}>Fetching Extracted Data can take upto 1 minute . Please do not refresh</Typography>
     </Box>
   ) : (
     <Box
@@ -562,8 +550,9 @@ const handleNext = async () => {
         <Typography fontWeight="700" fontSize={24} color={colors.black_text}>
           Review & Qualification{" "}
         </Typography>
-        {jwtToken && (
-          <Box display="flex" gap={2} mx={2}>
+
+        <Box display="flex" gap={2} mx={2}>
+          {jwtToken && (
             <Button
               variant="outlined"
               sx={{
@@ -576,45 +565,44 @@ const handleNext = async () => {
                 },
               }}
               onClick={() => {
-                console.log("ex",extractedInputs)
-                const pdfData = extractedInputs.pdfData
-console.log("paf",pdfData)
-                GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
+                const pdfData = extractedInputs?.pdfData;
+                if (pdfData) GeneratePDF(pdfData, "Tender Analysis Summary.pdf");
               }}
             >
               <Box sx={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
-                <Box sx={{ p: 0, color: colors.green, display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", mt:"2px" }}>
+                <Box sx={{ p: 0, color: colors.green, display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", mt: "2px" }}>
                   <DownloadIcon />
                 </Box>
                 <Typography>Download Bid Data</Typography>
               </Box>
             </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                color: colors.green,
+          )}
+
+          <Button
+            variant="outlined"
+            sx={{
+              color: colors.green,
+              borderColor: colors.green,
+              borderRadius: "4px",
+              textTransform: "capitalize",
+              "&:hover": {
                 borderColor: colors.green,
-                borderRadius: "4px",
-                textTransform: "capitalize",
-                "&:hover": {
-                  borderColor: colors.green,
-                },
-              }}
-              onClick={() => {
-                if (!isPdfViewerOpen) {
-                  setIsPdfViewerOpen(true);
-                }
-              }}
-            >
-              <Box sx={{ display: "flex", gap: "8px" }}>
-                <IconButton sx={{ p: 0, color: colors.green }}>
-                  <FileCopyIcon />
-                </IconButton>
-                <Typography>View pdf</Typography>
-              </Box>
-            </Button>
-          </Box>
-        )}
+              },
+            }}
+            onClick={() => {
+              if (!isPdfViewerOpen) {
+                setIsPdfViewerOpen(true);
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", gap: "8px" }}>
+              <IconButton sx={{ p: 0, color: colors.green }}>
+                <FileCopyIcon />
+              </IconButton>
+              <Typography>View pdf</Typography>
+            </Box>
+          </Button>
+        </Box>
       </Box>
 
       {displayedFields.map((field, index) => (
@@ -664,31 +652,33 @@ console.log("paf",pdfData)
                     />
                   </IconButton>
 
-                  <IconButton
-                    size="small"
-                    disableRipple
-                    onClick={() => handleEdit(index)}
-                  >
-                    <EditIcon
-                      style={{ color: colors.green, fontSize: "17px" }}
-                    />
-                  </IconButton>
+                  {jwtToken && (
+                    <IconButton
+                      size="small"
+                      disableRipple
+                      onClick={() => handleEdit(index)}
+                    >
+                      <EditIcon
+                        style={{ color: colors.green, fontSize: "17px" }}
+                      />
+                    </IconButton>
+                  )}
                   {(!field.value ||
                     field.value === "" ||
                     field.value === "Not found in document") && (
-                    <AlertTooltip
-                      title="No value found for particular label in document"
-                      type="error"
-                    >
-                      <ErrorOutlineIcon
-                        style={{
-                          color: "red",
-                          fontSize: 18,
-                          cursor: "pointer",
-                        }}
-                      />
-                    </AlertTooltip>
-                  )}
+                      <AlertTooltip
+                        title="No value found for particular label in document"
+                        type="error"
+                      >
+                        <ErrorOutlineIcon
+                          style={{
+                            color: "red",
+                            fontSize: 18,
+                            cursor: "pointer",
+                          }}
+                        />
+                      </AlertTooltip>
+                    )}
                 </Box>
               </Box>
 
@@ -697,7 +687,7 @@ console.log("paf",pdfData)
                   label={field.label}
                   value={field.value}
                   onChange={(val) => handleChange(index, val ? "yes" : "no")}
-                  // disabled={!editableFields[index]}
+                // disabled={!editableFields[index]}
                 />
               ) : field.type === "text" ? (
                 <span>
@@ -724,7 +714,7 @@ console.log("paf",pdfData)
                           }
                           tooltip={field.snippet}
                         />
-{/* 
+                        {/* 
                         {editableFields[index] && (
                           <Button
                             size="small"
@@ -826,11 +816,12 @@ console.log("paf",pdfData)
           }}
         >
           <CustomButton label="Next" onClick={handleNext} />
-           <BeforeProceedModal
-        open={openModal}
-        handleClose={() => setOpenModal(false)}
-        handleProceed={handleProceed}
-      />
+          <BeforeProceedModal
+            open={openModal}
+            handleClose={() => setOpenModal(false)}
+            handleProceed={handleProceed}
+            loading={saving}
+          />
         </Box>
       )}
 
