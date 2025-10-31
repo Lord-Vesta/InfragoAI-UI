@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, use } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Icon, Paper, Typography, Button } from "@mui/material";
 import colors from "../assets/colors";
 import CustomButton from "../components/Button";
@@ -67,7 +67,8 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
     bgAvailable: false,
     quotedPrice: false,
     litigationDetails: false,
-  });
+    litigationStatus:false 
+   });
   const [errors, setErrors] = useState({});
   const [qualificationApiData, setQualificationApiData] = useState(null);
   const [showUpload, setShowUpload] = useState(
@@ -77,7 +78,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const navigate = useNavigate();
   const mergedData =
     qualificationApiData?.data &&
-    Object.keys(qualificationApiData.data).length > 0
+      Object.keys(qualificationApiData.data).length > 0
       ? qualificationApiData
       : initialData;
   const validateNumericField = (field, value) => {
@@ -109,72 +110,72 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
         Turnover_3_years:
           mergedData?.data?.turnover_past_3_years?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.turnover_past_3_years?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.turnover_past_3_years?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.turnover_past_3_years?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.turnover_past_3_years?.edited_value / 100000
+            ).toString() || "",
         Turnover_5_years:
           mergedData?.data?.turnover_past_5_years?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.turnover_past_5_years?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.turnover_past_5_years?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.turnover_past_5_years?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.turnover_past_5_years?.edited_value / 100000
+            ).toString() || "",
         netWorth:
           mergedData?.data?.net_worth?.edited_value / 10000000 >= 1
             ? (mergedData?.data?.net_worth?.edited_value / 10000000).toString()
             : (mergedData?.data?.net_worth?.edited_value / 100000).toString() ||
-              "",
+            "",
         workingCapital:
           mergedData?.data?.working_capital?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.working_capital?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.working_capital?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.working_capital?.edited_value / 100000
-              ).toString() || "", // 🟢 added .data and .original_value
+              mergedData?.data?.working_capital?.edited_value / 100000
+            ).toString() || "", // 🟢 added .data and .original_value
         workInHand:
           mergedData?.data?.work_in_hand?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.work_in_hand?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.work_in_hand?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.work_in_hand?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.work_in_hand?.edited_value / 100000
+            ).toString() || "",
         bgLimit:
           mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.bg_limit_sanctioned?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.bg_limit_sanctioned?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.bg_limit_sanctioned?.edited_value / 100000
+            ).toString() || "",
         bgUtilized:
           mergedData?.data?.bg_utilized?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.bg_utilized?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.bg_utilized?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.bg_utilized?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.bg_utilized?.edited_value / 100000
+            ).toString() || "",
         bgAvailable:
           mergedData?.data?.bg_available?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.bg_available?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.bg_available?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.bg_available?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.bg_available?.edited_value / 100000
+            ).toString() || "",
         quotedPrice:
           mergedData?.data?.quoted_price?.edited_value / 10000000 >= 1
             ? (
-                mergedData?.data?.quoted_price?.edited_value / 10000000
-              ).toString()
+              mergedData?.data?.quoted_price?.edited_value / 10000000
+            ).toString()
             : (
-                mergedData?.data?.quoted_price?.edited_value / 100000
-              ).toString() || "",
+              mergedData?.data?.quoted_price?.edited_value / 100000
+            ).toString() || "",
       });
       setCurrencyValues({
         Turnover_3_years:
@@ -259,7 +260,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   const isInitialData = Boolean(
     mergedData && Object.keys(mergedData).length > 0
   );
-
   const handleAddProject = () => {
     setProjects([...projects, { name: "", scope: "", year: "", value: "" }]);
   };
@@ -477,35 +477,7 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
   };
 
   const handleCurrencyChange = (field, value) => {
-    // const updatedValues = { ...numericValues, [field]: value };
-    // if (field === "bgLimit" || field === "bgUtilized") {
-    //   const limit = Number(updatedValues.bgLimit) || 0;
-    //   const utilized = Number(updatedValues.bgUtilized) || 0;
 
-    //   const limitNumbericValue =
-    //     limit * (currencyValues.bgLimit === "Crore" ? 10000000 : 100000);
-    //   const utilizedNumericValue =
-    //     utilized * (currencyValues.bgUtilized === "Crore" ? 10000000 : 100000);
-    //     console.log("Limit:", limitNumbericValue, "Utilized:", utilizedNumericValue);
-    //   const bgAvaliableNumeric = limitNumbericValue - utilizedNumericValue;
-    //   updatedValues.bgAvailable = Math.max(
-    //       (limitNumbericValue - utilizedNumericValue) / 10000000 >= 1
-    //         ? (bgAvaliableNumeric / 10000000).toString()
-    //         : (bgAvaliableNumeric / 100000).toString(),
-    //       0
-    //     ).toString();
-    //   setCurrencyValues((prev) => ({
-    //     ...prev,
-    //     [field]: value,
-    //     bgAvailable: bgAvaliableNumeric >= 10000000 ? "Crore" : "Lakhs",
-    //   }));
-    //   // setNumericValues(updatedValues);
-    // } else {
-    //   setCurrencyValues((prev) => ({
-    //     ...prev,
-    //     [field]: value,
-    //   }));
-    // }
 
     setCurrencyValues((prev) => ({
       ...prev,
@@ -1025,36 +997,6 @@ const QualificationInputs = ({ height = "85vh", initialData }) => {
             />
           </Box>
         </Box>
-
-        {/* <Box mb={3} display={"flex"} flexDirection="column">
-        <Typography fontWeight="400" fontSize={14} mb={1}>
-          Litigation/Blacklist Declaration
-        </Typography>
-
-        <Box mb={3} display="flex" gap={2}>
-          <CustomSelect
-            options={["Yes", "No"]}
-            placeholder="Yes"
-            width="100px"
-            value={litigationStatus}
-            onChange={(event) => {
-              const value = event.target.value;
-              setLitigationStatus(value);
-              if (value === "No") {
-                setLitigationDetails(""); // ✅ clear the details if status is No
-              }
-            }}
-            disabled={isInitialData}
-          />
-          <CustomTextField
-            placeholder="Details if any"
-            width="65%"
-            value={litigationDetails}
-            onChange={(e) => setLitigationDetails(e.target.value)}
-            disabled={isInitialData}
-          />
-        </Box>
-      </Box> */}
         <Box mb={3} display={"flex"} flexDirection="column">
           <Box display="flex" alignItems="center" gap={1} mb={1}>
             <Typography fontWeight="400" fontSize={14}>
