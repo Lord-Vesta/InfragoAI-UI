@@ -154,7 +154,7 @@ const UploadPage = () => {
             uploadedProjectId
           }
           handleNext={() =>
-            navigate(`/reviewextracted/${projectId || uploadedProjectId}`)
+            navigate(`/reviewextracted/${project_id || uploadedProjectId}`)
           }
           setUploadedProjectId={setUploadedProjectId}
           uploadedProjectId={uploadedProjectId}

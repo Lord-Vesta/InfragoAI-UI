@@ -3,6 +3,7 @@ import { Box, Typography, IconButton } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import { userContext } from "../context/ContextProvider";
+import {CircularProgress} from "@mui/material";
 
 import logo from "../assets/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -13,6 +14,8 @@ import { logoutUser } from "../Utils/Api.utils";
 export default function Sidebar() {
   const [activeStep, setActiveStep] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const navigate = useNavigate();
   const { project_id } = useParams();
   const { jwtToken, projectStatus } = useContext(userContext);
@@ -55,23 +58,26 @@ export default function Sidebar() {
     });
   }, [location]);
 
-  const handleLogout = async () => {
-    try {
-      const response = await logoutUser({ refresh_token: jwtToken });
-      if (response.status === 200) {
-        toast.success("Logged out successfully");
-        localStorage.removeItem("accessToken");
-        navigate("/");
-        window.location.reload();
-      } else {
-        const errorMessage = response.data?.message || "Logout failed.";
-        toast.error(errorMessage);
-      }
-    } catch (error) {
-      toast.error("Logout failed. Please try again.");
-      console.error("Logout error:", error);
+ const handleLogout = async () => {
+  setIsLoggingOut(true);
+  try {
+    const response = await logoutUser({ refresh_token: jwtToken });
+    if (response.status === 200) {
+      toast.success("Logged out successfully");
+      localStorage.removeItem("accessToken");
+      navigate("/");
+      window.location.reload();
+    } else {
+      const errorMessage = response.data?.message || "Logout failed.";
+      toast.error(errorMessage);
     }
-  };
+  } catch (error) {
+    toast.error("Logout failed. Please try again.");
+    console.error("Logout error:", error);
+  } finally {
+    setIsLoggingOut(false);
+  }
+};
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
@@ -324,8 +330,16 @@ export default function Sidebar() {
                   </Typography>
                 </Box>
 
-                <LogoutIcon fontSize="small" />
-              </Box>
+                {isLoggingOut ? (
+      <CircularProgress
+        size={20}
+        thickness={5}
+        sx={{ color: "#0FB97D" }}
+      />
+    ) : (
+      <LogoutIcon fontSize="small" />
+    )}
+  </Box>
             ) : (
               <Box></Box>
             )}
